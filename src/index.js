@@ -7,7 +7,6 @@ import App from "./App";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import store from "./store/index";
-import { get_customer } from "./store/Reducers/AuthReducer";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <BrowserRouter>
@@ -27,10 +26,6 @@ root.render(
     </Provider>
   </BrowserRouter>
 );
-<<<<<<< HEAD
-store.dispatch(get_customer());
-=======
->>>>>>> 86be6a8 (.)
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
