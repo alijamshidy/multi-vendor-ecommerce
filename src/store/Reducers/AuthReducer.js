@@ -21,7 +21,8 @@ export const verify_otp_code = createAsyncThunk(
   async (info, { rejectWithValue, fulfillWithValue }) => {
     try {
       const { data } = await api.post("/auth/verify/", info);
-      localStorage.setItem("access", data.access);
+      localStorage.setItem("customerToken", data?.data?.access);
+      localStorage.setItem("userInfo", JSON.stringify(data?.data?.user));
 
       console.log(data);
       return fulfillWithValue(data);
@@ -71,7 +72,7 @@ export const authReducer = createSlice({
   name: "auth",
   initialState: {
     loader: false,
-    userInfo: [],
+    userInfo: JSON.parse(localStorage.getItem('userInfo'))||[],
     errorMessage: "",
     successMessage: "",
   },

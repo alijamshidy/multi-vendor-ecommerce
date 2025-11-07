@@ -41,7 +41,7 @@ const DiscountedProduct = () => {
               <div
                 ref={sliderRef}
                 className="scroll-smooth overflow-x-hidden slider-container flex justify-start items-center gap-10">
-                {product_display.map((i, j) => (
+                {product_display?.map((i, j) => (
                   <Link
                     to={`/product/${i.url.slice(-4)}`}
                     dir="ltr"

@@ -180,9 +180,9 @@ export const cardReducer = createSlice({
         state.card_product_count = state.card_product_count + 1;
       })
       .addCase(get_card_products.fulfilled, (state, { payload }) => {
-        state.card_products = payload.items;
-        state.card_uuid = payload.uuid;
-        state.price = payload.total_price;
+        state.card_products = payload?.items;
+        state.card_uuid = payload?.uuid;
+        state.price = payload?.total_price;
       })
       .addCase(delete_card_product.fulfilled, (state, { payload }) => {
         state.successMessage = payload.message;
