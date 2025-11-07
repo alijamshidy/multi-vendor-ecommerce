@@ -27,7 +27,10 @@ root.render(
     </Provider>
   </BrowserRouter>
 );
+<<<<<<< HEAD
 store.dispatch(get_customer());
+=======
+>>>>>>> 86be6a8 (.)
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

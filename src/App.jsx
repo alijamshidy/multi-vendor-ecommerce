@@ -11,6 +11,10 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import ProductsDisplay from "./pages/ProductsDisplay";
 import Shipping from "./pages/Shipping";
+<<<<<<< HEAD
+=======
+import Profile from "./components/dashboard/Profile";
+>>>>>>> 86be6a8 (.)
 
 function App() {
   return (
@@ -61,6 +65,13 @@ function App() {
           element={<Orders />}
         />
         <Route
+<<<<<<< HEAD
+=======
+          path="profile"
+          element={<Profile />}
+        />
+        <Route
+>>>>>>> 86be6a8 (.)
           path="change-password"
           element={<ChangePassword />}
         />
