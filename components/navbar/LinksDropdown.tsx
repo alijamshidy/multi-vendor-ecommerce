@@ -20,9 +20,11 @@ export default async function LinksDropdown() {
   const signedIn = true;
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger
+        className="border-none bg-transparent"
+        asChild>
         <Button
-          variant="outline"
+          variant="default"
           className="flex gap-4 max-w-[100px] [&_svg:not([class*='size-'])]:size-6">
           <LuAlignLeft className="w-6 h-6" />
           <UserIcon />
