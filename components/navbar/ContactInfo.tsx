@@ -16,7 +16,7 @@ export default function ContactInfo() {
 
       <Container className="px-0 flex gap-2">
         <FaMobileAlt />
-        <Label className="">+(123)3243343</Label>
+        <Label className="">+(123) 3243 343</Label>
       </Container>
     </div>
   );

@@ -1,6 +1,6 @@
 // import { fetchCartItems } from "@/utils/actions";
 import Link from "next/link";
-import { LuShoppingCart } from "react-icons/lu";
+import { FaShoppingCart } from "react-icons/fa";
 import { Button } from "../ui/button";
 
 export default async function CartButton() {
@@ -8,11 +8,11 @@ export default async function CartButton() {
   return (
     <Button
       asChild
-      variant={"outline"}
+      variant={"link"}
       size={"icon"}
-      className="flex justify-center items-center relative">
-      <Link href={"/cart"}>
-        <LuShoppingCart />
+      className="flex justify-center items-center relative rounded-full text-green-500 border">
+      <Link href={"/whishlist"}>
+        <FaShoppingCart />
         <span className="absolute -top-3 -right-3 bg-primary text-white rounded-full h-6 w-6 flex items-center justify-center text-xs">
           {numItemsInCart}
         </span>
