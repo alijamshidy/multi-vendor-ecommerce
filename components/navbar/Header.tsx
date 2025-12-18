@@ -10,10 +10,10 @@ import LangsDropdown from "./LangsDropdown";
 export default function Header() {
   return (
     <header>
-      <Container className="flex flex-col sm:flex-row sm:justify-between sm:items-center flex-wrap py-1 gap-4 bg-blue-300 max-w-full xl:max-w-full">
+      <Container className="flex flex-col sm:flex-row sm:justify-between sm:items-center flex-wrap py-1 gap-4 bg-[#caddff] max-w-full xl:max-w-full">
         <ContactInfo />
 
-        <div className="flex gap-1 items-center h-[30px] py-1">
+        <div className="flex gap-1 items-center h-[40px] py-1">
           <DarkMode />
           <Separator orientation="vertical" />
           <LangsDropdown />
