@@ -4,14 +4,11 @@ type NavLink = {
 };
 
 export const links: NavLink[] = [
-  { href: "/", label: "home" },
-  { href: "/about", label: "about" },
-  { href: "/products", label: "products" },
-  { href: "/favorites", label: "favorites" },
-  { href: "/reviews", label: "reviews" },
-  { href: "/cart", label: "cart" },
-  { href: "/orders", label: "orders" },
-  { href: "/admin/sales", label: "dashboard" },
+  { href: "/", label: "Home" },
+  { href: "/shop", label: "Shop" },
+  { href: "/blog", label: "products" },
+  { href: "/about_Us", label: "About us" },
+  { href: "/contact_Us", label: "Contact us" },
 ];
 
 export const adminLinks: NavLink[] = [
