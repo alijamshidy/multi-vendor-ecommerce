@@ -22,8 +22,8 @@ export default function LangsDropdown() {
   return (
     <NavigationMenu>
       <NavigationMenuList>
-        <NavigationMenuItem className="relative">
-          <NavigationMenuTrigger className="border cursor-pointer bg-transparent flex items-center gap-2 hover:bg-blue-300 data-[state=open]:bg-blue-300/50 data-[state=open]:hover:bg-blue-300 ">
+        <NavigationMenuItem>
+          <NavigationMenuTrigger className="border-none cursor-pointer bg-transparent flex items-center gap-2 hover:bg-blue-300 data-[state=open]:bg-blue-300/50 focus:bg-blue-300 data-[state=open]:focus:bg-blue-300 data-[state=open]:hover:bg-blue-300 ">
             <SelectedFlag
               title={selectedCountry.lang}
               className="w-5 h-5"
