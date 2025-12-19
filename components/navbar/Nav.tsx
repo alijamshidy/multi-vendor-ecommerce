@@ -22,7 +22,9 @@ export default function Nav() {
               alt=""
               priority
             /> */}
-            <Label className="text-4xl uppercase font-bold">Easy Shop</Label>
+            <Label className="text-4xl uppercase font-bold italic">
+              Easy Shop
+            </Label>
           </Link>
           <CustomerLinks />
           <WhishlistButton />

@@ -1,3 +1,4 @@
+import { category } from "@/utils/category";
 import {
   Select,
   SelectContent,
@@ -5,7 +6,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-
 export function SelectCategory() {
   return (
     <Select>
@@ -13,11 +13,15 @@ export function SelectCategory() {
         <SelectValue placeholder="Select Category" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="apple">Apple</SelectItem>
-        <SelectItem value="banana">Banana</SelectItem>
-        <SelectItem value="blueberry">Blueberry</SelectItem>
-        <SelectItem value="grapes">Grapes</SelectItem>
-        <SelectItem value="pineapple">Pineapple</SelectItem>
+        {category.map(category => {
+          return (
+            <SelectItem
+              key={category._id}
+              value={category.name}>
+              {category.name}
+            </SelectItem>
+          );
+        })}
       </SelectContent>
     </Select>
   );
