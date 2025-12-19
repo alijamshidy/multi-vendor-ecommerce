@@ -42,7 +42,7 @@ export default function NavSearch() {
       <Button
         variant={"default"}
         size={"lg"}
-        className="bg-[#059473] hover:bg-[#059473] focus-visible:border-ring focus-visible:ring-[#059473]/50 -ml-px rounded-none h-[41px]">
+        className="bg-[#059473] hover:bg-[#059473] focus-visible:border-ring focus-visible:ring-[#059473]/50 -ml-px rounded-none h-[42px] uppercase">
         Search
       </Button>
     </div>
