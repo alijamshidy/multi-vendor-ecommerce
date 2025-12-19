@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { SignInButton } from "@clerk/nextjs";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useFormStatus } from "react-dom";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
@@ -68,16 +67,14 @@ export const IconButton = ({ actionType }: { actionType: actionType }) => {
 
 export const CardSignInButton = () => {
   return (
-    <SignInButton mode="modal">
-      <Button
-        type="button"
-        size={"icon"}
-        variant={"outline"}
-        className="p-2 cursor-pointer"
-        asChild>
-        <FaRegHeart />
-      </Button>
-    </SignInButton>
+    <Button
+      type="button"
+      size={"icon"}
+      variant={"outline"}
+      className="p-2 cursor-pointer"
+      asChild>
+      <FaRegHeart />
+    </Button>
   );
 };
 
@@ -103,12 +100,10 @@ export const CardSubmitButton = ({ isFavorite }: { isFavorite: boolean }) => {
 
 export const ProductSignInButton = () => {
   return (
-    <SignInButton mode="modal">
-      <Button
-        type="button"
-        className="mt-8 capitalize">
-        sign in
-      </Button>
-    </SignInButton>
+    <Button
+      type="button"
+      className="mt-8 capitalize">
+      sign in
+    </Button>
   );
 };
