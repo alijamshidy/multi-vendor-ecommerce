@@ -18,35 +18,30 @@ export default async function CategoriesDropdown() {
         asChild>
         <Button
           variant="default"
-          className="flex gap-4 [&_svg:not([class*='size-'])]:size-6 bg-[#059473] hover:bg-[#059473] focus-visible:border-ring focus-visible:ring-[#059473]/50">
+          className="flex gap-4 [&_svg:not([class*='size-'])]:size-6 bg-[#059473] hover:bg-[#059473] focus-visible:border-ring focus-visible:ring-[#059473]/50 h-full">
           <CiCircleList className="w-6 h-6" />
           <span>All Category</span>
-          <ChevronDownIcon
-            className="relative top-px ml-1 size-3 transition duration-300 group-data-[state=open]:rotate-180"
-            aria-hidden="true"
-          />
+          <ChevronDownIcon className="relative top-px ml-1 size-3" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="rounded-none"
+        className="rounded-none bg-[#059473] min-w-(--radix-dropdown-menu-trigger-width)"
         align="center"
-        sideOffset={0}>
+        sideOffset={10}>
         {categorys.map(category => {
           if (category.label === "dashboard") {
             return null;
           }
           return (
-            <div
+            <DropdownMenuItem
               key={category.href}
-              className="py-1">
-              <DropdownMenuItem>
-                <Link
-                  href={`/category/${category.href}`}
-                  className="capitalize w-full">
-                  {category.label}
-                </Link>
-              </DropdownMenuItem>
-            </div>
+              className="w-full h-full px-0 py-0 focus:bg-transparent">
+              <Link
+                href={`/category/${category.href}`}
+                className="capitalize w-full h-full px-2 py-2">
+                {category.label}
+              </Link>
+            </DropdownMenuItem>
           );
         })}
       </DropdownMenuContent>
