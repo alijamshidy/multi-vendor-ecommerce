@@ -22,7 +22,7 @@ export default function Nav() {
               alt=""
               priority
             /> */}
-            <Label className="text-4xl uppercase font-bold italic">
+            <Label className="text-4xl uppercase font-bold italic cursor-pointer">
               Easy Shop
             </Label>
           </Link>
