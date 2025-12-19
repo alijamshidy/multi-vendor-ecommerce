@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { FaPhoneAlt } from "react-icons/fa";
@@ -16,13 +15,14 @@ export default function Nav() {
       <section>
         <Container className="flex justify-between sm:flex-row sm:justify-between sm:items-center flex-wrap py-5 gap-4">
           <Link href={"/"}>
-            <Image
+            {/* <Image
               width={150}
               height={20}
               src={`/next.svg`}
               alt=""
               priority
-            />
+            /> */}
+            <Label className="text-4xl uppercase font-bold">Easy Shop</Label>
           </Link>
           <CustomerLinks />
           <WhishlistButton />
