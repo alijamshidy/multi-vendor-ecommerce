@@ -3,9 +3,39 @@
 import { product } from "@/utils/products";
 import Image from "next/image";
 import Link from "next/link";
+import { FaHeart } from "react-icons/fa";
+import ProductRating from "../single-product/ProductRating";
+import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import FavoriteToggleButton from "./FavoriteToggleButton";
 export default function ProductsGrid({ products }: { products: product[] }) {
+  const renderButtons = () => {
+    return (
+      <>
+        <Button
+          asChild
+          variant={"default"}
+          size={"default"}
+          className="absolute bottom-2 left-1/3 -translate-x-1/2">
+          <FaHeart />
+        </Button>
+        <Button
+          asChild
+          variant={"default"}
+          size={"default"}
+          className="absolute bottom-2 left-1/2 -translate-x-1/2">
+          <FaHeart />
+        </Button>
+        <Button
+          asChild
+          variant={"default"}
+          size={"default"}
+          className="absolute bottom-2 left-2/3 -translate-x-1/2">
+          <FaHeart />
+        </Button>
+      </>
+    );
+  };
   return (
     <div className="pt-12 grid gap-4 md:grid-cols-3 lg:grid-cols-3">
       {products.map(product => {
@@ -31,7 +61,8 @@ export default function ProductsGrid({ products }: { products: product[] }) {
                   </div>
                   <div className="mt-4 text-center">
                     <h2 className="text-lg capitalize">{name}</h2>
-                    <p className="text-muted-foreground mt-2">{price}</p>
+                    <p className="text-muted-foreground mt-2">${price}</p>
+                    <ProductRating productId="" />
                   </div>
                 </CardContent>
               </Card>
