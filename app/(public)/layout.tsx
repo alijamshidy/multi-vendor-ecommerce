@@ -1,3 +1,4 @@
+import { Footer } from "@/components/footer/Footer";
 import Container from "@/components/global/Container";
 import Navbar from "@/components/navbar/Navbar";
 import type { Metadata } from "next";
@@ -35,6 +36,7 @@ export default function RootLayout({
         <Providers>
           <Navbar />
           <Container className="py-20">{children}</Container>
+          <Footer />
         </Providers>
       </body>
     </html>
