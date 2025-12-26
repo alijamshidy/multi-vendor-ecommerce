@@ -8,7 +8,7 @@ export default function CustomerLinks() {
   const path = usePathname();
   console.log(path);
   return (
-    <Container className="flex gap-x-6">
+    <Container className="md:flex hidden gap-x-6">
       {links.map(link => {
         const { href, label } = link;
         return (
