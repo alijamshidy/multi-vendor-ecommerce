@@ -22,13 +22,15 @@ export default function Nav() {
               alt=""
               priority
             /> */}
-            <Label className="text-4xl uppercase font-bold italic cursor-pointer">
+            <Label className="text-4xl uppercase font-black italic cursor-pointer">
               Easy Shop
             </Label>
           </Link>
           <CustomerLinks />
-          <WhishlistButton />
-          <CartButton />
+          <div className="flex gap-3">
+            <WhishlistButton />
+            <CartButton />
+          </div>
         </Container>
       </section>
       <Container className="grid md:grid-cols-4 gap-x-16 items-center">
