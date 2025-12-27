@@ -20,12 +20,12 @@ export function CarouselSpacing() {
       className="w-full"
       opts={{ align: "center", loop: true }}
       plugins={[Autoplay({ delay: 2000, stopOnInteraction: false })]}>
-      <CarouselContent className="-ml-1 h-[40dvw] lg:h-[15dvw]">
+      <CarouselContent className="-ml-1 h-[50dvw] lg:h-[15dvw]">
         {category.map(category => {
           return (
             <CarouselItem
               key={category._id}
-              className={`pl-1 h-[80%] md:basis-1/3 xl:basis-1/6`}>
+              className={`p-2 h-[80%] md:basis-1/3 xl:basis-1/6`}>
               <Link
                 href={`/categories/${category.name}`}
                 className="p-1 h-full">
@@ -57,7 +57,7 @@ export function CarouselSpacing() {
 
 export default function TopCategory() {
   return (
-    <Container className="mt-10 mx-auto w-[90%] lg:w-full max-w-full xl:max-w-full p-0  flex flex-col items-center gap-0 lg:gap-8">
+    <Container className="mt-10 mx-auto w-[95%] lg:w-full max-w-full xl:max-w-full p-0 flex flex-col items-center gap-0 lg:gap-8">
       <div className="grid items-center justify-center gap-y-2">
         <Label className="text-xl md:text-3xl md:font-bold">Top Category</Label>
         <Separator className="bg-[#059473] data-[orientation=horizontal]:w-[75%] mx-auto" />
