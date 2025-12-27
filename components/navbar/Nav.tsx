@@ -13,7 +13,7 @@ export default function Nav() {
   return (
     <>
       <section>
-        <Container className="flex justify-between sm:flex-row sm:justify-between sm:items-center flex-wrap py-5 gap-4">
+        <Container className="hidden lg:flex justify-between sm:flex-row sm:justify-between sm:items-center flex-wrap py-5 gap-4">
           <Link href={"/"}>
             {/* <Image
               width={150}
@@ -33,12 +33,12 @@ export default function Nav() {
           </div>
         </Container>
       </section>
-      <Container className="grid md:grid-cols-4 gap-x-16 items-center">
+      <Container className="grid grid-cols-1 lg:grid-cols-4 gap-x-16 items-center mt-18">
         <CategoriesDropdown />
         <Suspense>
           <NavSearch />
         </Suspense>
-        <div className="col-span-1 flex items-center gap-x-3 justify-end">
+        <div className="hidden lg:col-span-1 lg:flex items-center gap-x-3 justify-end">
           <FaPhoneAlt />
           <div className="grid gap-y-3">
             <Label>+1343-43555430</Label>

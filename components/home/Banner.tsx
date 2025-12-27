@@ -22,21 +22,20 @@ export function CarouselSpacing() {
       opts={{ align: "center", loop: true }}
       plugins={[Autoplay({ delay: 2000, stopOnInteraction: false })]}
       className="w-full">
-      <CarouselContent className="-ml-1 h-[390px] 2xl:h-[500px]">
+      <CarouselContent className="-ml-1 h-[55dvw] lg:h-[35dvw]">
         {images.map((image, index) => (
           <CarouselItem
             key={index}
-            className={`pl-1 h-full basis-[96%]`}>
+            className={`pl-1 h-full basis-[90%] lg:basis-[96%]`}>
             <div className="p-1 h-full">
               <Card className="h-full">
-                <CardContent className="flex h-full  items-center justify-center">
+                <CardContent className="flex h-full items-center justify-center">
                   <Image
                     src={image}
                     alt=""
                     width={110000}
                     height={100000}
                     className="w-full h-full"
-                    priority
                   />
                 </CardContent>
               </Card>

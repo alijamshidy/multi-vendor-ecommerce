@@ -17,9 +17,10 @@ import { Separator } from "../ui/separator";
 export function CarouselSpacing() {
   return (
     <Carousel
+      className="w-full"
       opts={{ align: "center", loop: true }}
       plugins={[Autoplay({ delay: 2000, stopOnInteraction: false })]}>
-      <CarouselContent className="-ml-1 h-[180px] 2xl:h-[320px]">
+      <CarouselContent className="-ml-1 h-[40dvw] lg:h-[15dvw]">
         {category.map(category => {
           return (
             <CarouselItem
@@ -56,12 +57,11 @@ export function CarouselSpacing() {
 
 export default function TopCategory() {
   return (
-    <Container className="mt-10 mx-auto w-full max-w-full xl:max-w-full px-0  flex flex-col items-center gap-8">
+    <Container className="mt-10 mx-auto w-[90%] lg:w-full max-w-full xl:max-w-full p-0  flex flex-col items-center gap-0 lg:gap-8">
       <div className="grid items-center justify-center gap-y-2">
         <Label className="text-xl md:text-3xl md:font-bold">Top Category</Label>
-        <Separator className="bg-[#059473] data-[orientation=horizontal]:w-[140px] mx-auto" />
+        <Separator className="bg-[#059473] data-[orientation=horizontal]:w-[75%] mx-auto" />
       </div>
-
       <CarouselSpacing />
     </Container>
   );

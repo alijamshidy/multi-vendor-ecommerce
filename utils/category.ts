@@ -83,4 +83,15 @@ export const category: categories[] = [
 
     updatedAt: "2025-03-18T09:16:14.245Z",
   },
+  {
+    _id: "67d93810511ba62e1848b18b",
+
+    name: "Tshirt",
+    image:
+      "http://res.cloudinary.com/dqv1sbkvs/image/upload/v1742288902/categorys/qmr8qgcbsz521alt7skd.jpg",
+    slug: "Tshirt",
+    createdAt: "2025-03-18T09:08:34.471Z",
+
+    updatedAt: "2025-03-18T09:08:34.471Z",
+  },
 ];

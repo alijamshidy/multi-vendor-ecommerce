@@ -27,7 +27,7 @@ export default function NavSearch() {
     }
   }, [searchParams]);
   return (
-    <div className="col-span-1 md:col-span-2 flex items-center">
+    <div className="col-span-1 lg:col-span-2 flex items-center mt-14 lg:mt-0">
       <SelectCategory />
       <Input
         type="search"
