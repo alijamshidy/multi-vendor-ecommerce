@@ -24,7 +24,7 @@ export function CarouselSpacing() {
           return (
             <CarouselItem
               key={category._id}
-              className={`pl-1 h-[80%] basis-1/6`}>
+              className={`pl-1 h-[80%] md:basis-1/3 xl:basis-1/6`}>
               <Link
                 href={`/categories/${category.name}`}
                 className="p-1 h-full">
