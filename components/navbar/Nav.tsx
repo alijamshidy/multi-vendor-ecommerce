@@ -33,7 +33,7 @@ export default function Nav() {
           </div>
         </Container>
       </section>
-      <Container className="grid grid-cols-1 lg:grid-cols-4 gap-x-16 items-center mt-18">
+      <Container className="grid grid-cols-1 lg:grid-cols-4 gap-x-16 items-center mt-18 lg:mt-0">
         <CategoriesDropdown />
         <Suspense>
           <NavSearch />
