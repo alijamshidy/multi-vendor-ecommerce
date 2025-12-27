@@ -3,11 +3,12 @@
 import { product } from "@/utils/products";
 import Image from "next/image";
 import Link from "next/link";
-import { FaEye, FaHeart } from "react-icons/fa";
+import { FaEye } from "react-icons/fa";
 import { IoCart } from "react-icons/io5";
 import ProductRating from "../single-product/ProductRating";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
+import FavoriteToggleButton from "./FavoriteToggleButton";
 export default function ProductsGrid({ products }: { products: product[] }) {
   return (
     <div className="pt-12 grid gap-4 md:grid-cols-3 lg:grid-cols-3">
@@ -21,7 +22,7 @@ export default function ProductsGrid({ products }: { products: product[] }) {
             className="group relative">
             <Link
               href={`/products/${_id}`}
-              className="absolute inset-0 lg:hidden z-10"
+              className="absolute inset-0 md:hidden z-10"
             />
 
             <Card className="transform group-hover:shadow-xl transition-shadow duration-500 relative">
@@ -36,12 +37,8 @@ export default function ProductsGrid({ products }: { products: product[] }) {
                     className="rounded w-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                   />
 
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 hidden lg:flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <Button
-                      variant="default"
-                      size="icon">
-                      <FaHeart />
-                    </Button>
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 hidden md:flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <FavoriteToggleButton productId="1" />
 
                     <Button
                       variant="default"
