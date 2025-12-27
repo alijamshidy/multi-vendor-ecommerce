@@ -26,7 +26,7 @@ export default async function CategoriesDropdown() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="rounded-none bg-[#059473] min-w-(--radix-dropdown-menu-trigger-width)"
+        className="rounded-none max-h-[300px] bg-[#059473] min-w-(--radix-dropdown-menu-trigger-width)"
         align="center"
         sideOffset={10}>
         {category.map(category => {
