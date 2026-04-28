@@ -1,23 +1,40 @@
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
 
-interface HomeState {
-  userInfo: any;
-  setUserInfo: (userInfo: any) => void;
+interface userInfo {
+  id: string;
+  email: string;
+  fname: string;
+  lname: string;
+  phoneNumber: string;
+  province: string;
+  city: string;
+  zipCode: string;
+  addName: (name: string) => void;
 }
-export const homeStore = create<HomeState>(set => ({
-  userInfo: {
-    name: "",
-    userId: "",
-    avatar: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    state: "",
-    zip: "",
-    country: "",
-    createdAt: "",
-    updatedAt: "",
-  },
-  setUserInfo: userInfo => set(() => ({ userInfo: userInfo })),
-}));
+export const useUserInfoStore = create<userInfo>()(
+  devtools(set => {
+    return {
+      userInfo: {
+        id: "",
+        email: "",
+        fname: "",
+        lname: "",
+        phoneNumber: "",
+        province: "",
+        city: "",
+        zipCode: "",
+      },
+      addName: name => {
+        set(state => {
+          return {
+            userInfo: {
+              ...state.userInfo,
+              fname: name,
+            },
+          };
+        });
+      },
+    };
+  }),
+);

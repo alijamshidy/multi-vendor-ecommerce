@@ -7,6 +7,7 @@ import { FaRegSun } from "react-icons/fa";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
@@ -24,9 +25,11 @@ export default function ThemeToggle() {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger id="">
-          <DropdownMenuLabel className="cursor-pointer">
-            <div className="w-5 h-5" />
-          </DropdownMenuLabel>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="cursor-pointer">
+              <div className="w-5 h-5" />
+            </DropdownMenuLabel>
+          </DropdownMenuGroup>
         </DropdownMenuTrigger>
       </DropdownMenu>
     );
@@ -36,9 +39,11 @@ export default function ThemeToggle() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger id="">
-          <DropdownMenuLabel className="cursor-pointer">
-            {getIcon(theme)}
-          </DropdownMenuLabel>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="cursor-pointer">
+              {getIcon(theme)}
+            </DropdownMenuLabel>
+          </DropdownMenuGroup>
           <DropdownMenuContent className="border-none data-[state=closed]:fade-out-0">
             <DropdownMenuItem onClick={() => setTheme("light")}>
               light

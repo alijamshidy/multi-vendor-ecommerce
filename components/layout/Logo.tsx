@@ -1,7 +1,15 @@
+"use client";
+import { useUserInfoStore } from "@/store/home";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect } from "react";
 
 export default function Logo() {
+  const { userInfo, addName } = useUserInfoStore();
+  useEffect(() => {
+    addName("ali");
+  }, []);
+
   return (
     <div className="w-[50px] h-[50px]">
       <Link

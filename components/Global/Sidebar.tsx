@@ -15,9 +15,7 @@ import {
 export default function Side() {
   return (
     <>
-      <Sidebar
-        className="pt-14 md:z-40 w-full sm:max-w-full md:max-w-64 pl-4"
-        style={{ "--sidebar-width": "100%" }}>
+      <Sidebar className="pt-14 md:z-40 w-full max-w-full md:max-w-64 pl-4">
         <SidebarTrigger className="absolute top-11 right-[5%] md:hidden" />
         <SidebarHeader>
           <div className="font-bold">User</div>
@@ -25,7 +23,7 @@ export default function Side() {
         <SidebarContent className="mt-10">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton>
                 <Link href={"/"}>
                   <Home />
                   <span>Home</span>

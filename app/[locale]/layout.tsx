@@ -11,11 +11,10 @@ export default async function layout({
     <>
       <SidebarProvider
         defaultOpen={false}
-        className="min-h-0 sm:max-w-full"
+        className="min-h-0 max-w-full"
         style={{ "--sidebar-width": "100%" } as React.CSSProperties}>
         <Side />
       </SidebarProvider>
-
       <Header />
 
       {children}

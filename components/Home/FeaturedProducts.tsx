@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Container from "../Global/Container";
 import ProductButton from "../Product/ProductButton";
 import {
@@ -13,6 +14,7 @@ import {
 } from "../ui/card";
 
 export default function FeaturedProducts() {
+  const path = usePathname();
   return (
     <>
       <Container className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-5 pb-5">
@@ -41,7 +43,7 @@ export default function FeaturedProducts() {
                   translate-y-full opacity-0 
                   group-hover:translate-y-1 group-hover:opacity-100 
                   transition-all duration-300 ease-out">
-                  <Link href={`/${product}`}>
+                  <Link href={`${path}/${product}`}>
                     <ProductButton type={"details"} />
                   </Link>
                   <ProductButton type={"addToCard"} />
@@ -53,7 +55,7 @@ export default function FeaturedProducts() {
         ))}
       </Container>
       <Link
-        href={`/products`}
+        href={`${path}/products`}
         className="text-xl font-bold flex items-end text-blue-600/95 hover:scale-110 transition-transform duration-300">
         More Products ...
       </Link>
