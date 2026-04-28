@@ -1,97 +1,30 @@
-type categories = {
-  _id: string;
-  name: string;
+export type category = {
+  id: string;
+  href: string;
+  label: string;
   image: string;
-  slug: string;
-  createdAt: string;
-  updatedAt: string;
 };
-export const category: categories[] = [
+export const Category: category[] = [
   {
-    _id: "67d93812511ba62e1848b18b",
-
-    name: "Mobiles",
-    image:
-      "http://res.cloudinary.com/dqv1sbkvs/image/upload/v1742288902/categorys/qmr8qgcbsz521alt7skd.jpg",
-    slug: "Mobiles",
-    createdAt: "2025-03-18T09:08:34.471Z",
-
-    updatedAt: "2025-03-18T09:08:34.471Z",
+    id: "0",
+    href: "mobile",
+    label: "Mobile",
+    image: "./images/hero1.jpg",
   },
+  { id: "1", href: "TV", label: "TV", image: "./images/hero4.jpg" },
   {
-    _id: "67d93866511ba62e1848b190",
-
-    name: "Laptops",
-    image:
-      "http://res.cloudinary.com/dqv1sbkvs/image/upload/v1742288987/categorys/rxktnx6hw87rl207x4lg.jpg",
-    slug: "Laptops",
-    createdAt: "2025-03-18T09:09:58.659Z",
-
-    updatedAt: "2025-03-18T09:09:58.659Z",
+    id: "2",
+    href: "smartPhone",
+    label: "SmartPhone",
+    image: "./images/hero2.jpg",
   },
+  { id: "3", href: "speaker", label: "Speaker", image: "./images/hero4.jpg" },
+  { id: "4", href: "hat", label: "Hat", image: "./images/hero3.jpg" },
+  { id: "5", href: "tshirt", label: "Tshirt", image: "./images/hero2.jpg" },
   {
-    _id: "67d938e3511ba62e1848b19b",
-    name: "Speakers",
-    image:
-      "http://res.cloudinary.com/dqv1sbkvs/image/upload/v1742289111/categorys/stmgoyjx40fooujiryzq.png",
-    slug: "Speakers",
-    createdAt: "2025-03-18T09:12:03.542Z",
-
-    updatedAt: "2025-03-18T09:12:03.542Z",
-  },
-  {
-    _id: "67d93961511ba62e1848b19d",
-
-    name: "Top wear",
-    image:
-      "http://res.cloudinary.com/dqv1sbkvs/image/upload/v1742289237/categorys/txqnzkunlkxy4rayculi.jpg",
-    slug: "Top-wear",
-    createdAt: "2025-03-18T09:14:09.118Z",
-
-    updatedAt: "2025-03-18T09:14:09.118Z",
-  },
-  {
-    _id: "67d939aa511ba62e1848b1a2",
-
-    name: "Footwear",
-    image:
-      "http://res.cloudinary.com/dqv1sbkvs/image/upload/v1742289311/categorys/t6r7pikltlyl7zhtvbl0.jpg",
-    slug: "Footwear",
-    createdAt: "2025-03-18T09:15:22.576Z",
-
-    updatedAt: "2025-03-18T09:15:22.576Z",
-  },
-  {
-    _id: "67d939de511ba62e1848b1a7",
-
-    name: "Watches",
-    image:
-      "http://res.cloudinary.com/dqv1sbkvs/image/upload/v1742289362/categorys/yiwnrdemkqxlyvaqsyym.jpg",
-    slug: "Watches",
-    createdAt: "2025-03-18T09:16:14.245Z",
-
-    updatedAt: "2025-03-18T09:16:14.245Z",
-  },
-  {
-    _id: "67d937de511ba62e1848b1a7",
-
-    name: "phone",
-    image:
-      "http://res.cloudinary.com/dqv1sbkvs/image/upload/v1742289237/categorys/txqnzkunlkxy4rayculi.jpg",
-    slug: "Watches",
-    createdAt: "2025-03-18T09:16:14.245Z",
-
-    updatedAt: "2025-03-18T09:16:14.245Z",
-  },
-  {
-    _id: "67d93810511ba62e1848b18b",
-
-    name: "Tshirt",
-    image:
-      "http://res.cloudinary.com/dqv1sbkvs/image/upload/v1742288902/categorys/qmr8qgcbsz521alt7skd.jpg",
-    slug: "Tshirt",
-    createdAt: "2025-03-18T09:08:34.471Z",
-
-    updatedAt: "2025-03-18T09:08:34.471Z",
+    id: "6",
+    href: "shoes",
+    label: "Shoes",
+    image: "./images/hero1.jpg",
   },
 ];
