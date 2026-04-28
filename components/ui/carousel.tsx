@@ -3,19 +3,11 @@
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react";
-<<<<<<< HEAD
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
-=======
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import * as React from "react";
-
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
->>>>>>> 872b5acfd427e94fbe17bcfabec14c1342fd95b7
 
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
@@ -64,11 +56,7 @@ function Carousel({
       ...opts,
       axis: orientation === "horizontal" ? "x" : "y",
     },
-<<<<<<< HEAD
     plugins,
-=======
-    plugins
->>>>>>> 872b5acfd427e94fbe17bcfabec14c1342fd95b7
   );
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
   const [canScrollNext, setCanScrollNext] = React.useState(false);
@@ -97,11 +85,7 @@ function Carousel({
         scrollNext();
       }
     },
-<<<<<<< HEAD
     [scrollPrev, scrollNext],
-=======
-    [scrollPrev, scrollNext]
->>>>>>> 872b5acfd427e94fbe17bcfabec14c1342fd95b7
   );
 
   React.useEffect(() => {
@@ -158,11 +142,7 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
         className={cn(
           "flex",
           orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
-<<<<<<< HEAD
           className,
-=======
-          className
->>>>>>> 872b5acfd427e94fbe17bcfabec14c1342fd95b7
         )}
         {...props}
       />
@@ -181,11 +161,7 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
       className={cn(
         "min-w-0 shrink-0 grow-0 basis-full",
         orientation === "horizontal" ? "pl-4" : "pt-4",
-<<<<<<< HEAD
         className,
-=======
-        className
->>>>>>> 872b5acfd427e94fbe17bcfabec14c1342fd95b7
       )}
       {...props}
     />
@@ -195,11 +171,7 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
 function CarouselPrevious({
   className,
   variant = "outline",
-<<<<<<< HEAD
   size = "icon-sm",
-=======
-  size = "icon",
->>>>>>> 872b5acfd427e94fbe17bcfabec14c1342fd95b7
   ...props
 }: React.ComponentProps<typeof Button>) {
   const { orientation, scrollPrev, canScrollPrev } = useCarousel();
@@ -210,7 +182,6 @@ function CarouselPrevious({
       variant={variant}
       size={size}
       className={cn(
-<<<<<<< HEAD
         "absolute touch-manipulation rounded-full",
         orientation === "horizontal"
           ? "top-1/2 -left-12 -translate-y-1/2"
@@ -221,18 +192,6 @@ function CarouselPrevious({
       onClick={scrollPrev}
       {...props}>
       <ChevronLeftIcon className="cn-rtl-flip" />
-=======
-        "absolute size-8 rounded-full",
-        orientation === "horizontal"
-          ? "top-1/2 -left-12 -translate-y-1/2"
-          : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
-        className
-      )}
-      disabled={!canScrollPrev}
-      onClick={scrollPrev}
-      {...props}>
-      <ArrowLeft />
->>>>>>> 872b5acfd427e94fbe17bcfabec14c1342fd95b7
       <span className="sr-only">Previous slide</span>
     </Button>
   );
@@ -241,11 +200,7 @@ function CarouselPrevious({
 function CarouselNext({
   className,
   variant = "outline",
-<<<<<<< HEAD
   size = "icon-sm",
-=======
-  size = "icon",
->>>>>>> 872b5acfd427e94fbe17bcfabec14c1342fd95b7
   ...props
 }: React.ComponentProps<typeof Button>) {
   const { orientation, scrollNext, canScrollNext } = useCarousel();
@@ -256,7 +211,6 @@ function CarouselNext({
       variant={variant}
       size={size}
       className={cn(
-<<<<<<< HEAD
         "absolute touch-manipulation rounded-full",
         orientation === "horizontal"
           ? "top-1/2 -right-12 -translate-y-1/2"
@@ -267,18 +221,6 @@ function CarouselNext({
       onClick={scrollNext}
       {...props}>
       <ChevronRightIcon className="cn-rtl-flip" />
-=======
-        "absolute size-8 rounded-full",
-        orientation === "horizontal"
-          ? "top-1/2 -right-12 -translate-y-1/2"
-          : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
-        className
-      )}
-      disabled={!canScrollNext}
-      onClick={scrollNext}
-      {...props}>
-      <ArrowRight />
->>>>>>> 872b5acfd427e94fbe17bcfabec14c1342fd95b7
       <span className="sr-only">Next slide</span>
     </Button>
   );
@@ -290,9 +232,6 @@ export {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-<<<<<<< HEAD
   useCarousel,
-=======
->>>>>>> 872b5acfd427e94fbe17bcfabec14c1342fd95b7
   type CarouselApi,
 };
