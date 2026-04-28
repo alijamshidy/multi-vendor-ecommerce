@@ -24,6 +24,7 @@
     "cmdk": "^1.1.1",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
+    "framer-motion": "^12.38.0",
     "i18n-react": "^0.7.0",
     "i18next": "^26.0.4",
     "i18next-http-backend": "^3.0.4",
@@ -47,7 +48,8 @@
     "tailwind-merge": "^3.4.0",
     "use-debounce": "^10.0.6",
     "vaul": "^1.1.2",
-    "zod": "^4.1.13"
+    "zod": "^4.1.13",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.1.0",

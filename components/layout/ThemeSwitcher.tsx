@@ -1,10 +1,10 @@
 "use client";
 
-import { useTheme } from "next-themes";
-import { Monitor, Moon, Sun } from "lucide-react";
-import { motion } from "motion/react";
-import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { Monitor, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useCallback, useEffect, useState } from "react";
 
 const themes = [
   {
@@ -63,8 +63,7 @@ export const ThemeSwitcher = ({
       className={cn(
         "relative isolate flex h-8 rounded-full bg-background p-1",
         className,
-      )}
-    >
+      )}>
       {themes.map(({ key, icon: Icon, label }) => {
         const isActive = currentTheme === key;
 
@@ -74,8 +73,7 @@ export const ThemeSwitcher = ({
             className="relative h-6 w-6 rounded-full"
             key={key}
             onClick={() => handleThemeClick(key as "light" | "dark" | "system")}
-            type="button"
-          >
+            type="button">
             {isActive && (
               <motion.div
                 className="absolute inset-0 rounded-full bg-secondary"

@@ -3,10 +3,8 @@ import Logo from "../layout/Logo";
 import Search from "../layout/Search";
 import ThemeToggle from "../layout/ThemeToggle";
 import Container from "./Container";
-interface SidebarProps {
-  className?: string;
-}
-export default function Header({ className }: SidebarProps) {
+
+export default function Header({ className = "" }: { className?: string }) {
   return (
     <section
       className={cn(className, "fixed top-5 w-full z-30 hidden md:block")}>

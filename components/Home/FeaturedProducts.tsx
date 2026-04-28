@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import Container from "../Global/Container";
 import ProductButton from "../Product/ProductButton";
 import {
@@ -14,12 +13,10 @@ import {
 } from "../ui/card";
 
 export default function FeaturedProducts() {
-  const path = usePathname();
-  console.log(path);
   return (
     <>
       <Container className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-5 pb-5">
-        {[1, 2, 3, 4, 5].map(product => (
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(product => (
           <div
             key={product}
             className="group">
@@ -44,7 +41,7 @@ export default function FeaturedProducts() {
                   translate-y-full opacity-0 
                   group-hover:translate-y-1 group-hover:opacity-100 
                   transition-all duration-300 ease-out">
-                  <Link href={`${path}/${product}`}>
+                  <Link href={`/${product}`}>
                     <ProductButton type={"details"} />
                   </Link>
                   <ProductButton type={"addToCard"} />
@@ -56,7 +53,7 @@ export default function FeaturedProducts() {
         ))}
       </Container>
       <Link
-        href={`${path}/products`}
+        href={`/products`}
         className="text-xl font-bold flex items-end text-blue-600/95 hover:scale-110 transition-transform duration-300">
         More Products ...
       </Link>
