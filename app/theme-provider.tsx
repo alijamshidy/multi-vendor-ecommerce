@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+"use client";
+>>>>>>> 872b5acfd427e94fbe17bcfabec14c1342fd95b7
 import {
   ThemeProvider as NextThemesProvider,
   ThemeProviderProps,
@@ -9,6 +13,7 @@ export default function ThemeProvider({
 }: ThemeProviderProps) {
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 }
+<<<<<<< HEAD
 // "use client"; // این خط رو حتماً اضافه کن چون کامپوننت ما باید Client-Side Rendering داشته باشه
 
 // import { createContext, useContext, useEffect, useState } from "react";
@@ -60,3 +65,5 @@ export default function ThemeProvider({
 // export function useTheme() {
 //   return useContext(ThemeContext);
 // }
+=======
+>>>>>>> 872b5acfd427e94fbe17bcfabec14c1342fd95b7

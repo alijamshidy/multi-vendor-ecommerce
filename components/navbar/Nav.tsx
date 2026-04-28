@@ -1,0 +1,51 @@
+import Link from "next/link";
+import { Suspense } from "react";
+import { FaPhoneAlt } from "react-icons/fa";
+import Container from "../global/Container";
+import { Label } from "../ui/label";
+import CartButton from "./CartButton";
+import CategoriesDropdown from "./CategoriesDropdown";
+import CustomerLinks from "./CustomerLinks";
+import NavSearch from "./NavSearch";
+import WhishlistButton from "./WhishlistButton";
+
+export default function Nav() {
+  return (
+    <>
+      <section>
+        <Container className="hidden lg:flex justify-between sm:flex-row sm:justify-between sm:items-center flex-wrap py-5 gap-4">
+          <Link href={"/"}>
+            {/* <Image
+              width={150}
+              height={20}
+              src={`/next.svg`}
+              alt=""
+              priority
+            /> */}
+            <Label className="text-4xl uppercase font-black italic cursor-pointer">
+              Easy Shop
+            </Label>
+          </Link>
+          <CustomerLinks />
+          <div className="flex gap-3">
+            <WhishlistButton />
+            <CartButton />
+          </div>
+        </Container>
+      </section>
+      <Container className="grid grid-cols-1 lg:grid-cols-4 gap-x-16 items-center mt-18 lg:mt-0">
+        <CategoriesDropdown />
+        <Suspense>
+          <NavSearch />
+        </Suspense>
+        <div className="hidden lg:col-span-1 lg:flex items-center gap-x-3 justify-end">
+          <FaPhoneAlt />
+          <div className="grid gap-y-3">
+            <Label>+1343-43555430</Label>
+            <Label>Support 24/7</Label>
+          </div>
+        </div>
+      </Container>
+    </>
+  );
+}

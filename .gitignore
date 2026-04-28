@@ -40,7 +40,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+<<<<<<< HEAD
 /lib/generated/prisma
 package-lock.json
 
 prisma/migrations
+=======
+
+package-lock.json
+>>>>>>> 872b5acfd427e94fbe17bcfabec14c1342fd95b7
