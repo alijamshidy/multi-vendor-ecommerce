@@ -1,54 +1,56 @@
 "use client";
-import { Card, CardContent } from "@/components/ui/card";
+import Autoplay from "embla-carousel-autoplay";
+import Image from "next/image";
+import { useCallback, useRef } from "react";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
-import image1 from "@/public/images/banner/1.jpg";
-import image2 from "@/public/images/banner/2.jpg";
-import image3 from "@/public/images/banner/3.jpg";
-import image4 from "@/public/images/banner/4.jpg";
-import image5 from "@/public/images/banner/5.jpg";
-import image6 from "@/public/images/banner/6.jpg";
-import Autoplay from "embla-carousel-autoplay";
-import Image from "next/image";
-export function CarouselSpacing() {
-  const images = [image1, image2, image3, image4, image5, image6];
-  return (
-    <Carousel
-      opts={{ align: "center", loop: true }}
-      plugins={[Autoplay({ delay: 2000, stopOnInteraction: false })]}
-      className="w-full">
-      <CarouselContent className="-ml-1 h-[55dvw] lg:h-[35dvw]">
-        {images.map((image, index) => (
-          <CarouselItem
-            key={index}
-            className={`pl-1 h-full basis-[90%] lg:basis-[96%]`}>
-            <div className="p-1 h-full">
-              <Card className="h-full">
-                <CardContent className="flex h-full items-center justify-center">
-                  <Image
-                    src={image}
-                    alt=""
-                    width={110000}
-                    height={100000}
-                    className="w-full h-full"
-                  />
-                </CardContent>
-              </Card>
-            </div>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
-    </Carousel>
-  );
-}
+} from "../ui/carousel";
 
 export default function Banner() {
-  return <CarouselSpacing />;
+  const images = [1, 2, 3, 4];
+
+  const autoplayPlugin = useRef(
+    Autoplay({
+      delay: 3000,
+      stopOnMouseEnter: true, // توقف با ورود ماوس
+    }),
+  );
+
+  // ادامه چرخش بعد از خروج ماوس
+  const handleMouseLeave = useCallback(() => {
+    autoplayPlugin.current.play();
+  }, []);
+
+  return (
+    <div onMouseLeave={handleMouseLeave}>
+      <Carousel
+        className="w-[80%] md:w-[85%] mx-auto h-[500px] flex"
+        plugins={[autoplayPlugin.current]}
+        opts={{ loop: true }}>
+        <CarouselPrevious className="z-10" />
+        <CarouselContent className="h-full">
+          {images.map(img => (
+            <CarouselItem
+              key={img}
+              className="basis-11/12 h-full">
+              <Image
+                src={`./images/hero${img}.jpg`}
+                alt={`Slide ${img}`}
+                className="w-full h-full object-cover rounded-lg"
+                width={100}
+                height={100}
+                loading="eager"
+                priority={img === 1}
+              />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselNext className="z-10" />
+      </Carousel>
+    </div>
+  );
 }
