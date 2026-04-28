@@ -24,7 +24,7 @@ export default function Side() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton>
-                <Link href={"/"}>
+                <Link href={"/flkflkj"}>
                   <Home />
                   <span>Home</span>
                 </Link>
@@ -33,7 +33,7 @@ export default function Side() {
           </SidebarMenu>
         </SidebarContent>
       </Sidebar>
-      <main className="flex-1 z-50 fixed top-12 left-[calc(5%+15px)]">
+      <main className="flex-1 md:hidden z-50 fixed top-12 left-[calc(5%+15px)]">
         <SidebarTrigger className="w-7 h-7 z-50" />
       </main>
     </>
