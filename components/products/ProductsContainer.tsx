@@ -1,41 +1,15 @@
-"use client";
 import { Products, productType } from "@/utils/products";
-import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { LuLayoutGrid, LuLayoutList } from "react-icons/lu";
-import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
+import ChangeLayout from "./ChangeLayout";
 import ProductsGrid from "./ProductsGrid";
 import ProductsList from "./ProductsList";
 
-export default function ProductsContainer({
-  layout,
-  search,
-}: {
-  layout: string;
-  search: string;
-}) {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const router = useRouter();
+export default function ProductsContainer({ layout }: { layout: string }) {
   // const products = await fetchAllProducts({ search });
   const products: productType[] = Products;
   // const totalProducts = products.length;
   const totalProducts: number = 10;
 
-  const removeLayoutParam = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("layout");
-    const newQuery = params.toString();
-    const newUrl = `&${newQuery}`;
-    console.log(newQuery);
-    if (newQuery == "") {
-      return "";
-    }
-    return newUrl;
-  };
-  const searchTerm = removeLayoutParam();
-  console.log(searchTerm);
   return (
     <div className="grow-5">
       <section>
@@ -43,26 +17,7 @@ export default function ProductsContainer({
           <h4 className="font-medium text-lg">
             {totalProducts} product{totalProducts > 1 && "s"}
           </h4>
-          <div className="flex gap-x-4">
-            <Button
-              variant={layout === "grid" ? "default" : "ghost"}
-              size={"icon"}>
-              <Link
-                href={`/en/products?layout=grid${searchTerm}`}
-                className="w-full h-full justify-center items-center flex">
-                <LuLayoutGrid />
-              </Link>
-            </Button>
-            <Button
-              variant={layout !== "grid" ? "default" : "ghost"}
-              size={"icon"}>
-              <Link
-                href={`/en/products?layout=list${searchTerm}`}
-                className="w-full h-full justify-center items-center flex">
-                <LuLayoutList />
-              </Link>
-            </Button>
-          </div>
+          <ChangeLayout layout={layout} />
         </div>
         <Separator className="mt-4" />
       </section>

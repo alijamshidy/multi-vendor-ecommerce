@@ -30,3 +30,15 @@ export function GetSearchParams() {
   const queryString = searchParams.toString(); // "layout=grid&range=10&category=a"
   return queryString;
 }
+export const RemoveLayoutParam = () => {
+  const searchParams = useSearchParams();
+  const params = new URLSearchParams(searchParams.toString());
+  params.delete("layout");
+  const newQuery = params.toString();
+  const newUrl = `&${newQuery}`;
+  console.log(newQuery);
+  if (newQuery == "") {
+    return "";
+  }
+  return newUrl;
+};
