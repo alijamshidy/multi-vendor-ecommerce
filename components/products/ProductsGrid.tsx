@@ -5,10 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { FaEye } from "react-icons/fa";
 import { IoCart } from "react-icons/io5";
-import ProductRating from "../single-product/ProductRating";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
-import FavoriteToggleButton from "./FavoriteToggleButton";
 export default function ProductsGrid({
   products,
 }: {
@@ -42,7 +40,7 @@ export default function ProductsGrid({
                   />
 
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 hidden md:flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <FavoriteToggleButton productId="1" />
+                    {/* <FavoriteToggleButton productId="1" /> */}
 
                     <Button
                       variant="default"
@@ -63,7 +61,7 @@ export default function ProductsGrid({
                 <div className="mt-4 text-center">
                   <h2 className="text-lg capitalize">{label}</h2>
                   <p className="text-muted-foreground mt-2">${price}</p>
-                  <ProductRating productId="" />
+                  {/* <ProductRating productId="" /> */}
                 </div>
               </CardContent>
             </Card>

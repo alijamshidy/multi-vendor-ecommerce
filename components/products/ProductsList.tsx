@@ -3,7 +3,6 @@ import { productType } from "@/utils/products";
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent } from "../ui/card";
-import FavoriteToggleButton from "./FavoriteToggleButton";
 export default function ProductsList({
   products,
 }: {
@@ -43,7 +42,7 @@ export default function ProductsList({
               </Card>
             </Link>
             <div className="absolute bottom-8 right-8 z-5">
-              <FavoriteToggleButton productId={id} />
+              {/* <FavoriteToggleButton productId={id} /> */}
             </div>
           </article>
         );
