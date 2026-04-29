@@ -1,3 +1,4 @@
+"use client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -5,15 +6,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Categorys, category } from "@/utils/Category";
+import { GetLocale } from "@/utils/GetUrlParams";
 import { ArrowDownIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-export default async function CategoryDropdown() {
-  const getCategory = async () => {
-    return Categorys;
-  };
-  const categorys: category[] = await getCategory();
+export default function CategoryDropdown() {
+  const locale = GetLocale();
+  const categorys: category[] = Categorys;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -30,7 +30,7 @@ export default async function CategoryDropdown() {
           return (
             <DropdownMenuItem key={link.href}>
               <Link
-                href={link.href}
+                href={`/${locale}/${link.href}`}
                 className="capitalize w-full flex justify-between items-center">
                 <span>{link.label}</span>
                 <Image

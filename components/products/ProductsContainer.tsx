@@ -1,27 +1,41 @@
+"use client";
 import { Products, productType } from "@/utils/products";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LuLayoutGrid, LuLayoutList } from "react-icons/lu";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import ProductsGrid from "./ProductsGrid";
 import ProductsList from "./ProductsList";
 
-export default async function ProductsContainer({
+export default function ProductsContainer({
   layout,
   search,
 }: {
   layout: string;
   search: string;
 }) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
   // const products = await fetchAllProducts({ search });
-  const getProducts = async () => {
-    return Products;
-  };
-  const products: productType[] = await getProducts();
+  const products: productType[] = Products;
   // const totalProducts = products.length;
   const totalProducts: number = 10;
-  const searchTerm = search ? `&search=${search}` : "";
 
+  const removeLayoutParam = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("layout");
+    const newQuery = params.toString();
+    const newUrl = `&${newQuery}`;
+    console.log(newQuery);
+    if (newQuery == "") {
+      return "";
+    }
+    return newUrl;
+  };
+  const searchTerm = removeLayoutParam();
+  console.log(searchTerm);
   return (
     <div className="grow-5">
       <section>

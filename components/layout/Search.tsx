@@ -1,4 +1,5 @@
 "use client";
+import { GetLocale } from "@/utils/GetUrlParams";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
@@ -10,6 +11,7 @@ export default function NavSearch() {
   const [search, setSearch] = useState(
     searchParams.get("search")?.toString() || "",
   );
+  const locale = GetLocale();
   const handleSearch = useDebouncedCallback(value => {
     const params = new URLSearchParams(searchParams);
     if (value) {
@@ -17,7 +19,7 @@ export default function NavSearch() {
     } else {
       params.delete("search");
     }
-    replace(`/products?${params.toString()}`);
+    replace(`/${locale}/products?${params.toString()}`);
   }, 500);
   useEffect(() => {
     if (!searchParams.get("search")) {

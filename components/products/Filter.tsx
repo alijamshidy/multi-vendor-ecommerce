@@ -1,11 +1,13 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import Container from "../Global/Container";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 
 export default function Filter() {
+  const path = usePathname();
+  const locale = path.split("/")[1];
   const { replace } = useRouter();
   const searchParams = useSearchParams();
   const category = searchParams.get("category")?.toString() || "";
@@ -15,9 +17,8 @@ export default function Filter() {
     params.delete("category");
     params.delete("range");
 
-    replace(`/en/products?${params.toString()}`);
+    replace(`/${locale}/products?${params.toString()}`);
   }, 500);
-  console.log(range, category);
   return (
     <Container className="hidden md:inline-block md:w-[30%] xl:w-[20%] min-h-full mt-10">
       <div className="flex justify-between items-center">
