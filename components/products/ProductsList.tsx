@@ -3,7 +3,8 @@ import { productType } from "@/utils/products";
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent } from "../ui/card";
-export default function ProductsList({
+import FavoriteToggleButton from "./FavoriteToggleButton";
+export default async function ProductsList({
   products,
 }: {
   products: productType[];
@@ -26,7 +27,7 @@ export default function ProductsList({
                       src={images[0].url}
                       alt={label}
                       fill
-                      // sizes=" (max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw "
+                      sizes=" (max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw "
                       priority
                       className="rounded w-full object-cover"
                     />
@@ -42,7 +43,7 @@ export default function ProductsList({
               </Card>
             </Link>
             <div className="absolute bottom-8 right-8 z-5">
-              {/* <FavoriteToggleButton productId={id} /> */}
+              <FavoriteToggleButton productId={id} />
             </div>
           </article>
         );

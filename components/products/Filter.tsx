@@ -1,36 +1,17 @@
-"use client";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useDebouncedCallback } from "use-debounce";
 import Container from "../Global/Container";
-import { Button } from "../ui/button";
 import { Label } from "../ui/label";
+import ResetFilterButton from "./ResetFilterButton";
 
-export default function Filter() {
-  const path = usePathname();
-  const locale = path.split("/")[1];
-  const { replace } = useRouter();
-  const searchParams = useSearchParams();
-  const category = searchParams.get("category")?.toString() || "";
-  const range = searchParams.get("range")?.toString() || "";
-  const resetFilter = useDebouncedCallback(() => {
-    const params = new URLSearchParams(searchParams);
-    params.delete("category");
-    params.delete("range");
-
-    replace(`/${locale}/products?${params.toString()}`);
-  }, 500);
+export default async function Filter() {
   return (
-    <Container className="hidden md:inline-block md:w-[30%] xl:w-[20%] min-h-full mt-10">
+    <Container className="hidden md:inline-block md:w-[30%] xl:w-[20%] min-h-full mt-10 border rounded-sm p-2">
       <div className="flex justify-between items-center">
         <Label>Filter</Label>
-        <Button
-          onClick={() => {
-            resetFilter();
-          }}
-          variant={"outline"}
-          className={"cursor-pointer"}>
-          Reset
-        </Button>
+        <ResetFilterButton />
+      </div>
+      <div className="flex items-center">
+        {/* <Label>Range</Label>
+        <RangeSlider className="" /> */}
       </div>
     </Container>
   );

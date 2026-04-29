@@ -7,6 +7,7 @@ import { FaEye } from "react-icons/fa";
 import { IoCart } from "react-icons/io5";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
+import FavoriteToggleButton from "./FavoriteToggleButton";
 export default function ProductsGrid({
   products,
 }: {
@@ -40,7 +41,7 @@ export default function ProductsGrid({
                   />
 
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 hidden md:flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {/* <FavoriteToggleButton productId="1" /> */}
+                    <FavoriteToggleButton productId="1" />
 
                     <Button
                       variant="default"
