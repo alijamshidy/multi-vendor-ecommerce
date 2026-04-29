@@ -7,11 +7,11 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { category } from "@/utils/category";
+import { Categorys } from "@/utils/Category";
 import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 import Link from "next/link";
-import Container from "../global/Container";
+import Container from "../Global/Container";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 export function CarouselSpacing() {
@@ -21,13 +21,13 @@ export function CarouselSpacing() {
       opts={{ align: "center", loop: true }}
       plugins={[Autoplay({ delay: 2000, stopOnInteraction: false })]}>
       <CarouselContent className="-ml-1 h-[50dvw] lg:h-[15dvw]">
-        {category.map(category => {
+        {Categorys.map(category => {
           return (
             <CarouselItem
-              key={category._id}
+              key={category.id}
               className={`p-2 h-[80%] md:basis-1/3 xl:basis-1/6`}>
               <Link
-                href={`/categories/${category.name}`}
+                href={`/categories/${category.label}`}
                 className="p-1 h-full">
                 <Card className="h-full">
                   <CardContent className="flex h-full relative items-center justify-center">
@@ -35,12 +35,12 @@ export function CarouselSpacing() {
                       width={200}
                       height={200}
                       src={category.image}
-                      alt={category.name}
+                      alt={category.label}
                       className="w-full h-full"
                       priority
                     />
                     <span className="text-xl font-semibold absolute bottom-4 bg-gray-400/70 px-1 py-0.5">
-                      {category.name}
+                      {category.label}
                     </span>
                   </CardContent>
                 </Card>

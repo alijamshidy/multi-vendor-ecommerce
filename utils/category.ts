@@ -4,7 +4,7 @@ export type category = {
   label: string;
   image: string;
 };
-export const Category: category[] = [
+export const Categorys: category[] = [
   {
     id: "0",
     href: "mobile",

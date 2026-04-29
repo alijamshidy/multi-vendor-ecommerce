@@ -7,6 +7,7 @@ interface userInfo {
   fname: string;
   lname: string;
   phoneNumber: string;
+  image: string;
   province: string;
   city: string;
   zipCode: string;
@@ -21,6 +22,7 @@ export const useUserInfoStore = create<userInfo>()(
         fname: "",
         lname: "",
         phoneNumber: "",
+        image: "",
         province: "",
         city: "",
         zipCode: "",

@@ -1,6 +1,6 @@
 // import { formatCurrency } from "@/utils/format";
 // import { Product } from "@prisma/client";
-import { product } from "@/utils/products";
+import { productType } from "@/utils/products";
 import Image from "next/image";
 import Link from "next/link";
 import { FaEye } from "react-icons/fa";
@@ -9,19 +9,23 @@ import ProductRating from "../single-product/ProductRating";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import FavoriteToggleButton from "./FavoriteToggleButton";
-export default function ProductsGrid({ products }: { products: product[] }) {
+export default function ProductsGrid({
+  products,
+}: {
+  products: productType[];
+}) {
   return (
     <div className="pt-12 grid gap-4 md:grid-cols-3 lg:grid-cols-3">
       {products.map(product => {
-        const { name, price, images, _id } = product;
+        const { label, price, images, id } = product;
 
         // const dollarsAmount = formatCurrency(price);
         return (
           <article
-            key={_id}
+            key={id}
             className="group relative">
             <Link
-              href={`/products/${_id}`}
+              href={`/products/${id}`}
               className="absolute inset-0 md:hidden z-10"
             />
 
@@ -29,8 +33,8 @@ export default function ProductsGrid({ products }: { products: product[] }) {
               <CardContent className="p-4">
                 <div className="relative h-64 md:h-48 rounded overflow-hidden group">
                   <Image
-                    src={images[0]}
-                    alt={name}
+                    src={images[0].url}
+                    alt={label}
                     fill
                     sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
                     priority
@@ -43,7 +47,7 @@ export default function ProductsGrid({ products }: { products: product[] }) {
                     <Button
                       variant="default"
                       size="icon">
-                      <Link href={`/products/${_id}`}>
+                      <Link href={`/products/${id}`}>
                         <FaEye />
                       </Link>
                     </Button>
@@ -57,7 +61,7 @@ export default function ProductsGrid({ products }: { products: product[] }) {
                 </div>
 
                 <div className="mt-4 text-center">
-                  <h2 className="text-lg capitalize">{name}</h2>
+                  <h2 className="text-lg capitalize">{label}</h2>
                   <p className="text-muted-foreground mt-2">${price}</p>
                   <ProductRating productId="" />
                 </div>

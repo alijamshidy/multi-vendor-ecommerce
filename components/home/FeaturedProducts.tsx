@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Container from "../Global/Container";
-import ProductButton from "../Product/ProductButton";
+import ProductButton from "../products/ProductButton";
 import {
   Card,
   CardContent,

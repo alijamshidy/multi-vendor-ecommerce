@@ -1,4 +1,4 @@
-import { fetchAllProducts } from "@/utils/actions";
+import { Products, productType } from "@/utils/products";
 import Link from "next/link";
 import { LuLayoutGrid, LuLayoutList } from "react-icons/lu";
 import { Button } from "../ui/button";
@@ -13,13 +13,17 @@ export default async function ProductsContainer({
   layout: string;
   search: string;
 }) {
-  const products = await fetchAllProducts({ search });
-  const totalProducts = products.length;
+  // const products = await fetchAllProducts({ search });
+  const getProducts = async () => {
+    return Products;
+  };
+  const products: productType[] = await getProducts();
+  // const totalProducts = products.length;
+  const totalProducts: number = 10;
   const searchTerm = search ? `&search=${search}` : "";
 
   return (
-    <>
-      {/* HEADER */}
+    <div className="grow-5">
       <section>
         <div className="flex justify-between items-center">
           <h4 className="font-medium text-lg">
@@ -28,19 +32,19 @@ export default async function ProductsContainer({
           <div className="flex gap-x-4">
             <Button
               variant={layout === "grid" ? "default" : "ghost"}
-              size={"icon"}
-              asChild>
-              <Link href={`/products?layout=grid${searchTerm}`}>
-                {" "}
+              size={"icon"}>
+              <Link
+                href={`/en/products?layout=grid${searchTerm}`}
+                className="w-full h-full justify-center items-center flex">
                 <LuLayoutGrid />
               </Link>
             </Button>
             <Button
               variant={layout !== "grid" ? "default" : "ghost"}
-              size={"icon"}
-              asChild>
-              <Link href={`/products?layout=list${searchTerm}`}>
-                {" "}
+              size={"icon"}>
+              <Link
+                href={`/en/products?layout=list${searchTerm}`}
+                className="w-full h-full justify-center items-center flex">
                 <LuLayoutList />
               </Link>
             </Button>
@@ -60,6 +64,6 @@ export default async function ProductsContainer({
           <ProductsList products={products} />
         )}
       </div>
-    </>
+    </div>
   );
 }

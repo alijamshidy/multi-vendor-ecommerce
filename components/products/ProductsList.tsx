@@ -1,14 +1,18 @@
 import { formatCurrency } from "@/utils/format";
-import { Product } from "@prisma/client";
+import { productType } from "@/utils/products";
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent } from "../ui/card";
 import FavoriteToggleButton from "./FavoriteToggleButton";
-export default function ProductsList({ products }: { products: Product[] }) {
+export default function ProductsList({
+  products,
+}: {
+  products: productType[];
+}) {
   return (
     <div className="mt-12 grid gap-y-8">
       {products.map(product => {
-        const { name, price, image, company, id } = product;
+        const { label, price, images, category, id } = product;
 
         const dollarsAmount = formatCurrency(price);
         return (
@@ -20,8 +24,8 @@ export default function ProductsList({ products }: { products: Product[] }) {
                 <CardContent className="p-8 gap-y-4 grid md:grid-cols-3">
                   <div className="relative h-64 md:h-48 md:w-48 rounded overflow-hidden">
                     <Image
-                      src={image}
-                      alt={name}
+                      src={images[0].url}
+                      alt={label}
                       fill
                       // sizes=" (max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw "
                       priority
@@ -29,8 +33,8 @@ export default function ProductsList({ products }: { products: Product[] }) {
                     />
                   </div>
                   <div>
-                    <h2 className="text-xl capitalize">{name}</h2>
-                    <p className="text-muted-foreground">{company}</p>
+                    <h2 className="text-xl capitalize">{label}</h2>
+                    <p className="text-muted-foreground">{category}</p>
                   </div>
                   <p className="text-muted-foreground text-lg md:ml-auto">
                     {dollarsAmount}
