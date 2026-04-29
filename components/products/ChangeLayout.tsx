@@ -1,0 +1,32 @@
+"use client";
+import { GetLocale, RemoveLayoutParam } from "@/utils/GetUrlParams";
+import Link from "next/link";
+import { LuLayoutGrid, LuLayoutList } from "react-icons/lu";
+import { Button } from "../ui/button";
+
+export default function ChangeLayout({ layout }: { layout: string }) {
+  const locale = GetLocale();
+  const searchTerm = RemoveLayoutParam();
+  return (
+    <div className="flex gap-x-4">
+      <Button
+        variant={layout === "grid" ? "default" : "ghost"}
+        size={"icon"}>
+        <Link
+          href={`/${locale}/products?layout=grid${searchTerm}`}
+          className="w-full h-full justify-center items-center flex">
+          <LuLayoutGrid />
+        </Link>
+      </Button>
+      <Button
+        variant={layout !== "grid" ? "default" : "ghost"}
+        size={"icon"}>
+        <Link
+          href={`/${locale}/products?layout=list${searchTerm}`}
+          className="w-full h-full justify-center items-center flex">
+          <LuLayoutList />
+        </Link>
+      </Button>
+    </div>
+  );
+}
