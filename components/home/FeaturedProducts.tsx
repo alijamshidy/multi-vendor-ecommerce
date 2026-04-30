@@ -25,7 +25,7 @@ export default function FeaturedProducts() {
             <Card className="w-full hover:-translate-y-3 duration-300 transition-all relative overflow-hidden">
               <CardHeader className="p-3">
                 <Image
-                  src={"./images/hero1.jpg"}
+                  src={"/images/hero1.jpg"}
                   alt=""
                   width={200}
                   height={150}

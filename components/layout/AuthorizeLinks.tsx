@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
-import { DropdownMenuSeparator } from "../ui/dropdown-menu";
 export default function AuthorizeLinks() {
   const handleLogin = () => {
     toast.success("Login Successful");
@@ -12,7 +11,6 @@ export default function AuthorizeLinks() {
   };
   return (
     <>
-      <DropdownMenuSeparator />
       <Button className={"w-full"}>
         <Link
           href={``}

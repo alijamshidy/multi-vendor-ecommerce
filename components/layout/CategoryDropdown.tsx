@@ -14,6 +14,7 @@ import Link from "next/link";
 export default function CategoryDropdown() {
   const locale = GetLocale();
   const categorys: category[] = Categorys;
+  console.log(categorys);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>

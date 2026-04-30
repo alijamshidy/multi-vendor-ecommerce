@@ -28,28 +28,28 @@ export default function Banner() {
   return (
     <div onMouseLeave={handleMouseLeave}>
       <Carousel
-        className="w-[80%] md:w-[85%] mx-auto h-[500px] flex"
+        className="w-[95%] md:w-[85%] mx-auto h-[400px] md:h-[500px] flex"
         plugins={[autoplayPlugin.current]}
         opts={{ loop: true }}>
-        <CarouselPrevious className="z-10" />
-        <CarouselContent className="h-full">
+        <CarouselPrevious className="z-10 hidden md:flex" />
+        <CarouselContent className="h-full w-full -ml-2">
           {images.map(img => (
             <CarouselItem
               key={img}
-              className="basis-11/12 h-full">
+              className="md:basis-11/12 basis-5/6 h-full">
               <Image
-                src={`./images/hero${img}.jpg`}
+                src={`/images/hero${img}.jpg`}
                 alt={`Slide ${img}`}
                 className="w-full h-full object-cover rounded-lg"
-                width={100}
-                height={100}
+                width={100000}
+                height={100000}
                 loading="eager"
                 priority={img === 1}
               />
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselNext className="z-10" />
+        <CarouselNext className="z-10 hidden md:flex" />
       </Carousel>
     </div>
   );

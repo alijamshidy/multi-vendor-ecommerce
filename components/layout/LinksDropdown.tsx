@@ -1,11 +1,11 @@
+"use client";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import {
   adminLinks,
   customerLinks,
@@ -13,33 +13,42 @@ import {
   visitorLinks,
 } from "@/utils/links";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { LuAlignLeft } from "react-icons/lu";
 import AuthorizeLinks from "./AuthorizeLinks";
 import SignOutLink from "./SignOutLink";
 import UserIcon from "./UserIcon";
+
 enum User {
   Admin = "admin",
   Visitor = "visitor",
   Seller = "Seller",
   Customer = "Customer",
 }
-export default async function LinksDropdown() {
-  const getUser = async () => {
-    return User.Visitor;
-  };
-  const user = await getUser();
-  const getLinks = async () => {
-    if (user === User.Admin) {
-      return adminLinks;
-    } else if (user === User.Seller) {
-      return sellerLinks;
-    } else if (user === User.Customer) {
-      return customerLinks;
-    } else {
-      return visitorLinks;
-    }
-  };
-  const Links = await getLinks();
+
+export default function LinksDropdown() {
+  const [user, setUser] = useState<User>(User.Visitor);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      // Replace with actual API call
+      // const res = await fetch('/api/current-user');
+      // const data = await res.json();
+      const mockUser = User.Visitor; // change to actual role logic
+      setUser(mockUser);
+    };
+    fetchUser();
+  }, []);
+
+  const links =
+    user === User.Admin
+      ? adminLinks
+      : user === User.Seller
+        ? sellerLinks
+        : user === User.Customer
+          ? customerLinks
+          : visitorLinks;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className={"cursor-pointer"}>
@@ -52,9 +61,11 @@ export default async function LinksDropdown() {
         className="w-40"
         align="start"
         sideOffset={10}>
-        {Links.map(link => {
+        {links.map(link => {
           return (
-            <DropdownMenuItem key={link.href}>
+            <DropdownMenuItem
+              key={link.href}
+              className={"md:hidden"}>
               <Link
                 href={""}
                 className="capitalize w-full">
@@ -66,7 +77,6 @@ export default async function LinksDropdown() {
         {user === User.Visitor && <AuthorizeLinks />}
         {user !== User.Visitor && (
           <>
-            <DropdownMenuSeparator />
             <DropdownMenuItem>
               <SignOutLink />
             </DropdownMenuItem>

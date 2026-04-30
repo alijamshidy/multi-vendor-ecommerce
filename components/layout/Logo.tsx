@@ -9,7 +9,7 @@ export default function Logo() {
         href={"./"}
         className="w-full h-full relative">
         <Image
-          src={"http://localhost:3000/images/hero1.jpg"}
+          src={"/images/hero1.jpg"}
           alt=""
           width={50}
           height={50}
