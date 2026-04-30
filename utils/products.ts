@@ -17,7 +17,7 @@ export const Products: productType[] = [
     href: "a",
     label: "a",
     images: [
-      { id: "0", url: "http://localhost:3000/images/hero1.jpg" },
+      { id: "0", url: "/images/hero1.jpg" },
       { id: "1", url: "kvrkl" },
     ],
     price: 100,
@@ -29,7 +29,7 @@ export const Products: productType[] = [
     href: "a",
     label: "a",
     images: [
-      { id: "0", url: "http://localhost:3000/images/hero1.jpg" },
+      { id: "0", url: "/images/hero1.jpg" },
       { id: "1", url: "kvrkl" },
     ],
     price: 100,
@@ -41,7 +41,7 @@ export const Products: productType[] = [
     href: "a",
     label: "a",
     images: [
-      { id: "0", url: "http://localhost:3000/images/hero1.jpg" },
+      { id: "0", url: "/images/hero1.jpg" },
       { id: "1", url: "kvrkl" },
     ],
     price: 100,
@@ -53,7 +53,7 @@ export const Products: productType[] = [
     href: "a",
     label: "a",
     images: [
-      { id: "0", url: "http://localhost:3000/images/hero1.jpg" },
+      { id: "0", url: "/images/hero1.jpg" },
       { id: "1", url: "kvrkl" },
     ],
     price: 100,
@@ -65,7 +65,7 @@ export const Products: productType[] = [
     href: "a",
     label: "a",
     images: [
-      { id: "0", url: "http://localhost:3000/images/hero1.jpg" },
+      { id: "0", url: "/images/hero1.jpg" },
       { id: "1", url: "kvrkl" },
     ],
     price: 100,
@@ -77,7 +77,7 @@ export const Products: productType[] = [
     href: "a",
     label: "a",
     images: [
-      { id: "0", url: "http://localhost:3000/images/hero1.jpg" },
+      { id: "0", url: "/images/hero1.jpg" },
       { id: "1", url: "kvrkl" },
     ],
     price: 100,
@@ -89,7 +89,7 @@ export const Products: productType[] = [
     href: "a",
     label: "a",
     images: [
-      { id: "0", url: "http://localhost:3000/images/hero1.jpg" },
+      { id: "0", url: "/images/hero1.jpg" },
       { id: "1", url: "kvrkl" },
     ],
     price: 100,
@@ -101,7 +101,7 @@ export const Products: productType[] = [
     href: "a",
     label: "a",
     images: [
-      { id: "0", url: "http://localhost:3000/images/hero1.jpg" },
+      { id: "0", url: "/images/hero1.jpg" },
       { id: "1", url: "kvrkl" },
     ],
     price: 100,
@@ -113,7 +113,7 @@ export const Products: productType[] = [
     href: "a",
     label: "a",
     images: [
-      { id: "0", url: "http://localhost:3000/images/hero1.jpg" },
+      { id: "0", url: "/images/hero1.jpg" },
       { id: "1", url: "kvrkl" },
     ],
     price: 100,
