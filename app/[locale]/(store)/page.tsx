@@ -2,7 +2,6 @@ import Container from "@/components/Global/Container";
 import Navbar from "@/components/Global/Navbar";
 import Banner from "@/components/Home/Banner";
 import FeaturedProducts from "@/components/Home/FeaturedProducts";
-import { Label } from "@/components/ui/label";
 
 export default function HomePage() {
   return (
@@ -11,7 +10,7 @@ export default function HomePage() {
         <Navbar />
 
         <Banner />
-        <Label className="text-2xl">Featured Products</Label>
+
         <FeaturedProducts />
       </Container>
     </div>

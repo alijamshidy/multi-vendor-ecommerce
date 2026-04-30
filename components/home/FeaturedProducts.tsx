@@ -12,12 +12,19 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import { Label } from "../ui/label";
+import { useSidebar } from "../ui/sidebar";
 
 export default function FeaturedProducts() {
   const path = usePathname();
+  const { open } = useSidebar();
   return (
     <>
-      <Container className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-5 pb-5">
+      <Label className={`text-2xl  ${open ? "-ml-[2.8%]" : "-ml-[2%]"}`}>
+        Featured Products
+      </Label>
+      <Container
+        className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-5 pb-5 ${open ? "ml-[1%] md:w-full mr-[4%]" : "ml-[2%] md:w-full mr-[4%]"}`}>
         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(product => (
           <div
             key={product}
