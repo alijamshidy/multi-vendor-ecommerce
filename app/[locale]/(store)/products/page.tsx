@@ -1,29 +1,19 @@
 import Container from "@/components/Global/Container";
 import Filter from "@/components/products/Filter";
-import ProductsContainer from "@/components/products/ProductsContainer";
+import ProductsPage from "@/components/products/ProductsPage";
 
 export default async function Page({
   searchParams,
 }: {
   searchParams: Promise<{
-    search: string;
     layout: string;
-    range: string;
-    category: string;
   }>;
 }) {
-  const search = (await searchParams).search || "";
   const layout = (await searchParams).layout || "grid";
-  const range = (await searchParams).range || "a";
-  const category = (await searchParams).category || "b";
-
   return (
-    <Container className="mt-36 w-[80%] md:w-[85%] mx-auto flex gap-x-6">
+    <Container className="mt-36 w-[90%] md:w-auto ml-[2%] min-w-[calc(95%-16rem)] max-w-[95%] mr-[4.5%] flex">
       <Filter />
-      <ProductsContainer
-        layout={layout}
-        search={search}
-      />
+      <ProductsPage layout={layout} />
     </Container>
   );
 }

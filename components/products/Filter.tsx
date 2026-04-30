@@ -4,7 +4,7 @@ import ResetFilterButton from "./ResetFilterButton";
 
 export default async function Filter() {
   return (
-    <Container className="hidden md:inline-block md:w-[30%] xl:w-[20%] min-h-full mt-10 border rounded-sm p-2">
+    <Container className="hidden md:inline-block md:max-w-[25dvw] 2xl:max-w-[20dvw] w-auto min-h-full mt-10 border rounded-sm p-2">
       <div className="flex justify-between items-center">
         <Label>Filter</Label>
         <ResetFilterButton />

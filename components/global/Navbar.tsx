@@ -1,11 +1,15 @@
+"use client";
 import { LuPhone } from "react-icons/lu";
 import CategoryDropdown from "../layout/CategoryDropdown";
 import { Label } from "../ui/label";
+import { useSidebar } from "../ui/sidebar";
 import Container from "./Container";
 
 export default function Navbar() {
+  const { open } = useSidebar();
   return (
-    <Container className="border rounded-md justify-between items-center md:flex p-4 hidden">
+    <Container
+      className={`border rounded-md justify-between items-center md:flex p-4 hidden ${open ? "ml-[1.5%] mr-[4%] md:w-[95%]" : "ml-[3%] mr-[5%]"}`}>
       <CategoryDropdown />
 
       <Label className="flex">

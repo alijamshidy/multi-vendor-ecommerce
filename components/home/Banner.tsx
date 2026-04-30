@@ -9,8 +9,10 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../ui/carousel";
+import { useSidebar } from "../ui/sidebar";
 
 export default function Banner() {
+  const { open } = useSidebar();
   const images = [1, 2, 3, 4];
 
   const autoplayPlugin = useRef(
@@ -28,7 +30,7 @@ export default function Banner() {
   return (
     <div onMouseLeave={handleMouseLeave}>
       <Carousel
-        className="w-[95%] md:w-[85%] mx-auto h-[400px] md:h-[500px] flex"
+        className={`mx-auto w-[95%] h-[400px] md:h-[500px] flex ${open ? "md:ml-[4%] w-auto md:mr-[6%]" : "md:ml-[5%]  md:mr-[7%] md:w-auto"}`}
         plugins={[autoplayPlugin.current]}
         opts={{ loop: true }}>
         <CarouselPrevious className="z-10 hidden md:flex" />
