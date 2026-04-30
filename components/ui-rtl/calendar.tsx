@@ -14,7 +14,7 @@ import {
 } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
-import { Button, buttonVariants } from "@/styles/base-nova/ui-rtl/button"
+import { Button, buttonVariants } from "@/styles/radix-nova/ui-rtl/button"
 
 function Calendar({
   className,
@@ -206,6 +206,7 @@ function CalendarDayButton({
 
   return (
     <Button
+      ref={ref}
       variant="ghost"
       size="icon"
       data-day={day.date.toLocaleDateString(locale?.code)}

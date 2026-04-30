@@ -4,9 +4,9 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/styles/base-nova/ui-rtl/button"
-import { Input } from "@/styles/base-nova/ui-rtl/input"
-import { Textarea } from "@/styles/base-nova/ui-rtl/textarea"
+import { Button } from "@/styles/radix-nova/ui-rtl/button"
+import { Input } from "@/styles/radix-nova/ui-rtl/input"
+import { Textarea } from "@/styles/radix-nova/ui-rtl/textarea"
 
 function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -89,10 +89,8 @@ function InputGroupButton({
   variant = "ghost",
   size = "xs",
   ...props
-}: Omit<React.ComponentProps<typeof Button>, "size" | "type"> &
-  VariantProps<typeof inputGroupButtonVariants> & {
-    type?: "button" | "submit" | "reset"
-  }) {
+}: Omit<React.ComponentProps<typeof Button>, "size"> &
+  VariantProps<typeof inputGroupButtonVariants>) {
   return (
     <Button
       type={type}

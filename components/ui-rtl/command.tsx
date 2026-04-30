@@ -11,11 +11,11 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/styles/base-nova/ui-rtl/dialog"
+} from "@/styles/radix-nova/ui-rtl/dialog"
 import {
   InputGroup,
   InputGroupAddon,
-} from "@/styles/base-nova/ui-rtl/input-group"
+} from "@/styles/radix-nova/ui-rtl/input-group"
 
 function Command({
   className,
@@ -40,12 +40,11 @@ function CommandDialog({
   className,
   showCloseButton = false,
   ...props
-}: Omit<React.ComponentProps<typeof Dialog>, "children"> & {
+}: React.ComponentProps<typeof Dialog> & {
   title?: string
   description?: string
   className?: string
   showCloseButton?: boolean
-  children: React.ReactNode
 }) {
   return (
     <Dialog {...props}>
