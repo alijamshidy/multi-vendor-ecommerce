@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import CardButton from "../layout/CardButton";
 import LanguageSwitcher from "../layout/LanguageSwitcher";
@@ -7,29 +6,34 @@ import Logo from "../layout/Logo";
 import NavSearch from "../layout/Search";
 import { ThemeSwitcher } from "../layout/ThemeSwitcher";
 import WishlistButton from "../layout/WishlistButton";
-import Container from "./Container";
+import { SidebarTrigger } from "../ui/sidebar";
 
-export default function Header({ className = "" }: { className?: string }) {
+export default function Header({ open }: { open: boolean }) {
   return (
-    <section
-      className={cn(className, "fixed top-5 w-full z-30 hidden md:block")}>
+    <section className="fixed top-5 w-full z-30 hidden md:flex h-20">
       <header
-        className={`w-[90%] mx-auto border rounded-md py-4 bg-background`}>
-        <Container className="pl-4 xl:pl-0 flex justify-between items-center gap-x-4">
+        className={`flex shrink-0 items-center gap-2 transition-[width,height] ease-linear 
+              group-has-data-[collapsible=icon]/sidebar-wrapper:h-20 bg-background border rounded-md  ${open ? "w-[70%] mr-[10%] ml-[5%]" : "w-[90%] mr-[5%] ml-[2%]"}`}>
+        <SidebarTrigger className="ml-2" />
+        <div className="flex items-center gap-2 px-4 w-full justify-between">
           <div className="flex items-center gap-x-4">
             <Logo />
             <ThemeSwitcher />
           </div>
-          <Suspense>
-            <NavSearch />
-          </Suspense>
+
+          <div className="flex-1 max-w-md">
+            <Suspense>
+              <NavSearch />
+            </Suspense>
+          </div>
+
           <div className="flex items-center gap-x-4">
             <LanguageSwitcher />
             <LinksDropdown />
             <CardButton />
             <WishlistButton />
           </div>
-        </Container>
+        </div>
       </header>
     </section>
   );

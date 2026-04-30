@@ -1,23 +1,12 @@
-import Header from "@/components/Global/Header";
-import Side from "@/components/Global/Sidebar";
+import LayoutContent from "@/components/layout/LayoutContent";
 import { SidebarProvider } from "@/components/ui/sidebar";
-
-export default async function layout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+import { TooltipProvider } from "@/components/ui/tooltip";
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <>
-      <SidebarProvider
-        defaultOpen={false}
-        className="min-h-0 max-w-full"
-        style={{ "--sidebar-width": "100%" } as React.CSSProperties}>
-        <Side />
-      </SidebarProvider>
-      <Header />
-
-      {children}
-    </>
+    <SidebarProvider defaultOpen={false}>
+      <TooltipProvider>
+        <LayoutContent>{children}</LayoutContent>
+      </TooltipProvider>
+    </SidebarProvider>
   );
 }
