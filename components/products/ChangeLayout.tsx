@@ -1,10 +1,23 @@
 "use client";
-import { GetLocale, RemoveLayoutParam } from "@/utils/GetUrlParams";
+import {
+  GetLocale,
+  GetSearchParams,
+  parseQueryString,
+  RemoveLayoutParam,
+} from "@/utils/GetUrlParams";
 import Link from "next/link";
 import { LuLayoutGrid, LuLayoutList } from "react-icons/lu";
 import { Button } from "../ui/button";
 
-export default function ChangeLayout({ layout }: { layout: string }) {
+export default function ChangeLayout() {
+  const str = GetSearchParams();
+  console.log(str.toString());
+  const searchParam = parseQueryString({ str: str.toString() });
+  console.log(searchParam);
+  const layout =
+    typeof searchParam.layout === "string" ? searchParam.layout : "";
+  console.log(layout);
+
   const locale = GetLocale();
   const searchTerm = RemoveLayoutParam();
   return (

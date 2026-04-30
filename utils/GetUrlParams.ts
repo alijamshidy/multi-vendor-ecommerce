@@ -22,12 +22,7 @@ export function GetAfterUrl() {
 export function GetSearchParams() {
   const searchParams = useSearchParams();
 
-  // اگر بخواهید همان رشته خام با && را داشته باشید
-  const rawQueryString = window.location.search.substring(1);
-  console.log(rawQueryString); // "layout=grid&&range=10&&category=a"
-
-  // یا ساخت رشته از پارامترها (ولی اینجا && را به & تبدیل می‌کند)
-  const queryString = searchParams.toString(); // "layout=grid&range=10&category=a"
+  const queryString = searchParams.toString();
   return queryString;
 }
 export const RemoveLayoutParam = () => {
@@ -36,9 +31,28 @@ export const RemoveLayoutParam = () => {
   params.delete("layout");
   const newQuery = params.toString();
   const newUrl = `&${newQuery}`;
-  console.log(newQuery);
   if (newQuery == "") {
     return "";
   }
   return newUrl;
 };
+export function parseQueryString({
+  str,
+}: {
+  str: string;
+}): Record<string, string | number> {
+  const result: Record<string, string | number> = {};
+  const pairs = str.split("&");
+  for (const pair of pairs) {
+    const [key, value] = pair.split("=");
+    if (!key || !value) continue;
+    const trimmedValue = value.trim();
+    const num = Number(trimmedValue);
+    if (!isNaN(num) && trimmedValue !== "") {
+      result[key] = num;
+    } else {
+      result[key] = trimmedValue.replace(/^["']|["']$/g, "");
+    }
+  }
+  return result;
+}
