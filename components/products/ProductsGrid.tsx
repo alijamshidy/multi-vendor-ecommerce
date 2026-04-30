@@ -1,21 +1,19 @@
-// import { formatCurrency } from "@/utils/format";
-// import { Product } from "@prisma/client";
 import { formatCurrency } from "@/utils/format";
 import { productType } from "@/utils/products";
 import Image from "next/image";
 import Link from "next/link";
-import { IoCart } from "react-icons/io5";
-import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
-import FavoriteToggleButton from "./FavoriteToggleButton";
-import ProductLinkGrid from "./ProductLinkGrid";
+import ProductButton from "./ProductButton";
 export default function ProductsGrid({
   products,
+  open,
 }: {
   products: productType[];
+  open: boolean;
 }) {
   return (
-    <div className="pt-12 grid gap-4 md:grid-cols-3 lg:grid-cols-3">
+    <div
+      className={`pt-12 grid gap-4 ${open ? "md:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3" : "md:grid-cols-1 xl:grid-cols-3 2xl:grid-cols-4"}`}>
       {products.map(product => {
         const { label, price, images, id } = product;
 
@@ -41,23 +39,21 @@ export default function ProductsGrid({
                     className="rounded w-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                   />
 
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 hidden md:flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <FavoriteToggleButton productId="1" />
-
-                    <ProductLinkGrid id={id} />
-
-                    <Button
-                      variant="default"
-                      size="icon">
-                      <IoCart />
-                    </Button>
-                  </div>
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 hidden md:flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
 
                 <div className="mt-4 text-center">
                   <h2 className="text-lg capitalize">{label}</h2>
                   <p className="text-muted-foreground mt-2">{dollarsAmount}</p>
                   {/* <ProductRating productId="" /> */}
+                </div>
+
+                <div className="flex -mb-3 mt-3 w-full justify-center gap-x-2">
+                  <ProductButton type="wishlist" />
+                  <Link href={product.href}>
+                    <ProductButton type="details" />
+                  </Link>
+                  <ProductButton type="addToCard" />
                 </div>
               </CardContent>
             </Card>
