@@ -9,7 +9,6 @@ export default function LayoutContent({
   children: React.ReactNode;
 }) {
   const { open } = useSidebar();
-  console.log(open);
 
   return (
     <>

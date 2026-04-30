@@ -20,7 +20,7 @@ export default function ProductButton({
   return (
     <Button
       className={cn("rounded-full cursor-pointer", className)}
-      variant={"ghost"}>
+      variant={"default"}>
       {icon}
     </Button>
   );
