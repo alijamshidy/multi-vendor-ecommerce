@@ -4,7 +4,9 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { Button } from "../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 const themes = [
   {
@@ -25,6 +27,7 @@ const themes = [
 ];
 
 export type ThemeSwitcherProps = {
+  open?: boolean;
   value?: "light" | "dark" | "system";
   onChange?: (theme: "light" | "dark" | "system") => void;
   defaultValue?: "light" | "dark" | "system";
@@ -32,6 +35,7 @@ export type ThemeSwitcherProps = {
 };
 
 export const ThemeSwitcher = ({
+  open,
   value,
   onChange,
   defaultValue = "system",
@@ -58,38 +62,102 @@ export const ThemeSwitcher = ({
 
   const currentTheme = value || theme || defaultValue;
 
-  return (
-    <div
-      className={cn(
-        "relative isolate flex h-8 rounded-full bg-background p-1",
-        className,
-      )}>
-      {themes.map(({ key, icon: Icon, label }) => {
-        const isActive = currentTheme === key;
+  if (open) {
+    return (
+      <div>
+        <Suspense>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline">
+                {theme === "light" ? (
+                  <Sun className="w-4 h-4" />
+                ) : theme === "dark" ? (
+                  <Moon className="w-4 h-4" />
+                ) : (
+                  <Monitor className="w-4 h-4" />
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="start"
+              sideOffset={10}>
+              <div
+                className={cn(
+                  "relative isolate flex h-8 rounded-full bg-background p-1",
+                  className,
+                )}>
+                {themes.map(({ key, icon: Icon, label }) => {
+                  const isActive = currentTheme === key;
 
-        return (
-          <button
-            aria-label={label}
-            className="relative h-6 w-6 rounded-full"
-            key={key}
-            onClick={() => handleThemeClick(key as "light" | "dark" | "system")}
-            type="button">
-            {isActive && (
-              <motion.div
-                className="absolute inset-0 rounded-full bg-secondary"
-                layoutId="activeTheme"
-                transition={{ type: "spring", duration: 0.5 }}
-              />
-            )}
-            <Icon
-              className={cn(
-                "relative z-10 m-auto h-4 w-4",
-                isActive ? "text-foreground" : "text-muted-foreground",
+                  return (
+                    <button
+                      aria-label={label}
+                      className="relative h-6 w-6 rounded-full"
+                      key={key}
+                      onClick={() =>
+                        handleThemeClick(key as "light" | "dark" | "system")
+                      }
+                      type="button">
+                      {isActive && (
+                        <motion.div
+                          className="absolute inset-0 rounded-full bg-secondary"
+                          layoutId="activeTheme"
+                          transition={{ type: "spring", duration: 0.5 }}
+                        />
+                      )}
+                      <Icon
+                        className={cn(
+                          "relative z-10 m-auto h-4 w-4",
+                          isActive
+                            ? "text-foreground"
+                            : "text-muted-foreground",
+                        )}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </PopoverContent>
+          </Popover>
+        </Suspense>
+      </div>
+    );
+  } else {
+    return (
+      <div
+        className={cn(
+          "relative isolate flex h-8 rounded-full bg-background p-1",
+          className,
+        )}>
+        {themes.map(({ key, icon: Icon, label }) => {
+          const isActive = currentTheme === key;
+
+          return (
+            <button
+              aria-label={label}
+              className="relative h-6 w-6 rounded-full"
+              key={key}
+              onClick={() =>
+                handleThemeClick(key as "light" | "dark" | "system")
+              }
+              type="button">
+              {isActive && (
+                <motion.div
+                  className="absolute inset-0 rounded-full bg-secondary"
+                  layoutId="activeTheme"
+                  transition={{ type: "spring", duration: 0.5 }}
+                />
               )}
-            />
-          </button>
-        );
-      })}
-    </div>
-  );
+              <Icon
+                className={cn(
+                  "relative z-10 m-auto h-4 w-4",
+                  isActive ? "text-foreground" : "text-muted-foreground",
+                )}
+              />
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
 };
