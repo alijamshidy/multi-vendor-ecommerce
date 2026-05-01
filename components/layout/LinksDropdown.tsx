@@ -51,7 +51,7 @@ export default function LinksDropdown() {
           : visitorLinks;
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger
         className={"cursor-pointer"}
         asChild>
