@@ -11,12 +11,9 @@ import { Button } from "../ui/button";
 
 export default function ChangeLayout() {
   const str = GetSearchParams();
-  console.log(str.toString());
   const searchParam = parseQueryString({ str: str.toString() });
-  console.log(searchParam);
   const layout =
     typeof searchParam.layout === "string" ? searchParam.layout : "";
-  console.log(layout);
 
   const locale = GetLocale();
   const searchTerm = RemoveLayoutParam();

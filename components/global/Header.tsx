@@ -10,9 +10,9 @@ import { SidebarTrigger } from "../ui/sidebar";
 
 export default function Header({ open }: { open: boolean }) {
   return (
-    <section className="fixed top-5 w-full z-30 hidden md:flex h-20">
+    <section className="fixed top-5 w-full z-30 hidden md:flex h-20 ">
       <header
-        className={`flex shrink-0 items-center gap-2 transition-[width,height] ease-linear mr-[5%]
+        className={`flex shrink-0 items-center gap-2 transition-[width,height] ease-linear mr-[5%] max-w-[90%]
               group-has-data-[collapsible=icon]/sidebar-wrapper:h-20 bg-background border rounded-md  ${open ? "w-[calc(95%-16rem)]  ml-[1.5%]" : "w-[90%] ml-[2.1%]"}`}>
         <SidebarTrigger className="ml-2" />
         <div className="flex items-center gap-2 px-4 w-full justify-between">

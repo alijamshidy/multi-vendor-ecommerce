@@ -13,7 +13,7 @@ export default function ProductsGrid({
 }) {
   return (
     <div
-      className={`pt-12 grid gap-4 ${open ? "md:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3" : "md:grid-cols-1 xl:grid-cols-3 2xl:grid-cols-4"}`}>
+      className={`pt-12 grid gap-4 ${open ? "md:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3" : "md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"}`}>
       {products.map(product => {
         const { label, price, images, id } = product;
 
