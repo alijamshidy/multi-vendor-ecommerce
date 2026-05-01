@@ -3,10 +3,13 @@ import { GetLocale } from "@/utils/GetUrlParams";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
+import { Button } from "../ui-rtl/button";
+import { Field } from "../ui/field";
 import { Input } from "../ui/input";
 
 export default function NavSearch() {
   const searchParams = useSearchParams();
+  const searchParam = searchParams.get("search")?.toString() || "";
   const { replace } = useRouter();
   const [search, setSearch] = useState(
     searchParams.get("search")?.toString() || "",
@@ -27,15 +30,21 @@ export default function NavSearch() {
     }
   }, [searchParams]);
   return (
-    <Input
-      type="search"
-      placeholder="search product..."
-      className="max-w-md dark:bg-muted"
-      value={search}
-      onChange={e => {
-        setSearch(e.target.value);
-        handleSearch(e.target.value);
-      }}
-    />
+    <Field orientation="horizontal">
+      <Input
+        type="search"
+        placeholder="search product..."
+        className="max-w-md dark:bg-muted"
+        value={search}
+        onChange={e => {
+          setSearch(e.target.value);
+        }}
+      />
+      <Button
+        disabled={search === searchParam}
+        onClick={() => handleSearch(search)}>
+        Search
+      </Button>
+    </Field>
   );
 }
