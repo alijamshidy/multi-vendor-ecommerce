@@ -4,12 +4,11 @@ import ProductsContainer from "./ProductsContainer";
 
 export default function ProductsPage({ layout }: { layout: string }) {
   const { open } = useSidebar();
+
   return (
-    <>
-      <ProductsContainer
-        layout={layout}
-        open={open}
-      />
-    </>
+    <ProductsContainer
+      layout={layout}
+      open={open}
+    />
   );
 }

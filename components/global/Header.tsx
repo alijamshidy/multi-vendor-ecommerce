@@ -12,7 +12,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { SidebarTrigger } from "../ui/sidebar";
 
 export default function Header({ open }: { open: boolean }) {
-  console.log(open);
   return (
     <section className="fixed top-5 w-full z-30 hidden md:flex h-20 ">
       <header

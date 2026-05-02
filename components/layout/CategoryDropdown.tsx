@@ -14,7 +14,6 @@ import Link from "next/link";
 
 export default function CategoryDropdown() {
   const locale = GetLocale();
-  const categorys: category[] = Categorys;
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger>
@@ -27,24 +26,6 @@ export default function CategoryDropdown() {
         className="w-52 rounded-sm"
         align="start"
         sideOffset={5}>
-        {/* {categorys.map(link => {
-          return (
-            <DropdownMenuItem key={link.href}>
-              <Link
-                href={`/${locale}/${link.href}`}
-                className="capitalize w-full flex justify-between items-center">
-                <span>{link.label}</span>
-                <Image
-                  src={link.image}
-                  alt={link.label}
-                  width={100}
-                  height={100}
-                  className="h-[32px] w-[32px] rounded-full"
-                />
-              </Link>
-            </DropdownMenuItem>
-          );
-        })} */}
         <RenderCategories
           locale={locale}
           categorys={Categorys}
