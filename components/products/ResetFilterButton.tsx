@@ -8,14 +8,13 @@ export default function ResetFilterButton() {
   const path = usePathname();
   const locale = path.split("/")[1];
   const searchParams = useSearchParams();
+  const layout = `layout=${searchParams.get("layout")}`;
   const resetFilter = useDebouncedCallback(() => {
-    const params = new URLSearchParams(searchParams);
-    params.delete("category");
-    params.delete("range");
-    replace(`/${locale}/products?${params.toString()}`);
+    replace(`/${locale}/products?${layout}`);
   }, 500);
   return (
     <Button
+      disabled={searchParams.toString() === `${layout}`}
       onClick={() => {
         resetFilter();
       }}
