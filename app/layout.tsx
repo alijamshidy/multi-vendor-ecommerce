@@ -19,8 +19,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  locale,
 }: Readonly<{
   children: React.ReactNode;
+  locale: string;
 }>) {
   return (
     <html
@@ -30,7 +32,9 @@ export default function RootLayout({
         suppressHydrationWarning
         // className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         className={`antialiased`}>
-        <Providers> {children}</Providers>
+        <Providers>
+          <div dir={locale === "fa" ? "rtl" : "ltr"}>{children}</div>
+        </Providers>
       </body>
     </html>
   );
