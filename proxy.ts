@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 const DEFAULT_LOCALE = "en";
 
 // مسیرهای عمومی (بدون نیاز به احراز هویت) - فقط نام مسیرها بدون لوکیل
-const publicPaths = ["", "login", "register", "products"];
+const publicPaths = ["", "login", "register", "products", "reset_password"];
 
 // بررسی عمومی بودن مسیر (با در نظر گرفتن لوکیل)
 function isPublicPath(pathname: string): boolean {
@@ -48,6 +48,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.rewrite(new URL(newUrl, "http://localhost:5000"));
   }
 
+  if (pathname.startsWith("/api/")) {
+    return NextResponse.next();
+  }
   // 3. کنترل دسترسی و احراز هویت
   const token = await getToken({
     req: request,
