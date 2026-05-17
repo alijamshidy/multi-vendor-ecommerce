@@ -2,12 +2,13 @@
 
 import { useId, useMemo, useState } from "react";
 
-import { CheckIcon, XIcon } from "lucide-react";
+import { CheckIcon, EyeIcon, EyeOffIcon, XIcon } from "lucide-react";
 
 import { Label } from "@/components/ui/label";
 
 import { cn } from "@/lib/utils";
-import PasswordInputWithVariant from "./PasswordInputWithVariant";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 const requirements = [
   { regex: /.{12,}/, text: "At least 12 characters" },
@@ -57,10 +58,27 @@ export default function InputPasswordStrength() {
   return (
     <div className="w-full space-y-2">
       <Label htmlFor={"password"}>Password</Label>
-      <PasswordInputWithVariant
-        pass={password}
-        setPass={setPassword}
-      />
+      <div className="relative mb-3">
+        <Input
+          required
+          id={"password"}
+          type={isVisible ? "text" : "password"}
+          placeholder="Password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          className="pr-9"
+        />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsVisible(!isVisible)}
+          className="text-muted-foreground focus-visible:ring-ring/50 absolute inset-y-0 right-0 rounded-l-none hover:bg-transparent">
+          {isVisible ? <EyeOffIcon /> : <EyeIcon />}
+          <span className="sr-only">
+            {isVisible ? "Hide password" : "Show password"}
+          </span>
+        </Button>
+      </div>
 
       <div className="mb-4 flex h-1 w-full gap-1">
         {Array.from({ length: 5 }).map((_, index) => (
