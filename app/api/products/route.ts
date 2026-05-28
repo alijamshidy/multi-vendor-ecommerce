@@ -9,11 +9,6 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const user = await currentUser();
-    if (!user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
     const formData = await req.formData();
     const rawData = Object.fromEntries(formData);
 
@@ -35,7 +30,7 @@ export async function POST(req: Request) {
         ...validatedFields,
         image: imageUrl,
         featured,
-        clerkId: user.id,
+        clerkId: "demo-user",
       },
       {
         headers: {

@@ -19,7 +19,7 @@ export async function GET() {
         },
       },
     );
-    return { data: response.data, status: 200 };
+    return NextResponse.json({ data: response.data }, { status: 200 });
     // برگرداندن پاسخ موفق
     // return NextResponse.json({ data: response.data }, { status: 200 });
   } catch (error) {
@@ -72,7 +72,7 @@ export async function POST() {
         },
       },
     );
-    return { data: response.data, status: 201 };
+    return NextResponse.json({ data: response.data }, { status: 201 });
     // return NextResponse.json(response.data, { status: 201 });
   } catch (error) {
     console.error("POST Error:", error);
