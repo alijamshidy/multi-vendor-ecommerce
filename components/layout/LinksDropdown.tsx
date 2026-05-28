@@ -12,6 +12,7 @@ import {
   sellerLinks,
   visitorLinks,
 } from "@/utils/links";
+import { GetLocale } from "@/utils/GetUrlParams";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LuAlignLeft } from "react-icons/lu";
@@ -29,6 +30,7 @@ enum User {
 
 export default function LinksDropdown() {
   const [user, setUser] = useState<User>(User.Visitor);
+  const locale = GetLocale();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -70,9 +72,9 @@ export default function LinksDropdown() {
           return (
             <DropdownMenuItem
               key={link.href}
-              className={"md:hidden"}>
+              className="cursor-pointer">
               <Link
-                href={""}
+                href={`/${locale}${link.href === "/" ? "" : link.href}`}
                 className="capitalize w-full">
                 {link.label}
               </Link>

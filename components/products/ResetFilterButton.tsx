@@ -1,16 +1,14 @@
 "use client";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useQueryParams } from "@/hooks/use-query-params";
 import { useDebouncedCallback } from "use-debounce";
 import { Button } from "../ui/button";
 
 export default function ResetFilterButton() {
-  const { replace } = useRouter();
-  const path = usePathname();
-  const locale = path.split("/")[1];
-  const searchParams = useSearchParams();
+  const { pathname, searchParams, replaceQuery } = useQueryParams();
+  const locale = pathname.split("/")[1];
   const layout = `layout=${searchParams.get("layout")}`;
   const resetFilter = useDebouncedCallback(() => {
-    replace(`/${locale}/products?${layout}`);
+    replaceQuery(`/${locale}/products?${layout}`);
   }, 500);
   return (
     <Button

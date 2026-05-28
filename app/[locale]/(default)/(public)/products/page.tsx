@@ -15,7 +15,7 @@ export default async function Page({
   const products: productType[] = Products;
   const totalProducts = products.length;
   return (
-    <Container className="mt-36 w-[90%] md:w-auto ml-[2%] min-w-[calc(95%-16rem)] max-w-[95%] mr-[4.5%] flex justify-center items-start">
+    <Container className="mt-8 flex items-start justify-center gap-6 md:mt-36">
       <Filter />
       <Suspense fallback={<div>loading ...</div>}>
         <ProductsContainer

@@ -1,6 +1,6 @@
 "use client";
+import { useQueryParams } from "@/hooks/use-query-params";
 import { GetLocale } from "@/utils/GetUrlParams";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Button } from "../ui-rtl/button";
@@ -8,9 +8,8 @@ import { Field } from "../ui/field";
 import { Input } from "../ui/input";
 
 export default function NavSearch() {
-  const searchParams = useSearchParams();
+  const { searchParams, replaceQuery } = useQueryParams();
   const searchParam = searchParams.get("search")?.toString() || "";
-  const { replace } = useRouter();
   const [search, setSearch] = useState(
     searchParams.get("search")?.toString() || "",
   );
@@ -22,7 +21,7 @@ export default function NavSearch() {
     } else {
       params.delete("search");
     }
-    replace(`/${locale}/products?${params.toString()}`);
+    replaceQuery(`/${locale}/products?${params.toString()}`);
   }, 500);
   useEffect(() => {
     if (!searchParams.get("search")) {

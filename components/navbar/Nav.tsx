@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { FaPhoneAlt } from "react-icons/fa";
-import Container from "../global/Container";
+import Container from "../Global/Container";
 import { Label } from "../ui/label";
 import CartButton from "./CartButton";
 import CategoriesDropdown from "./CategoriesDropdown";

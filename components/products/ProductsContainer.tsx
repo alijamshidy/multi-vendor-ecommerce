@@ -20,9 +20,9 @@ export default function ProductsContainer({
 }) {
   const { open } = useSidebar();
   return (
-    <div className="w-full md:w-[90%] ml-[2%]">
+    <div className="w-full min-w-0 md:w-[90%]">
       <section>
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h4 className="font-medium text-lg">
             {totalProducts} product{totalProducts > 1 && "s"}
           </h4>

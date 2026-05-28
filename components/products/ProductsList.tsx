@@ -6,7 +6,7 @@ export default function ProductsList({
   products: productType[];
 }) {
   return (
-    <div className="mt-12 grid gap-y-8">
+    <div className="mt-8 grid gap-y-4 sm:gap-y-6">
       {products.map(product => {
         const { id } = product;
         return (

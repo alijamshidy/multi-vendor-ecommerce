@@ -42,7 +42,6 @@ function RenderCategories({
   categorys: category[];
 }) {
   const jsx = [];
-  console.log(categorys.length);
   for (let i = 0; i < categorys.length; i++) {
     if (i === categorys.length - 1) {
       jsx.push(

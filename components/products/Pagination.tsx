@@ -1,6 +1,5 @@
 "use client";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useQueryParams } from "@/hooks/use-query-params";
 import { useDebouncedCallback } from "use-debounce";
 import {
   Pagination,
@@ -13,16 +12,10 @@ import {
 } from "../ui/pagination";
 
 export default function PaginationComponent() {
-  const { replace } = useRouter();
-  const path = usePathname();
-  const searchParams = useSearchParams();
+  const { setQueryParam } = useQueryParams();
   const handleItems = useDebouncedCallback(value => {
-    const params = new URLSearchParams(searchParams);
-
-    params.set("page", value);
-    replace(`${path}/?${params.toString()}`);
+    setQueryParam("page", value);
   }, 500);
-  const [parPage, setParPage] = useState(1);
   return (
     <Pagination>
       <PaginationContent>
@@ -33,7 +26,11 @@ export default function PaginationComponent() {
           return (
             <PaginationItem key={number}>
               <PaginationLink
-                href=""
+                href="#"
+                onClick={event => {
+                  event.preventDefault();
+                  handleItems(number);
+                }}
                 isActive>
                 {number}
               </PaginationLink>

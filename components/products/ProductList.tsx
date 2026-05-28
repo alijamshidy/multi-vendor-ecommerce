@@ -13,8 +13,8 @@ export default function ProductList({ product }: { product: productType }) {
   return (
     <Link href={`/${locale}/products/${id}`}>
       <Card className="transform group-hover:shadow-xl transition-shadow duration-500">
-        <CardContent className="p-8 gap-y-4 grid md:grid-cols-3">
-          <div className="relative h-64 md:h-48 md:w-48 rounded overflow-hidden">
+        <CardContent className="grid gap-y-4 p-4 sm:p-6 md:grid-cols-[12rem_1fr_auto] md:items-center">
+          <div className="relative h-56 rounded overflow-hidden sm:h-48 md:w-48">
             <Image
               src={images[0].url}
               alt={label}

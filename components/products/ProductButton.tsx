@@ -2,17 +2,19 @@ import { cn } from "@/lib/utils";
 import { FaEye, FaHeart, FaIdCard } from "react-icons/fa";
 import { Button } from "../ui/button";
 
+export type ProductButtonType = "wishlist" | "details" | "addToCart";
+
 export default function ProductButton({
   type,
   className,
 }: {
-  type: string;
+  type: ProductButtonType;
   className?: string;
 }) {
   const icon =
     type === "details" ? (
       <FaEye />
-    ) : type === "addToCard" ? (
+    ) : type === "addToCart" ? (
       <FaIdCard />
     ) : (
       <FaHeart />
