@@ -1,5 +1,45 @@
 "use server";
 
+export type ActionResult = {
+  message: string;
+  success?: boolean;
+};
+
+export async function addToCartAction(): Promise<ActionResult> {
+  return { message: "Demo cart updated", success: true };
+}
+
+export async function removeCartItemAction(): Promise<ActionResult> {
+  return { message: "Demo item removed", success: true };
+}
+
+export async function updateCartItemAction({
+  amount,
+}: {
+  amount: number;
+  cartItemId: string;
+}): Promise<ActionResult> {
+  return { message: `Demo quantity updated to ${amount}`, success: true };
+}
+
+export async function createOrderAction(): Promise<ActionResult> {
+  return { message: "Demo order created", success: true };
+}
+
+export async function createReviewAction(): Promise<ActionResult> {
+  return { message: "Demo review submitted", success: true };
+}
+
+export async function fetchProductReviews(_productId?: string) {
+  return [] as Array<{
+    id: string;
+    comment: string;
+    rating: number;
+    authorName: string;
+    authorImageUrl: string;
+  }>;
+}
+
 // import { auth, currentUser } from "@clerk/nextjs/server";
 
 // import { Cart } from "@prisma/client";
