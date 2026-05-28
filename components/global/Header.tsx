@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { LuMenu, LuSearch } from "react-icons/lu";
+import { LuSearch } from "react-icons/lu";
 import CardButton from "../layout/CardButton";
 import LanguageSwitcher from "../layout/LanguageSwitcher";
 import LinksDropdown from "../layout/LinksDropdown";
@@ -17,9 +17,7 @@ export default function Header({ open }: { open: boolean }) {
       <section className="fixed inset-x-0 top-0 z-30 border-b bg-background/95 backdrop-blur md:hidden">
         <header className="flex h-16 items-center justify-between gap-3 px-4">
           <div className="flex items-center gap-2">
-            <SidebarTrigger>
-              <LuMenu className="size-5" />
-            </SidebarTrigger>
+            <SidebarTrigger />
             <Logo />
           </div>
           <div className="flex items-center gap-2">

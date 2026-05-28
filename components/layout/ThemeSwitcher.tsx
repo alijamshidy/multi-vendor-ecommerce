@@ -53,7 +53,11 @@ export const ThemeSwitcher = ({
   );
 
   useEffect(() => {
-    setMounted(true);
+    const frame = requestAnimationFrame(() => {
+      setMounted(true);
+    });
+
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   if (!mounted) {
@@ -69,9 +73,9 @@ export const ThemeSwitcher = ({
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline">
-                {theme === "light" ? (
+                {resolvedTheme === "light" ? (
                   <Sun className="w-4 h-4" />
-                ) : theme === "dark" ? (
+                ) : resolvedTheme === "dark" ? (
                   <Moon className="w-4 h-4" />
                 ) : (
                   <Monitor className="w-4 h-4" />
