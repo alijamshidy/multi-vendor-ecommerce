@@ -21,5 +21,10 @@ export function CreateProductForm() {
       console.error(error);
     }
   };
-  handleSubmit({ name: "ali" });
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <button type="submit">Create product</button>
+    </form>
+  );
 }

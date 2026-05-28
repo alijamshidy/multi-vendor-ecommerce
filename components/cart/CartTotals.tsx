@@ -1,10 +1,16 @@
 import { createOrderAction } from "@/utils/actions";
 import { formatCurrency } from "@/utils/format";
-import { Cart } from "@prisma/client";
 import SubmitButton from "../form/Buttons";
 import FormContainer from "../form/FormContainer";
 import { Card, CardTitle } from "../ui/card";
 import { Separator } from "../ui/separator";
+
+type Cart = {
+  cartTotal: number;
+  shipping: number;
+  tax: number;
+  orderTotal: number;
+};
 
 export default function CartTotals({ cart }: { cart: Cart }) {
   const { cartTotal, shipping, tax, orderTotal } = cart;

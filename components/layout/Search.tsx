@@ -3,7 +3,7 @@ import { useQueryParams } from "@/hooks/use-query-params";
 import { GetLocale } from "@/utils/GetUrlParams";
 import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { Button } from "../ui-rtl/button";
+import { Button } from "../ui/button";
 import { Field } from "../ui/field";
 import { Input } from "../ui/input";
 

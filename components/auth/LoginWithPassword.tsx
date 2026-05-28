@@ -17,7 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { FormEvent, MouseEvent, useState } from "react";
 import { Input } from "../ui/input";
 export default function LoginWithPassword() {
   const [isVisible, setIsVisible] = useState(false);
@@ -26,11 +26,11 @@ export default function LoginWithPassword() {
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const phoneRegex = /^(09[0-9]{9}|\+989[0-9]{9})$/;
   const passwordRegex = /^[A-Za-z0-9.]{8,}$/;
-  const handleClick = e => {
+  const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     console.log(password, identifier);
   };
-  const handleVisiblity = e => {
+  const handleVisiblity = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsVisible(!isVisible);
   };
@@ -46,7 +46,7 @@ export default function LoginWithPassword() {
 
     return true;
   };
-  const postData = () => {
+  const postData = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(identifier, password);
   };
@@ -62,7 +62,7 @@ export default function LoginWithPassword() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form>
+              <form onSubmit={postData}>
                 <FieldGroup>
                   <Field>
                     <Button
@@ -140,7 +140,7 @@ export default function LoginWithPassword() {
                   <Field>
                     <Button
                       disabled={testAllowed()}
-                      onClick={postData}
+                      onClick={handleClick}
                       type="submit">
                       Login
                     </Button>

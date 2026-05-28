@@ -1,7 +1,6 @@
 "use client";
 
 import { createReviewAction } from "@/utils/actions";
-import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import SubmitButton from "../form/Buttons";
 import FormContainer from "../form/FormContainer";
@@ -12,7 +11,10 @@ import RatingInput from "./RatingInput";
 
 export default function SubmitReview({ productId }: { productId: string }) {
   const [isReviewFormVisible, setIsReviewFormVisible] = useState(false);
-  const { user } = useUser();
+  const user = {
+    firstName: "Demo user",
+    imageUrl: "/logo192.png",
+  };
   return (
     <div>
       <Button

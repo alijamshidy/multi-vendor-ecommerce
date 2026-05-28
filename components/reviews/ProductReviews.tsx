@@ -1,5 +1,5 @@
 import { fetchProductReviews } from "@/utils/actions";
-import SectionTitle from "../global/SectionTitle";
+import SectionTitle from "../Global/SectionTitle";
 import ReviewCard from "./ReviewCard";
 
 export default async function ProductReviews({
