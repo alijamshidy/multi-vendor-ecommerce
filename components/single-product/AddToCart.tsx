@@ -1,6 +1,5 @@
 "use client";
 import { addToCartAction } from "@/utils/actions";
-import { useAuth } from "@clerk/nextjs";
 import { useState } from "react";
 import SubmitButton, { ProductSignInButton } from "../form/Buttons";
 import FormContainer from "../form/FormContainer";
@@ -8,7 +7,7 @@ import SelectProductAmount, { Mode } from "./SelectProductAmount";
 
 export default function AddToCart({ productId }: { productId: string }) {
   const [amount, setAmount] = useState(1);
-  const { userId } = useAuth();
+  const userId = "demo-user";
   return (
     <div className="mt-4">
       <SelectProductAmount
