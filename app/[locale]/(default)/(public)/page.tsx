@@ -4,7 +4,7 @@ import Banner from "@/components/Home/Banner";
 import FeaturedProducts from "@/components/Home/FeaturedProducts";
 export default async function HomePage() {
   return (
-    <div className="w-full pt-36">
+    <div className="w-full pt-8 md:pt-36">
       <Container className="flex flex-col justify-center items-center gap-y-5">
         <Navbar />
 

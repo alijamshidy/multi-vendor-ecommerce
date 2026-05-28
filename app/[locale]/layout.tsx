@@ -1,5 +1,13 @@
 import React from "react";
 
-export default function layout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+export default async function LocaleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+
+  return <div dir={locale === "fa" ? "rtl" : "ltr"}>{children}</div>;
 }
