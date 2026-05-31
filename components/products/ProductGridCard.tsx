@@ -31,7 +31,6 @@ export default function ProductGridCard({ product, href }: ProductGridCardProps)
               alt={label}
               fill
               sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
-              priority
               className="rounded w-full object-cover transform group-hover:scale-110 transition-transform duration-500"
             />
           </div>

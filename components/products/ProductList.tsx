@@ -28,7 +28,7 @@ export default function ProductList({ product }: { product: productType }) {
             <h2 className="text-xl capitalize">{label}</h2>
             <p className="text-muted-foreground">{category}</p>
           </div>
-          <p className="text-muted-foreground text-lg md:ml-auto">
+          <p className="text-lg text-muted-foreground md:ms-auto">
             {dollarsAmount}
           </p>
         </CardContent>

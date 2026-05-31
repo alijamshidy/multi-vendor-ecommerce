@@ -1,6 +1,6 @@
 import PageHeader from "@/components/commerce/PageHeader";
+import PageShell from "@/components/commerce/PageShell";
 import SummaryCard from "@/components/commerce/SummaryCard";
-import Container from "@/components/Global/Container";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency } from "@/utils/format";
@@ -14,7 +14,7 @@ const orders = [
 
 export default function OrdersPage() {
   return (
-    <Container className="mt-8 space-y-8 md:mt-36">
+    <PageShell>
       <PageHeader
         eyebrow="Orders"
         title="Order history"
@@ -52,13 +52,13 @@ export default function OrdersPage() {
               <p className="text-sm text-muted-foreground">
                 {order.items} item{order.items > 1 ? "s" : ""}
               </p>
-              <p className="font-semibold sm:text-right">
+              <p className="font-semibold sm:text-end">
                 {formatCurrency(order.total)}
               </p>
             </CardContent>
           </Card>
         ))}
       </section>
-    </Container>
+    </PageShell>
   );
 }

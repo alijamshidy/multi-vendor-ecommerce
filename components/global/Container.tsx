@@ -9,7 +9,7 @@ export default function Container({
   className?: string;
 }) {
   return (
-    <div className={cn("mx-auto w-[min(100%-2rem,1180px)]", className)}>
+    <div className={cn("mx-auto w-full max-w-[1180px] min-w-0", className)}>
       {children}
     </div>
   );

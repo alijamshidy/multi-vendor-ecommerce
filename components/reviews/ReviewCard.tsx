@@ -24,7 +24,7 @@ export default function ReviewCard({ reviewInfo, children }: ReviewCardProps) {
             width={48}
             height={48}
           />
-          <div className="ml-4">
+          <div className="ms-4">
             <h3 className="text-sm font-bold capitalize mb-1">
               {reviewInfo.name}
             </h3>
@@ -35,7 +35,7 @@ export default function ReviewCard({ reviewInfo, children }: ReviewCardProps) {
       <CardContent>
         <Comment comment={reviewInfo.comment} />
       </CardContent>
-      <div className="absolute top-3 right-3">{children}</div>
+      <div className="absolute end-3 top-3">{children}</div>
     </Card>
   );
 }

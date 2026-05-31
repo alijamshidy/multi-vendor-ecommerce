@@ -19,7 +19,11 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import Link from "next/link";
 import { FormEvent, MouseEvent, useState } from "react";
 import { Input } from "../ui/input";
-export default function LoginWithPassword() {
+export default function LoginWithPassword({
+  onSwitchToOtp,
+}: {
+  onSwitchToOtp?: () => void;
+}) {
   const [isVisible, setIsVisible] = useState(false);
   const [password, setPassword] = useState("");
   const [identifier, setIdentifier] = useState("");
@@ -111,7 +115,7 @@ export default function LoginWithPassword() {
                       <FieldLabel htmlFor="password">Password</FieldLabel>
                       <Link
                         href="reset_password"
-                        className="ml-auto text-sm underline-offset-4 hover:underline">
+                        className="ms-auto text-sm underline-offset-4 hover:underline">
                         Forgot your password?
                       </Link>
                     </div>
@@ -123,13 +127,13 @@ export default function LoginWithPassword() {
                         placeholder="Password"
                         value={password}
                         onChange={e => setPassword(e.target.value)}
-                        className="pr-9"
+                        className="pe-9"
                       />
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={handleVisiblity}
-                        className="text-muted-foreground focus-visible:ring-ring/50 absolute inset-y-0 right-0 rounded-l-none hover:bg-transparent">
+                        className="absolute inset-y-0 end-0 rounded-s-none hover:bg-transparent text-muted-foreground focus-visible:ring-ring/50">
                         {isVisible ? <EyeOffIcon /> : <EyeIcon />}
                         <span className="sr-only">
                           {isVisible ? "Hide password" : "Show password"}
@@ -145,8 +149,17 @@ export default function LoginWithPassword() {
                       Login
                     </Button>
                     <FieldDescription className="text-center">
-                      Don&apos;t have an account? <Link href="#">Sign up</Link>
+                      Don&apos;t have an account? <Link href="register">Sign up</Link>
                     </FieldDescription>
+                    {onSwitchToOtp ? (
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="w-full"
+                        onClick={onSwitchToOtp}>
+                        Login with OTP instead
+                      </Button>
+                    ) : null}
                   </Field>
                 </FieldGroup>
               </form>

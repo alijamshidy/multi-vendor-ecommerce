@@ -4,9 +4,11 @@ import LoginWithOtp from "./LoginWithOtp";
 import LoginWithPassword from "./LoginWithPassword";
 
 export default function LoginForm() {
-  const [lWP, setLWP] = useState(false);
-  if (lWP) {
-    <LoginWithOtp />;
+  const [useOtp, setUseOtp] = useState(false);
+
+  if (useOtp) {
+    return <LoginWithOtp />;
   }
-  return <LoginWithPassword />;
+
+  return <LoginWithPassword onSwitchToOtp={() => setUseOtp(true)} />;
 }

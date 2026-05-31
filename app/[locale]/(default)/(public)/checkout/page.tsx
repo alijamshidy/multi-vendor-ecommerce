@@ -1,9 +1,9 @@
+import CheckoutField from "@/components/commerce/CheckoutField";
 import OrderSummary from "@/components/commerce/OrderSummary";
 import PageHeader from "@/components/commerce/PageHeader";
-import Container from "@/components/Global/Container";
+import PageShell from "@/components/commerce/PageShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -15,7 +15,7 @@ export default async function CheckoutPage({
   const { locale } = await params;
 
   return (
-    <Container className="mt-8 space-y-8 md:mt-36">
+    <PageShell>
       <PageHeader
         eyebrow="Checkout"
         title="Delivery and payment"
@@ -27,22 +27,23 @@ export default async function CheckoutPage({
             <CardTitle>Shipping details</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
-            <Field
+            <CheckoutField
               label="Full name"
               name="name"
               placeholder="Alex Morgan"
             />
-            <Field
+            <CheckoutField
               label="Phone"
               name="phone"
               placeholder="+1 555 0188"
             />
-            <Field
+            <CheckoutField
               label="Email"
               name="email"
               placeholder="alex@example.com"
+              type="email"
             />
-            <Field
+            <CheckoutField
               label="City"
               name="city"
               placeholder="New York"
@@ -64,27 +65,6 @@ export default async function CheckoutPage({
           showCheckoutButton={false}
         />
       </section>
-    </Container>
-  );
-}
-
-function Field({
-  label,
-  name,
-  placeholder,
-}: {
-  label: string;
-  name: string;
-  placeholder: string;
-}) {
-  return (
-    <div className="space-y-2">
-      <Label htmlFor={name}>{label}</Label>
-      <Input
-        id={name}
-        name={name}
-        placeholder={placeholder}
-      />
-    </div>
+    </PageShell>
   );
 }

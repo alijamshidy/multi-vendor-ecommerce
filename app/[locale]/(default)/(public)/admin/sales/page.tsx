@@ -1,3 +1,5 @@
-import AdminDashboardPage from "../dashboard/page";
+import SalesOverview from "@/components/commerce/SalesOverview";
 
-export default AdminDashboardPage;
+export default function AdminSalesPage() {
+  return <SalesOverview role="admin" />;
+}

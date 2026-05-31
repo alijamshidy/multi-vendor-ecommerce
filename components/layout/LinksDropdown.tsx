@@ -58,9 +58,10 @@ export default function LinksDropdown() {
         className={"cursor-pointer"}
         asChild>
         <Button
-          variant={"outline"}
-          className="flex gap-4 max-w-[100px] [&_svg:not([class*='size-'])]:size-6 p-4">
-          <LuAlignLeft className="w-6 h-6" />
+          variant="outline"
+          size="sm"
+          className="h-8 shrink-0 gap-1.5 px-2">
+          <LuAlignLeft className="size-4" />
           <UserIcon />
         </Button>
       </DropdownMenuTrigger>

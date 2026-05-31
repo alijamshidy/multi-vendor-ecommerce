@@ -10,14 +10,20 @@ export function GetLocale() {
 export function GetAfterUrl() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  const pathWithoutLocale = pathname.slice(3);
-  // حذف اسلش اول اگر لازم است:
-  const finalPath = pathWithoutLocale.substring(1);
-
+  const segments = pathname.split("/").filter(Boolean);
+  const pathWithoutLocale =
+    segments.length > 1 ? segments.slice(1).join("/") : "";
   const queryString = searchParams.toString();
-  const result = `${finalPath}?${queryString}`;
-  return result;
+
+  if (!pathWithoutLocale && !queryString) {
+    return "";
+  }
+
+  if (!queryString) {
+    return pathWithoutLocale;
+  }
+
+  return `${pathWithoutLocale}?${queryString}`;
 }
 export function GetSearchParams() {
   const searchParams = useSearchParams();

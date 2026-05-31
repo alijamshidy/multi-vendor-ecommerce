@@ -1,6 +1,6 @@
 import PageHeader from "@/components/commerce/PageHeader";
-import Container from "@/components/Global/Container";
-import ProductGridCard from "@/components/products/ProductGridCard";
+import PageShell from "@/components/commerce/PageShell";
+import ProductGrid from "@/components/products/ProductGrid";
 import { Categorys } from "@/utils/Category";
 import { Products } from "@/utils/products";
 
@@ -14,21 +14,19 @@ export default async function CategoryPage({
   const title = activeCategory?.label || category;
 
   return (
-    <Container className="mt-8 space-y-8 md:mt-36">
+    <PageShell>
       <PageHeader
         eyebrow="Category"
         title={title}
         description="Browse curated products from trusted sellers in this collection."
       />
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-        {Products.slice(0, 8).map(product => (
-          <ProductGridCard
-            key={product.id}
-            product={{ ...product, category: title }}
-            href={`/${locale}/products/${product.id}`}
-          />
-        ))}
-      </section>
-    </Container>
+      <ProductGrid
+        products={Products.slice(0, 8).map(product => ({
+          ...product,
+          category: title,
+        }))}
+        locale={locale}
+      />
+    </PageShell>
   );
 }

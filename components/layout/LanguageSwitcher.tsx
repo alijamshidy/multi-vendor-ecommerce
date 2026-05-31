@@ -24,8 +24,8 @@ export default function LanguageSwitcher() {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger>
-        <span className="group/button cursor-pointer shrink-0 items-center justify-center rounded-sm border bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 h-8 px-4 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 flex gap-4 max-w-[180px] [&_svg:not([class*='size-'])]:size-4">
-          <span>{locale}</span>
+        <span className="group/button flex h-8 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-sm border border-border bg-background px-2 text-sm font-medium whitespace-nowrap transition-all outline-none select-none hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:border-input dark:bg-input/30 dark:hover:bg-input/50 sm:gap-3 sm:px-4 [&_svg:not([class*='size-'])]:size-4">
+          <span className="hidden sm:inline">{locale}</span>
           <span>{icon}</span>
         </span>
       </DropdownMenuTrigger>
@@ -37,7 +37,7 @@ export default function LanguageSwitcher() {
           return (
             <DropdownMenuItem key={link.label}>
               <Link
-                href={`/${link.href}/${afterUrl}`}
+                href={afterUrl ? `/${link.href}/${afterUrl}` : `/${link.href}`}
                 className="capitalize w-full flex justify-between items-center">
                 <span>{link.label}</span>
                 {link.icon}

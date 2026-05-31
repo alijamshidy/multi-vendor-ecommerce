@@ -1,6 +1,6 @@
 import PageHeader from "@/components/commerce/PageHeader";
+import PageShell from "@/components/commerce/PageShell";
 import SummaryCard from "@/components/commerce/SummaryCard";
-import Container from "@/components/Global/Container";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Package, ShoppingCart, UserRound } from "lucide-react";
@@ -14,7 +14,7 @@ export default async function CustomerDashboardPage({
   const { locale } = await params;
 
   return (
-    <Container className="mt-8 space-y-8 md:mt-36">
+    <PageShell>
       <PageHeader
         eyebrow="Customer"
         title="Your dashboard"
@@ -46,7 +46,7 @@ export default async function CustomerDashboardPage({
         <CardHeader>
           <CardTitle>Quick actions</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col gap-3 sm:flex-row">
+        <CardContent className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Button asChild>
             <Link href={`/${locale}/products`}>Browse products</Link>
           </Button>
@@ -62,6 +62,6 @@ export default async function CustomerDashboardPage({
           </Button>
         </CardContent>
       </Card>
-    </Container>
+    </PageShell>
   );
 }

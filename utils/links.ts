@@ -11,6 +11,7 @@ export const visitorLinks: NavLink[] = [
   { href: "/reviews", label: "reviews" },
   { href: "/cart", label: "cart" },
   { href: "/orders", label: "orders" },
+  { href: "/contact", label: "contact" },
   { href: "/customer/dashboard", label: "dashboard" },
 ];
 export const customerLinks: NavLink[] = [
@@ -21,6 +22,7 @@ export const customerLinks: NavLink[] = [
   { href: "/reviews", label: "reviews" },
   { href: "/cart", label: "cart" },
   { href: "/orders", label: "orders" },
+  { href: "/contact", label: "contact" },
   { href: "/customer/dashboard", label: "dashboard" },
 ];
 

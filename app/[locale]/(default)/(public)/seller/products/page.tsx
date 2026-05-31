@@ -1,12 +1,12 @@
 import PageHeader from "@/components/commerce/PageHeader";
-import Container from "@/components/Global/Container";
+import PageShell from "@/components/commerce/PageShell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Products } from "@/utils/products";
 
 export default function SellerProductsPage() {
   return (
-    <Container className="mt-8 space-y-8 md:mt-36">
+    <PageShell>
       <PageHeader
         eyebrow="Seller"
         title="My products"
@@ -20,13 +20,13 @@ export default function SellerProductsPage() {
             <CardContent className="grid gap-3 p-4 sm:grid-cols-[1fr_auto_auto] sm:items-center">
               <span className="font-medium capitalize">{product.label}</span>
               <Badge className="w-fit">Active</Badge>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-muted-foreground sm:text-end">
                 {product.category}
               </span>
             </CardContent>
           </Card>
         ))}
       </section>
-    </Container>
+    </PageShell>
   );
 }

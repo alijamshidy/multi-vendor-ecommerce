@@ -3,7 +3,9 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider
+      defaultOpen={false}
+      className="overflow-x-hidden">
       <TooltipProvider>
         <LayoutContent>{children}</LayoutContent>
       </TooltipProvider>

@@ -1,5 +1,5 @@
 import PageHeader from "@/components/commerce/PageHeader";
-import Container from "@/components/Global/Container";
+import PageShell from "@/components/commerce/PageShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { ShieldCheck, Store, Truck } from "lucide-react";
 
@@ -23,7 +23,7 @@ const values = [
 
 export default function AboutPage() {
   return (
-    <Container className="mt-8 space-y-8 md:mt-36">
+    <PageShell>
       <PageHeader
         eyebrow="About"
         title="A marketplace foundation for buyers and sellers"
@@ -42,6 +42,6 @@ export default function AboutPage() {
           </Card>
         ))}
       </section>
-    </Container>
+    </PageShell>
   );
 }

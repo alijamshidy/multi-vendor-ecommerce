@@ -1,3 +1,4 @@
+import LocaleSync from "@/components/Global/LocaleSync";
 import React from "react";
 
 export default async function LocaleLayout({
@@ -8,6 +9,14 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const dir = locale === "fa" ? "rtl" : "ltr";
 
-  return <div dir={locale === "fa" ? "rtl" : "ltr"}>{children}</div>;
+  return (
+    <div
+      dir={dir}
+      lang={locale}>
+      <LocaleSync locale={locale} />
+      {children}
+    </div>
+  );
 }

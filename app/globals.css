@@ -134,7 +134,14 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html,
   body {
-    @apply bg-background text-foreground;
+    @apply overflow-x-hidden bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .cn-rtl-flip {
+    @apply rtl:rotate-180;
   }
 }

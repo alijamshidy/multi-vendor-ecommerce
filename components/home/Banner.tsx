@@ -1,4 +1,5 @@
 "use client";
+
 import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 import { useCallback, useRef } from "react";
@@ -9,50 +10,51 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../ui/carousel";
-import { useSidebar } from "../ui/sidebar";
 
 export default function Banner() {
-  const { open } = useSidebar();
   const images = [1, 2, 3, 4];
 
   const autoplayPlugin = useRef(
     Autoplay({
       delay: 3000,
-      stopOnMouseEnter: true, // توقف با ورود ماوس
+      stopOnMouseEnter: true,
     }),
   );
 
-  // ادامه چرخش بعد از خروج ماوس
   const handleMouseLeave = useCallback(() => {
     autoplayPlugin.current.play();
   }, []);
 
   return (
-    <div onMouseLeave={handleMouseLeave}>
+    <section
+      className="w-full overflow-hidden"
+      onMouseLeave={handleMouseLeave}>
       <Carousel
-        className={`mx-auto w-[95%] h-[400px] md:h-[500px] flex ${open ? "md:ml-[4%] w-auto md:mr-[6%]" : "md:ml-[5%]  md:mr-[7%] md:w-auto"}`}
+        className="relative w-full"
         plugins={[autoplayPlugin.current]}
-        opts={{ loop: true }}>
-        <CarouselPrevious className="z-10 hidden md:flex" />
-        <CarouselContent className="h-full w-full -ml-2">
+        opts={{ loop: true, align: "start" }}>
+        <CarouselContent>
           {images.map(img => (
             <CarouselItem
               key={img}
-              className="md:basis-11/12 basis-5/6 h-full">
-              <Image
-                src={`/images/hero${img}.jpg`}
-                alt={`Slide ${img}`}
-                className="w-full h-full object-cover rounded-lg"
-                width={100000}
-                height={100000}
-                loading="eager"
-                priority={img === 1}
-              />
+              className="basis-full">
+              <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg sm:aspect-[21/9] md:aspect-[2.4/1]">
+                <Image
+                  src={`/images/hero${img}.jpg`}
+                  alt={`Slide ${img}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 1180px"
+                  className="object-cover"
+                  loading={img === 1 ? "eager" : "lazy"}
+                  priority={img === 1}
+                />
+              </div>
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselNext className="z-10 hidden md:flex" />
+        <CarouselPrevious className="start-2 z-10 hidden sm:flex" />
+        <CarouselNext className="end-2 z-10 hidden sm:flex" />
       </Carousel>
-    </div>
+    </section>
   );
 }

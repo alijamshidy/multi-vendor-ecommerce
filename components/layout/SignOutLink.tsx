@@ -10,7 +10,7 @@ export default function SignOutLink() {
     <Button className={"w-full"}>
       <Link
         href={``}
-        className="w-full text-left"
+          className="w-full text-start"
         onClick={handleLogout}>
         Logout
       </Link>

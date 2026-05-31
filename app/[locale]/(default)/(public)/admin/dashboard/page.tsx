@@ -1,12 +1,12 @@
 import PageHeader from "@/components/commerce/PageHeader";
+import PageShell from "@/components/commerce/PageShell";
 import SummaryCard from "@/components/commerce/SummaryCard";
-import Container from "@/components/Global/Container";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BadgeCheck, CircleDollarSign, UsersRound, Warehouse } from "lucide-react";
 
 export default function AdminDashboardPage() {
   return (
-    <Container className="mt-8 space-y-8 md:mt-36">
+    <PageShell>
       <PageHeader
         eyebrow="Admin"
         title="Marketplace overview"
@@ -53,6 +53,6 @@ export default function AdminDashboardPage() {
           )}
         </CardContent>
       </Card>
-    </Container>
+    </PageShell>
   );
 }

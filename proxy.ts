@@ -1,21 +1,31 @@
 // middleware.ts
+import { Categorys } from "@/utils/Category";
 import { getToken } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-// زبان پیش‌فرض
 const DEFAULT_LOCALE = "en";
 
-// مسیرهای عمومی (بدون نیاز به احراز هویت) - فقط نام مسیرها بدون لوکیل
-const publicPaths = ["", "login", "register", "products", "reset_password"];
+const publicPaths = [
+  "",
+  "login",
+  "register",
+  "products",
+  "reset_password",
+  "about",
+  "cart",
+  "wishlist",
+  "checkout",
+  "reviews",
+  "contact",
+];
 
-// بررسی عمومی بودن مسیر (با در نظر گرفتن لوکیل)
+const categoryPaths = Categorys.map(category => category.href);
+
 function isPublicPath(pathname: string): boolean {
-  // حذف لوکیل از ابتدای مسیر (اگر وجود داشته باشد)
   const segments = pathname.split("/").filter(Boolean);
-  if (segments.length === 0) return true; // مسیر ریشه '/'
+  if (segments.length === 0) return true;
 
-  // بررسی وجود لوکیل دو حرفی
   const firstSegment = segments[0];
   const isLocale = firstSegment.length === 2;
   const pathWithoutLocale = isLocale
@@ -24,8 +34,11 @@ function isPublicPath(pathname: string): boolean {
 
   const firstPathPart = pathWithoutLocale.split("/")[0];
 
-  if (firstPathPart === "") return true; // فقط لوکیل (مثل /en)
-  return publicPaths.includes(firstPathPart);
+  if (firstPathPart === "") return true;
+  if (publicPaths.includes(firstPathPart)) return true;
+  if (categoryPaths.includes(firstPathPart)) return true;
+
+  return false;
 }
 
 // استخراج لوکیل از مسیر (در صورت وجود)

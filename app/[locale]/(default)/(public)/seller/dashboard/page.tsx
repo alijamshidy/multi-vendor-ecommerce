@@ -1,13 +1,13 @@
 import PageHeader from "@/components/commerce/PageHeader";
+import PageShell from "@/components/commerce/PageShell";
 import SummaryCard from "@/components/commerce/SummaryCard";
-import Container from "@/components/Global/Container";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, PackageSearch, ShoppingBag, Store } from "lucide-react";
 
 export default function SellerDashboardPage() {
   return (
-    <Container className="mt-8 space-y-8 md:mt-36">
+    <PageShell>
       <PageHeader
         eyebrow="Seller"
         title="Seller workspace"
@@ -52,6 +52,6 @@ export default function SellerDashboardPage() {
           )}
         </CardContent>
       </Card>
-    </Container>
+    </PageShell>
   );
 }
