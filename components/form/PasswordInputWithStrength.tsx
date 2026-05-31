@@ -21,11 +21,29 @@ const requirements = [
   },
 ];
 
-export default function InputPasswordStrength() {
-  const [password, setPassword] = useState("");
-  const [isVisible, setIsVisible] = useState(false);
+type InputPasswordStrengthProps = {
+  value?: string;
+  onChange?: (value: string) => void;
+  id?: string;
+};
 
-  const id = useId();
+export default function InputPasswordStrength({
+  value: valueProp,
+  onChange,
+  id: idProp,
+}: InputPasswordStrengthProps) {
+  const [internalValue, setInternalValue] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
+  const generatedId = useId();
+  const id = idProp ?? generatedId;
+  const password = valueProp ?? internalValue;
+
+  const setPassword = (next: string) => {
+    if (valueProp === undefined) {
+      setInternalValue(next);
+    }
+    onChange?.(next);
+  };
 
   const strength = requirements.map(req => ({
     met: req.regex.test(password),
@@ -39,7 +57,7 @@ export default function InputPasswordStrength() {
   const getColor = (score: number) => {
     if (score === 0) return "bg-border";
     if (score <= 1) return "bg-destructive";
-    if (score <= 2) return "bg-orange-500 ";
+    if (score <= 2) return "bg-orange-500";
     if (score <= 3) return "bg-amber-500";
     if (score === 4) return "bg-yellow-400";
 
@@ -57,30 +75,32 @@ export default function InputPasswordStrength() {
 
   return (
     <div className="w-full space-y-2">
-      <Label htmlFor={"password"}>Password</Label>
-      <div className="relative mb-3">
+      <Label htmlFor={id}>Password</Label>
+      <div className="relative">
         <Input
           required
-          id={"password"}
+          id={id}
           type={isVisible ? "text" : "password"}
           placeholder="Password"
           value={password}
-          onChange={e => setPassword(e.target.value)}
-          className="pr-9"
+          onChange={event => setPassword(event.target.value)}
+          autoComplete="new-password"
+          className="pe-9"
         />
         <Button
+          type="button"
           variant="ghost"
           size="icon"
-          onClick={() => setIsVisible(!isVisible)}
-          className="text-muted-foreground focus-visible:ring-ring/50 absolute inset-y-0 right-0 rounded-l-none hover:bg-transparent">
-          {isVisible ? <EyeOffIcon /> : <EyeIcon />}
+          onClick={() => setIsVisible(current => !current)}
+          className="absolute inset-y-0 end-0 text-muted-foreground hover:bg-transparent">
+          {isVisible ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
           <span className="sr-only">
             {isVisible ? "Hide password" : "Show password"}
           </span>
         </Button>
       </div>
 
-      <div className="mb-4 flex h-1 w-full gap-1">
+      <div className="flex h-1 w-full gap-1">
         {Array.from({ length: 5 }).map((_, index) => (
           <span
             key={index}
@@ -92,11 +112,11 @@ export default function InputPasswordStrength() {
         ))}
       </div>
 
-      <p className="text-foreground text-sm font-medium">
+      <p className="text-sm font-medium text-foreground">
         {getText(strengthScore)}. Must contain:
       </p>
 
-      <ul className="mb-4 space-y-1.5 px-2">
+      <ul className="space-y-1.5 px-2">
         {strength.map((req, index) => (
           <li
             key={index}
@@ -104,7 +124,7 @@ export default function InputPasswordStrength() {
             {req.met ? (
               <CheckIcon className="size-4 text-green-600 dark:text-green-400" />
             ) : (
-              <XIcon className="text-muted-foreground size-4" />
+              <XIcon className="size-4 text-muted-foreground" />
             )}
             <span
               className={cn(
@@ -114,9 +134,6 @@ export default function InputPasswordStrength() {
                   : "text-muted-foreground",
               )}>
               {req.text}
-              <span className="sr-only">
-                {req.met ? " - Requirement met" : " - Requirement not met"}
-              </span>
             </span>
           </li>
         ))}

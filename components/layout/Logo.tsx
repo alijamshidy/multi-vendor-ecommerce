@@ -1,20 +1,24 @@
 "use client";
+
+import { GetLocale } from "@/utils/GetUrlParams";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function Logo() {
+  const locale = GetLocale();
+
   return (
-    <div className="w-[50px] h-[50px]">
+    <div className="h-[50px] w-[50px]">
       <Link
-        href={"./"}
-        className="w-full h-full relative">
+        href={`/${locale}`}
+        className="relative block h-full w-full">
         <Image
-          src={"/images/hero1.jpg"}
-          alt=""
+          src="/images/hero1.jpg"
+          alt="Next Storefront"
           width={50}
           height={50}
-          className="h-full rounded-full"
-          loading={"eager"}
+          className="h-full rounded-full object-cover"
+          loading="eager"
         />
       </Link>
     </div>
