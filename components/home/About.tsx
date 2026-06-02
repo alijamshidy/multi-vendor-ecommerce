@@ -3,29 +3,28 @@ import PageShell from "@/components/commerce/PageShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { ShieldCheck, Store, Truck } from "lucide-react";
 
-const values = [
-  {
-    title: "Verified sellers",
-    text: "Sellers can be reviewed, organized, and promoted from the marketplace dashboard.",
-    icon: Store,
-  },
-  {
-    title: "Protected checkout",
-    text: "The UI is ready for payment, shipping, and order APIs without changing the buying flow.",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Delivery focused",
-    text: "Product and order pages keep fulfillment status visible on every screen size.",
-    icon: Truck,
-  },
-];
-
-export default function AboutPage() {
+export default function About() {
+  const values = [
+    {
+      title: "Verified sellers",
+      text: "Sellers can be reviewed, organized, and promoted from the marketplace dashboard.",
+      icon: Store,
+    },
+    {
+      title: "Protected checkout",
+      text: "The UI is ready for payment, shipping, and order APIs without changing the buying flow.",
+      icon: ShieldCheck,
+    },
+    {
+      title: "Delivery focused",
+      text: "Product and order pages keep fulfillment status visible on every screen size.",
+      icon: Truck,
+    },
+  ];
   return (
     <PageShell>
       <PageHeader
-        eyebrow="About"
+        eyebrow="Why us"
         title="A marketplace foundation for buyers and sellers"
         description="This storefront is structured around product discovery, checkout, seller operations, and marketplace administration."
       />

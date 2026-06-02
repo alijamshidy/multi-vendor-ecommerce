@@ -24,8 +24,11 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { useAuthPaths } from "@/hooks/use-auth-paths";
+import useAuthStore from "@/store/authStore";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 const phoneRegex = /^(09[0-9]{9}|\+989[0-9]{9})$/;
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -38,6 +41,12 @@ export default function LoginWithOtp({
   onSwitchToPassword,
 }: LoginWithOtpProps) {
   const paths = useAuthPaths();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const requestOtp = useAuthStore(state => state.requestOtp);
+  const verifyOtp = useAuthStore(state => state.verifyOtp);
+  const loader = useAuthStore(state => state.loader);
+
   const [identifier, setIdentifier] = useState("");
   const [otp, setOtp] = useState("");
   const [codeSent, setCodeSent] = useState(false);
@@ -49,17 +58,35 @@ export default function LoginWithOtp({
 
   const isOtpValid = otp.length === 6;
 
-  const handleSendCode = (event: FormEvent<HTMLFormElement>) => {
+  const handleSendCode = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isIdentifierValid) return;
-    setCodeSent(true);
-    // TODO: request OTP from API
+    if (!isIdentifierValid || loader) return;
+
+    try {
+      await requestOtp({ identifier });
+      toast.success("OTP sent successfully");
+      setCodeSent(true);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send OTP",
+      );
+    }
   };
 
-  const handleVerify = (event: FormEvent<HTMLFormElement>) => {
+  const handleVerify = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isOtpValid) return;
-    // TODO: verify OTP with API
+    if (!isOtpValid || loader) return;
+
+    try {
+      await verifyOtp({ identifier, code: otp });
+      toast.success("Signed in successfully");
+      const callbackUrl = searchParams.get("callbackUrl") || paths.dashboard;
+      router.push(callbackUrl);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "OTP verification failed",
+      );
+    }
   };
 
   return (
@@ -96,8 +123,8 @@ export default function LoginWithOtp({
                     <Button
                       type="submit"
                       className="w-full"
-                      disabled={!isIdentifierValid}>
-                      Send code
+                      disabled={!isIdentifierValid || loader}>
+                      {loader ? "Sending..." : "Send code"}
                     </Button>
                   </Field>
                 </FieldGroup>
@@ -130,8 +157,8 @@ export default function LoginWithOtp({
                     <Button
                       type="submit"
                       className="w-full"
-                      disabled={!isOtpValid}>
-                      Verify and sign in
+                      disabled={!isOtpValid || loader}>
+                      {loader ? "Verifying..." : "Verify and sign in"}
                     </Button>
                     <Button
                       type="button"
@@ -148,7 +175,7 @@ export default function LoginWithOtp({
               </form>
             )}
 
-            <FieldDescription className="mt-4 text-center">
+            <FieldDescription className="mt-4 py-4 pb-2 text-center">
               {onSwitchToPassword ? (
                 <Button
                   type="button"

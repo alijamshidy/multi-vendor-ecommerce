@@ -7,19 +7,11 @@ import { CheckIcon, EyeIcon, EyeOffIcon, XIcon } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
 import { cn } from "@/lib/utils";
+import { PASSWORD_REQUIREMENTS } from "@/utils/password";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
-const requirements = [
-  { regex: /.{12,}/, text: "At least 12 characters" },
-  { regex: /[a-z]/, text: "At least 1 lowercase letter" },
-  { regex: /[A-Z]/, text: "At least 1 uppercase letter" },
-  { regex: /[0-9]/, text: "At least 1 number" },
-  {
-    regex: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]/,
-    text: "At least 1 special character",
-  },
-];
+const requirements = PASSWORD_REQUIREMENTS;
 
 type InputPasswordStrengthProps = {
   value?: string;

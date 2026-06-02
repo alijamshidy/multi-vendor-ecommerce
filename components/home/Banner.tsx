@@ -3,13 +3,7 @@
 import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 import { useCallback, useRef } from "react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "../ui/carousel";
+import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 
 export default function Banner() {
   const images = [1, 2, 3, 4];
@@ -52,8 +46,6 @@ export default function Banner() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="start-2 z-10 hidden sm:flex" />
-        <CarouselNext className="end-2 z-10 hidden sm:flex" />
       </Carousel>
     </section>
   );

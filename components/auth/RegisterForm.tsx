@@ -18,36 +18,84 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { useAuthPaths } from "@/hooks/use-auth-paths";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
+import useAuthStore from "@/store/authStore";
+import { isRegistrationPasswordValid } from "@/utils/password";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const phoneRegex = /^(09[0-9]{9}|\+989[0-9]{9})$/;
 
 export default function RegisterForm() {
   const paths = useAuthPaths();
+  const router = useRouter();
+  const register = useAuthStore(state => state.register);
+  const verifyOtp = useAuthStore(state => state.verifyOtp);
+  const loader = useAuthStore(state => state.loader);
+
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
 
-  const passwordsMatch =
-    password.length > 0 && password === confirmPassword;
+  const isEmail = emailRegex.test(identifier);
+  const isPhone = phoneRegex.test(identifier);
+  const passwordsMatch = password.length > 0 && password === confirmPassword;
+
   const isValid = useMemo(
     () =>
       name.trim().length >= 2 &&
-      emailRegex.test(email) &&
-      password.length >= 8 &&
+      (isEmail || isPhone) &&
+      isRegistrationPasswordValid(password) &&
       passwordsMatch,
-    [name, email, password, passwordsMatch],
+    [name, identifier, password, passwordsMatch, isEmail, isPhone],
   );
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const isOtpValid = otp.length === 6;
+
+  const handleRegister = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isValid) return;
-    // TODO: connect to register API
+    if (!isValid || loader) return;
+
+    try {
+      await register({
+        identifier,
+        password,
+        full_name: name.trim(),
+      });
+      toast.success("Account created. Enter the OTP we sent you.");
+      setOtpSent(true);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Registration failed",
+      );
+    }
+  };
+
+  const handleVerifyOtp = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!isOtpValid || loader) return;
+
+    try {
+      await verifyOtp({ identifier, code: otp });
+      toast.success("Account verified successfully");
+      router.push(paths.dashboard);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "OTP verification failed",
+      );
+    }
   };
 
   return (
@@ -55,96 +103,134 @@ export default function RegisterForm() {
       <div className="flex flex-col gap-6">
         <Card className="rounded-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-xl">Create your account</CardTitle>
+            <CardTitle className="text-xl">
+              {otpSent ? "Verify your account" : "Create your account"}
+            </CardTitle>
             <CardDescription>
-              Join the marketplace to shop and manage orders
+              {otpSent
+                ? "Enter the 6-digit code sent to your email or phone"
+                : "Join the marketplace to shop and manage orders"}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit}>
-              <FieldGroup>
-                <Field>
-                  <FieldLabel htmlFor="name">Full name</FieldLabel>
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="John Doe"
-                    value={name}
-                    onChange={event => setName(event.target.value)}
-                    autoComplete="name"
-                    required
-                  />
-                </Field>
+            {!otpSent ? (
+              <form onSubmit={handleRegister}>
+                <FieldGroup>
+                  <Field>
+                    <FieldLabel htmlFor="name">Full name</FieldLabel>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="John Doe"
+                      value={name}
+                      onChange={event => setName(event.target.value)}
+                      autoComplete="name"
+                      required
+                    />
+                  </Field>
 
-                <Field>
-                  <FieldLabel htmlFor="register-email">Email</FieldLabel>
-                  <Input
-                    id="register-email"
-                    type="email"
-                    placeholder="m@example.com"
-                    value={email}
-                    onChange={event => setEmail(event.target.value)}
-                    autoComplete="email"
-                    required
-                  />
-                </Field>
+                  <Field>
+                    <FieldLabel htmlFor="register-identifier">
+                      Email or phone number
+                    </FieldLabel>
+                    <Input
+                      id="register-identifier"
+                      type="text"
+                      placeholder="m@example.com or 09181234567"
+                      value={identifier}
+                      onChange={event => setIdentifier(event.target.value)}
+                      autoComplete="username"
+                      required
+                    />
+                  </Field>
 
-                <Field>
-                  <InputPasswordStrength
-                    value={password}
-                    onChange={setPassword}
-                  />
-                </Field>
+                  <Field>
+                    <InputPasswordStrength
+                      value={password}
+                      onChange={setPassword}
+                    />
+                  </Field>
 
-                <Field>
-                  <FieldLabel htmlFor="confirm-password">
-                    Confirm password
-                  </FieldLabel>
-                  <div className="relative">
+                  <Field>
+                    <FieldLabel htmlFor="confirm-password">
+                      Confirm password
+                    </FieldLabel>
                     <Input
                       id="confirm-password"
-                      type={showConfirm ? "text" : "password"}
+                      type="password"
                       value={confirmPassword}
                       onChange={event => setConfirmPassword(event.target.value)}
                       autoComplete="new-password"
-                      className="pe-9"
                       required
                     />
+                    {confirmPassword.length > 0 && !passwordsMatch ? (
+                      <FieldDescription className="text-destructive">
+                        Passwords do not match
+                      </FieldDescription>
+                    ) : null}
+                  </Field>
+
+                  <Field>
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={!isValid || loader}>
+                      {loader ? "Creating account..." : "Create account"}
+                    </Button>
+                    <FieldDescription className="text-center">
+                      Already have an account?{" "}
+                      <Link href={paths.login}>Sign in</Link>
+                    </FieldDescription>
+                  </Field>
+                </FieldGroup>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyOtp}>
+                <FieldGroup>
+                  <Field>
+                    <FieldLabel htmlFor="register-otp">
+                      Verification code
+                    </FieldLabel>
+                    <InputOTP
+                      id="register-otp"
+                      maxLength={6}
+                      value={otp}
+                      onChange={setOtp}
+                      containerClassName="justify-center">
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                      </InputOTPGroup>
+                      <InputOTPSeparator />
+                      <InputOTPGroup>
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </Field>
+                  <Field>
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={!isOtpValid || loader}>
+                      {loader ? "Verifying..." : "Verify and continue"}
+                    </Button>
                     <Button
                       type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setShowConfirm(current => !current)}
-                      className="absolute inset-y-0 end-0 text-muted-foreground hover:bg-transparent">
-                      {showConfirm ? (
-                        <EyeOffIcon className="size-4" />
-                      ) : (
-                        <EyeIcon className="size-4" />
-                      )}
-                      <span className="sr-only">Toggle confirm password</span>
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setOtpSent(false);
+                        setOtp("");
+                      }}>
+                      Back to registration
                     </Button>
-                  </div>
-                  {confirmPassword.length > 0 && !passwordsMatch ? (
-                    <FieldDescription className="text-destructive">
-                      Passwords do not match
-                    </FieldDescription>
-                  ) : null}
-                </Field>
-
-                <Field>
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={!isValid}>
-                    Create account
-                  </Button>
-                  <FieldDescription className="text-center">
-                    Already have an account?{" "}
-                    <Link href={paths.login}>Sign in</Link>
-                  </FieldDescription>
-                </Field>
-              </FieldGroup>
-            </form>
+                  </Field>
+                </FieldGroup>
+              </form>
+            )}
           </CardContent>
         </Card>
         <AuthFooterNote />

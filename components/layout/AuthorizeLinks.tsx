@@ -19,8 +19,7 @@ export default function AuthorizeLinks() {
       <Button className="w-full">
         <Link
           href={`/${locale}/login`}
-          className="w-full text-start"
-          onClick={handleLogin}>
+          className="w-full text-start">
           Login
         </Link>
       </Button>
@@ -28,8 +27,7 @@ export default function AuthorizeLinks() {
       <Button className="mt-1 w-full">
         <Link
           href={`/${locale}/register`}
-          className="w-full text-start"
-          onClick={handleRegister}>
+          className="w-full text-start">
           Register
         </Link>
       </Button>

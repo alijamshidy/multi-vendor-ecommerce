@@ -19,13 +19,16 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useAuthPaths } from "@/hooks/use-auth-paths";
+import useAuthStore from "@/store/authStore";
+import { isLoginPasswordValid } from "@/utils/password";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const phoneRegex = /^(09[0-9]{9}|\+989[0-9]{9})$/;
-const passwordRegex = /^[A-Za-z0-9.]{8,}$/;
 
 export default function LoginWithPassword({
   onSwitchToOtp,
@@ -33,6 +36,10 @@ export default function LoginWithPassword({
   onSwitchToOtp?: () => void;
 }) {
   const paths = useAuthPaths();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const login = useAuthStore(state => state.login);
+  const loader = useAuthStore(state => state.loader);
   const [isVisible, setIsVisible] = useState(false);
   const [password, setPassword] = useState("");
   const [identifier, setIdentifier] = useState("");
@@ -40,14 +47,24 @@ export default function LoginWithPassword({
   const isValid = useMemo(() => {
     const isEmail = emailRegex.test(identifier);
     const isPhone = phoneRegex.test(identifier);
-    const isPasswordValid = passwordRegex.test(password);
+    const isPasswordValid = isLoginPasswordValid(password);
     return (isEmail || isPhone) && isPasswordValid;
   }, [identifier, password]);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isValid) return;
-    // TODO: connect to auth API
+    if (!isValid || loader) return;
+
+    try {
+      await login({ identifier, password });
+      toast.success("Signed in successfully");
+      const callbackUrl = searchParams.get("callbackUrl") || paths.dashboard;
+      router.push(callbackUrl);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Login failed",
+      );
+    }
   };
 
   return (
@@ -156,8 +173,8 @@ export default function LoginWithPassword({
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={!isValid}>
-                    Sign in
+                    disabled={!isValid || loader}>
+                    {loader ? "Signing in..." : "Sign in"}
                   </Button>
                   <FieldDescription className="text-center">
                     Don&apos;t have an account?{" "}

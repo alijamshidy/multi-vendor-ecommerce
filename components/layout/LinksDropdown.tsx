@@ -6,13 +6,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { GetLocale } from "@/utils/GetUrlParams";
 import {
   adminLinks,
   customerLinks,
   sellerLinks,
   visitorLinks,
 } from "@/utils/links";
-import { GetLocale } from "@/utils/GetUrlParams";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LuAlignLeft } from "react-icons/lu";
@@ -60,8 +60,8 @@ export default function LinksDropdown() {
         <Button
           variant="outline"
           size="sm"
-          className="h-8 shrink-0 gap-1.5 px-2">
-          <LuAlignLeft className="size-4" />
+          className="h-8 shrink-0 gap-1.5 px-2 [&_svg:not([class*='size-'])]:size-6">
+          <LuAlignLeft className="size-6" />
           <UserIcon />
         </Button>
       </DropdownMenuTrigger>

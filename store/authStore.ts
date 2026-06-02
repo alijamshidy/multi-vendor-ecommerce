@@ -1,267 +1,160 @@
-// import { create } from "zustand";
-// import { devtools } from "zustand/middleware";
-
-// interface userInfo {
-//   id: string;
-//   email: string;
-//   fname: string;
-//   lname: string;
-//   phoneNumber: string;
-//   image: string;
-//   province: string;
-//   city: string;
-//   zipCode: string;
-//   addName: (name: string) => void;
-// }
-// export const useUserInfoStore = create<userInfo>()(
-//   devtools(set => {
-//     return {
-//       userInfo: {
-//         id: "",
-//         email: "",
-//         fname: "",
-//         lname: "",
-//         phoneNumber: "",
-//         image: "",
-//         province: "",
-//         city: "",
-//         zipCode: "",
-//       },
-//       addName: name => {
-//         set(state => {
-//           return {
-//             userInfo: {
-//               ...state.userInfo,
-//               fname: name,
-//             },
-//           };
-//         });
-//       },
-//     };
-//   }),
-// );
-
-import Axios from "@/lib/axios";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import type { AuthUser, LoginResponse } from "@/lib/auth-types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-const getRoleFromToken = token => {
-  if (!token) return "";
-  try {
-    const decoded = jwtDecode(token);
-    const expireTime = new Date(decoded.exp * 1000);
-    if (new Date() > expireTime) return "";
-    return decoded.role;
-  } catch {
-    return "";
-  }
+type AuthState = {
+  loader: boolean;
+  errorMessage: string;
+  successMessage: string;
+  user: AuthUser | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  clearMessages: () => void;
+  setSession: (data: LoginResponse) => void;
+  clearSession: () => void;
+  login: (payload: { identifier: string; password: string }) => Promise<void>;
+  register: (payload: {
+    identifier: string;
+    password?: string;
+    full_name?: string;
+  }) => Promise<void>;
+  requestOtp: (payload: { identifier: string }) => Promise<void>;
+  verifyOtp: (payload: { identifier: string; code: string }) => Promise<void>;
 };
 
-const useAuthStore = create(
+async function postJson<T>(url: string, body: unknown): Promise<T> {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || data.message || "Request failed");
+  }
+
+  return data as T;
+}
+
+const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      successMessage: "",
-      errorMessage: "",
       loader: false,
-      userInfo: null,
-      token: null,
-      role: "",
+      errorMessage: "",
+      successMessage: "",
+      user: null,
+      accessToken: null,
+      refreshToken: null,
 
-      clearMessage: () => set({ errorMessage: "", successMessage: "" }),
+      clearMessages: () => set({ errorMessage: "", successMessage: "" }),
 
-      admin_login: async info => {
-        set({ loader: true, errorMessage: "", successMessage: "" });
-        try {
-          const { data } = await Axios.post("/admin-login", info, {
-            withCredentials: true,
-          });
-          localStorage.setItem("accessToken", data.token);
-          set({
-            loader: false,
-            successMessage: data.message,
-            token: data.token,
-            role: getRoleFromToken(data.token),
-          });
-          return data;
-        } catch (error) {
-          set({
-            loader: false,
-            errorMessage: error.response?.data?.error || "Login failed",
-          });
-          throw error;
-        }
-      },
-
-      seller_login: async info => {
-        set({ loader: true, errorMessage: "", successMessage: "" });
-        try {
-          const { data } = await axios.post(
-            "http://localhost:5000/api/seller-login",
-            info,
-            {
-              withCredentials: true,
-            },
-          );
-          localStorage.setItem("accessToken", data.token);
-          set({
-            loader: false,
-            successMessage: data.message,
-            token: data.token,
-            role: getRoleFromToken(data.token),
-          });
-          return data;
-        } catch (error) {
-          set({
-            loader: false,
-            errorMessage: error.response?.data?.error || "Login failed",
-          });
-          throw error;
-        }
-      },
-
-      seller_register: async info => {
-        set({ loader: true, errorMessage: "", successMessage: "" });
-        try {
-          const { data } = await Axios.post("/seller-register", info, {
-            withCredentials: true,
-          });
-          localStorage.setItem("accessToken", data.token);
-          set({
-            loader: false,
-            successMessage: data.message,
-            token: data.token,
-            role: getRoleFromToken(data.token),
-          });
-          return data;
-        } catch (error) {
-          set({
-            loader: false,
-            errorMessage: error.response?.data?.error || "Registration failed",
-          });
-          throw error;
-        }
-      },
-
-      get_user_info: async () => {
-        set({ loader: true });
-        try {
-          const { data } = await Axios.get("/get-user", {
-            withCredentials: true,
-          });
-          set({ loader: false, userInfo: data.userInfo });
-          return data;
-        } catch (error) {
-          set({
-            loader: false,
-            errorMessage: error.response?.data?.error || "Failed to fetch user",
-          });
-          throw error;
-        }
-      },
-
-      profile_image_upload: async imageData => {
-        set({ loader: true, errorMessage: "", successMessage: "" });
-        try {
-          const { data } = await Axios.post(
-            "/profile-image-upload",
-            imageData,
-            { withCredentials: true },
-          );
-          set({
-            loader: false,
-            userInfo: data.userInfo,
-            successMessage: data.message,
-          });
-          return data;
-        } catch (error) {
-          set({
-            loader: false,
-            errorMessage: error.response?.data?.error || "Image upload failed",
-          });
-          throw error;
-        }
-      },
-
-      profile_info_add: async info => {
-        set({ loader: true, errorMessage: "", successMessage: "" });
-        try {
-          const { data } = await Axios.post("/profile-info-add", info, {
-            withCredentials: true,
-          });
-          set({
-            loader: false,
-            userInfo: data.userInfo,
-            successMessage: data.message,
-          });
-          return data;
-        } catch (error) {
-          set({
-            loader: false,
-            errorMessage:
-              error.response?.data?.error || "Profile update failed",
-          });
-          throw error;
-        }
-      },
-
-      change_password: async info => {
-        set({ loader: true, errorMessage: "", successMessage: "" });
-        try {
-          const { data } = await Axios.post("/change-password", info, {
-            withCredentials: true,
-          });
-          set({ loader: false, successMessage: data.message });
-          return data;
-        } catch (error) {
-          set({
-            loader: false,
-            errorMessage:
-              error.response?.data?.message || "Password change failed",
-          });
-          throw error;
-        }
-      },
-
-      logout: async (navigate, role) => {
-        try {
-          await api.get("/logout", { withCredentials: true });
-        } catch (error) {
-          // ignore server error, still clear local state
-        }
-        localStorage.removeItem("accessToken");
+      setSession: data => {
+        localStorage.setItem("accessToken", data.tokens.access_token);
         set({
-          token: null,
-          role: "",
-          userInfo: null,
-          successMessage: "",
+          user: data.user,
+          accessToken: data.tokens.access_token,
+          refreshToken: data.tokens.refresh_token,
+          successMessage: "Signed in successfully",
           errorMessage: "",
         });
-        // Navigate using Next.js router (must be called from component)
-        if (role === "admin") {
-          navigate("/admin/login");
-        } else {
-          navigate("/login");
+      },
+
+      clearSession: () => {
+        localStorage.removeItem("accessToken");
+        set({
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          errorMessage: "",
+          successMessage: "",
+        });
+      },
+
+      login: async payload => {
+        set({ loader: true, errorMessage: "", successMessage: "" });
+        try {
+          const result = await postJson<{ data: LoginResponse; message: string }>(
+            "/api/auth/login",
+            payload,
+          );
+          get().setSession(result.data);
+        } catch (error) {
+          set({
+            errorMessage:
+              error instanceof Error ? error.message : "Login failed",
+          });
+          throw error;
+        } finally {
+          set({ loader: false });
+        }
+      },
+
+      register: async payload => {
+        set({ loader: true, errorMessage: "", successMessage: "" });
+        try {
+          const result = await postJson<{ message: string }>(
+            "/api/auth/register",
+            payload,
+          );
+          set({ successMessage: result.message });
+        } catch (error) {
+          set({
+            errorMessage:
+              error instanceof Error ? error.message : "Registration failed",
+          });
+          throw error;
+        } finally {
+          set({ loader: false });
+        }
+      },
+
+      requestOtp: async payload => {
+        set({ loader: true, errorMessage: "", successMessage: "" });
+        try {
+          const result = await postJson<{ message: string }>(
+            "/api/auth/request-otp",
+            payload,
+          );
+          set({ successMessage: result.message });
+        } catch (error) {
+          set({
+            errorMessage:
+              error instanceof Error ? error.message : "Failed to send OTP",
+          });
+          throw error;
+        } finally {
+          set({ loader: false });
+        }
+      },
+
+      verifyOtp: async payload => {
+        set({ loader: true, errorMessage: "", successMessage: "" });
+        try {
+          const result = await postJson<{ data: LoginResponse; message: string }>(
+            "/api/auth/verify-otp",
+            payload,
+          );
+          get().setSession(result.data);
+        } catch (error) {
+          set({
+            errorMessage:
+              error instanceof Error ? error.message : "OTP verification failed",
+          });
+          throw error;
+        } finally {
+          set({ loader: false });
         }
       },
     }),
     {
-      name: "auth-storage", // key in localStorage
+      name: "auth-storage",
       partialize: state => ({
-        // only persist token and role
-        token: state.token,
-        role: state.role,
+        user: state.user,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
       }),
-      onRehydrateStorage: () => state => {
-        // After rehydration, sync role from token if needed
-        if (state?.token) {
-          const derivedRole = getRoleFromToken(state.token);
-          if (derivedRole !== state.role) {
-            state.role = derivedRole;
-          }
-        }
-      },
     },
   ),
 );

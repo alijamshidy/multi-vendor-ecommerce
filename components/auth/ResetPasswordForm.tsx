@@ -19,20 +19,26 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAuthPaths } from "@/hooks/use-auth-paths";
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export default function ResetPasswordForm() {
   const paths = useAuthPaths();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const phoneRegex = /^(09[0-9]{9}|\+989[0-9]{9})$/;
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-  const isValid = emailRegex.test(email);
+  const isIdentifierValid = useMemo(
+    () => emailRegex.test(identifier) || phoneRegex.test(identifier),
+    [identifier],
+  );
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isValid) return;
+    console.log(identifier);
+    if (!isIdentifierValid) return;
     setSubmitted(true);
     // TODO: connect to reset password API
   };
@@ -44,7 +50,8 @@ export default function ResetPasswordForm() {
           <CardHeader className="text-center">
             <CardTitle className="text-xl">Reset password</CardTitle>
             <CardDescription>
-              Enter your email and we&apos;ll send you a reset link
+              Enter your email or phone number and we&apos;ll send you a reset
+              link
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -52,8 +59,8 @@ export default function ResetPasswordForm() {
               <div className="space-y-4 text-center">
                 <p className="text-sm leading-7 text-muted-foreground">
                   If an account exists for{" "}
-                  <strong dir="ltr">{email}</strong>, you will receive password
-                  reset instructions shortly.
+                  <strong dir="ltr">{identifier}</strong>, you will receive
+                  password reset instructions shortly.
                 </p>
                 <Button
                   asChild
@@ -66,14 +73,16 @@ export default function ResetPasswordForm() {
               <form onSubmit={handleSubmit}>
                 <FieldGroup>
                   <Field>
-                    <FieldLabel htmlFor="reset-email">Email</FieldLabel>
+                    <FieldLabel htmlFor="reset-email">
+                      Email or phone number
+                    </FieldLabel>
                     <Input
                       id="reset-email"
-                      type="email"
-                      placeholder="m@example.com"
-                      value={email}
-                      onChange={event => setEmail(event.target.value)}
-                      autoComplete="email"
+                      value={identifier}
+                      onChange={event => setIdentifier(event.target.value)}
+                      type="text"
+                      inputMode="email"
+                      placeholder="m@example.com or 09181234567"
                       required
                     />
                   </Field>
@@ -81,7 +90,7 @@ export default function ResetPasswordForm() {
                     <Button
                       type="submit"
                       className="w-full"
-                      disabled={!isValid}>
+                      disabled={!isIdentifierValid}>
                       Send reset link
                     </Button>
                     <FieldDescription className="text-center">

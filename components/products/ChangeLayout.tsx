@@ -13,7 +13,7 @@ export default function ChangeLayout() {
   const str = GetSearchParams();
   const searchParam = parseQueryString({ str: str.toString() });
   const layout =
-    typeof searchParam.layout === "string" ? searchParam.layout : "";
+    typeof searchParam.layout === "string" ? searchParam.layout : "grid";
 
   const locale = GetLocale();
   const searchTerm = RemoveLayoutParam();

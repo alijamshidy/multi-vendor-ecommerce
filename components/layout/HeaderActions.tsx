@@ -11,11 +11,11 @@ import { GetAfterUrl, GetLocale } from "@/utils/GetUrlParams";
 import { IR, US } from "country-flag-icons/react/3x2";
 import { Ellipsis, Heart, ShoppingCart } from "lucide-react";
 import Link from "next/link";
+import { Button } from "../ui/button";
 import CardButton from "./CardButton";
 import LanguageSwitcher from "./LanguageSwitcher";
 import LinksDropdown from "./LinksDropdown";
 import WishlistButton from "./WishlistButton";
-import { Button } from "../ui/button";
 
 type HeaderActionsProps = {
   compact?: boolean;
@@ -52,6 +52,7 @@ export default function HeaderActions({
                 English <US className="h-3 w-4" />
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link
                 href={afterUrl ? `/fa/${afterUrl}` : "/fa"}
@@ -59,19 +60,12 @@ export default function HeaderActions({
                 فارسی <IR className="h-3 w-4" />
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link
-                href={`/${locale}/wishlist`}
-                className="flex items-center gap-2">
-                <Heart className="size-4" />
-                Wishlist
-              </Link>
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         <LinksDropdown />
         <CardButton />
+        <span className="mr-1" />
+        <WishlistButton />
       </>
     );
   }

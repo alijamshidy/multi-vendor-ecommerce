@@ -11,8 +11,6 @@ import { GetLocale } from "@/utils/GetUrlParams";
 import {
   Heart,
   Home,
-  Info,
-  LayoutDashboard,
   Package,
   ShoppingCart,
   Star,
@@ -76,16 +74,15 @@ export function StoreNav() {
     { title: "Cart", href: `${prefix}/cart`, icon: ShoppingCart },
     { title: "Wishlist", href: `${prefix}/wishlist`, icon: Heart },
     { title: "Reviews", href: `${prefix}/reviews`, icon: Star },
-    { title: "About", href: `${prefix}/about`, icon: Info },
   ];
 
-  const accountItems: NavItem[] = [
-    {
-      title: "Dashboard",
-      href: `${prefix}/customer/dashboard`,
-      icon: LayoutDashboard,
-    },
-  ];
+  // const accountItems: NavItem[] = [
+  //   {
+  //     title: "Dashboard",
+  //     href: `${prefix}/customer/dashboard`,
+  //     icon: LayoutDashboard,
+  //   },
+  // ];
 
   return (
     <>
@@ -94,11 +91,11 @@ export function StoreNav() {
         items={shopItems}
         prefix={prefix}
       />
-      <NavGroup
+      {/* <NavGroup
         label="Account"
         items={accountItems}
         prefix={prefix}
-      />
+      /> */}
     </>
   );
 }

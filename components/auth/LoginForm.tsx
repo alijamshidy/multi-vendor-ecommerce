@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import LoginWithOtp from "./LoginWithOtp";
 import LoginWithPassword from "./LoginWithPassword";
 
-export default function LoginForm() {
+function LoginFormContent() {
   const [useOtp, setUseOtp] = useState(false);
 
   if (useOtp) {
@@ -14,4 +14,12 @@ export default function LoginForm() {
   }
 
   return <LoginWithPassword onSwitchToOtp={() => setUseOtp(true)} />;
+}
+
+export default function LoginForm() {
+  return (
+    <Suspense fallback={null}>
+      <LoginFormContent />
+    </Suspense>
+  );
 }

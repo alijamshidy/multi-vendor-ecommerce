@@ -25,7 +25,7 @@ export default function FeaturedProducts() {
       />
       <Link
         href={`/${locale}/products`}
-        className="inline-flex text-lg font-bold text-primary transition-transform duration-300 hover:scale-105 sm:text-xl">
+        className="inline-flex text-lg font-bold text-primary transition-transform -translate-x-6 hover:translate-x-7 duration-300 hover:scale-105 sm:text-xl">
         More Products ...
       </Link>
     </section>

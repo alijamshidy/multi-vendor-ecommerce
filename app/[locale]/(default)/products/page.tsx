@@ -17,7 +17,7 @@ export default async function Page({
   const totalProducts = products.length;
 
   return (
-    <Container className="mt-8 flex flex-col gap-6 md:mt-36 md:flex-row md:items-start md:justify-center">
+    <Container className="flex flex-col mt-12 md:mt-0 gap-6 md:flex-row md:items-start md:justify-center">
       <div className="w-full shrink-0 md:w-auto">
         <MobileFilterSheet />
       </div>

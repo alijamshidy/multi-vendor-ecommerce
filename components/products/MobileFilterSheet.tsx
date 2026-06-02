@@ -1,7 +1,6 @@
 "use client";
 
 import { SlidersHorizontal } from "lucide-react";
-import FilterPanel from "./FilterPanel";
 import { Button } from "../ui/button";
 import {
   Sheet,
@@ -10,6 +9,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
+import FilterPanel from "./FilterPanel";
 
 export default function MobileFilterSheet() {
   return (
@@ -23,8 +23,8 @@ export default function MobileFilterSheet() {
         </Button>
       </SheetTrigger>
       <SheetContent
-        side="start"
-        className="w-[min(100vw-2rem,22rem)] overflow-y-auto">
+        side="bottom"
+        className="w-[min(100vw)] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Filters</SheetTitle>
         </SheetHeader>

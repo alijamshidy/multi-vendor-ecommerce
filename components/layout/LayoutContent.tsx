@@ -20,7 +20,7 @@ export default function LayoutContent({
         <Header open={open} />
         <div
           className={cn(
-            "flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden pb-8 pt-[4.5rem] md:pt-28",
+            "flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden pb-8 pt-[4.5rem]",
             open
               ? "px-3 sm:px-4 md:ps-[1.5%] md:pe-[4%] lg:px-6"
               : "px-3 sm:px-4 md:ps-[2.1%] md:pe-[5%] lg:px-8",

@@ -13,8 +13,8 @@ export default function Header({ open }: { open: boolean }) {
   return (
     <>
       {/* Mobile header */}
-      <section className="fixed inset-x-0 top-0 z-30 border-b bg-background/95 backdrop-blur md:hidden">
-        <header className="flex h-16 min-w-0 items-center justify-between gap-2 px-3">
+      <section className="fixed top-5 w-full z-30  bg-background/95 backdrop-blur md:hidden">
+        <header className="flex h-16 min-w-0  w-[90%] border rounded-md mx-auto items-center justify-between gap-2 px-3 shadow-sm">
           <div className="flex min-w-0 items-center gap-2">
             <SidebarTrigger />
             <Logo />
@@ -31,8 +31,7 @@ export default function Header({ open }: { open: boolean }) {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent
-                  align="end"
-                  className="w-[calc(100vw-2rem)]"
+                  className="w-[calc(80vw)] mr:10 sm:mr-20"
                   sideOffset={10}>
                   <NavSearch />
                 </PopoverContent>
@@ -43,7 +42,7 @@ export default function Header({ open }: { open: boolean }) {
         </header>
       </section>
 
-      {/* Desktop header — sticky inside sidebar inset, adapts when sidebar opens */}
+      {/* Desktop header - sticky inside sidebar inset, adapts when sidebar opens */}
       <section className="sticky top-5 z-30 hidden min-w-0 md:block">
         <header
           className={cn(
@@ -68,8 +67,8 @@ export default function Header({ open }: { open: boolean }) {
 
             <div
               className={cn(
-                "min-w-0 flex-1 px-2",
-                open ? "hidden lg:block" : "block max-w-md",
+                "min-w-0 flex-1 px-2 max-w-md",
+                open ? "hidden lg:block" : "block ",
               )}>
               <Suspense>
                 <NavSearch />
@@ -100,8 +99,6 @@ export default function Header({ open }: { open: boolean }) {
                 </Popover>
               </Suspense>
             </div>
-
-            {/* Full actions when sidebar collapsed or wide screen */}
             <div
               className={cn(
                 "shrink-0 items-center gap-x-2 sm:gap-x-4",
@@ -109,8 +106,6 @@ export default function Header({ open }: { open: boolean }) {
               )}>
               <HeaderActions />
             </div>
-
-            {/* Compact icon dropdown when sidebar open on laptop */}
             <div
               className={cn(
                 "shrink-0 items-center",

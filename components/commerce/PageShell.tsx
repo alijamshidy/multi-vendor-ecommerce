@@ -8,7 +8,7 @@ type PageShellProps = {
 
 export default function PageShell({ children, className }: PageShellProps) {
   return (
-    <Container className={cn("mt-8 space-y-8 md:mt-36", className)}>
+    <Container className={cn("mt-8 space-y-8", className)}>
       {children}
     </Container>
   );

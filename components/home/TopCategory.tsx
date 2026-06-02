@@ -1,18 +1,16 @@
 "use client";
 
-import { GetLocale } from "@/utils/GetUrlParams";
-import { Categorys } from "@/utils/Category";
-import Autoplay from "embla-carousel-autoplay";
-import Image from "next/image";
-import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Categorys } from "@/utils/Category";
+import { GetLocale } from "@/utils/GetUrlParams";
+import Autoplay from "embla-carousel-autoplay";
+import Image from "next/image";
+import Link from "next/link";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 
@@ -22,9 +20,8 @@ function CategoryCarousel() {
   return (
     <Carousel
       className="w-full"
-      opts={{ align: "start", loop: true }}
-      plugins={[Autoplay({ delay: 2000, stopOnInteraction: false })]}>
-      <CarouselPrevious className="hidden sm:flex" />
+      plugins={[Autoplay({ delay: 2000 })]}
+      opts={{ loop: false, align: "start" }}>
       <CarouselContent>
         {Categorys.map(category => (
           <CarouselItem
@@ -53,7 +50,6 @@ function CategoryCarousel() {
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselNext className="hidden sm:flex" />
     </Carousel>
   );
 }
