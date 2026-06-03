@@ -1,30 +1,38 @@
 "use client";
-import axios from "axios";
+
 import { useRouter } from "next/navigation";
+import useManagementStore from "@/store/managementStore";
+import { toast } from "sonner";
 
 export function CreateProductForm() {
   const router = useRouter();
+  const createProduct = useManagementStore(state => state.createProduct);
+  const isLoading = useManagementStore(state => state.loading.createProduct);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const payload = Object.fromEntries(formData.entries());
+
     try {
-      const res = await axios.post("/api/products", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      if (res.data.success) {
-        router.push("/admin/products"); // ریدایرکت
-        router.refresh(); // revalidate
-      } else {
-        alert(res.data.message);
-      }
+      await createProduct(payload);
+      toast.success("Product created");
+      router.push("/admin/products");
+      router.refresh();
     } catch (error) {
-      console.error(error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create product",
+      );
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <button type="submit">Create product</button>
+      <button
+        type="submit"
+        disabled={isLoading}>
+        {isLoading ? "Creating..." : "Create product"}
+      </button>
     </form>
   );
 }

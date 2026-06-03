@@ -24,6 +24,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { useAuthPaths } from "@/hooks/use-auth-paths";
+import { isSafeCallbackUrl } from "@/lib/auth-cookie";
 import useAuthStore from "@/store/authStore";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -45,7 +46,8 @@ export default function LoginWithOtp({
   const searchParams = useSearchParams();
   const requestOtp = useAuthStore(state => state.requestOtp);
   const verifyOtp = useAuthStore(state => state.verifyOtp);
-  const loader = useAuthStore(state => state.loader);
+  const isRequestingOtp = useAuthStore(state => state.loading.requestOtp);
+  const isVerifying = useAuthStore(state => state.loading.verifyOtp);
 
   const [identifier, setIdentifier] = useState("");
   const [otp, setOtp] = useState("");
@@ -60,7 +62,7 @@ export default function LoginWithOtp({
 
   const handleSendCode = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isIdentifierValid || loader) return;
+    if (!isIdentifierValid || isRequestingOtp) return;
 
     try {
       await requestOtp({ identifier });
@@ -75,13 +77,16 @@ export default function LoginWithOtp({
 
   const handleVerify = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isOtpValid || loader) return;
+    if (!isOtpValid || isVerifying) return;
 
     try {
       await verifyOtp({ identifier, code: otp });
       toast.success("Signed in successfully");
-      const callbackUrl = searchParams.get("callbackUrl") || paths.dashboard;
-      router.push(callbackUrl);
+      const callbackUrl = searchParams.get("callbackUrl");
+      const destination = isSafeCallbackUrl(callbackUrl)
+        ? callbackUrl
+        : paths.dashboard;
+      router.replace(destination);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "OTP verification failed",
@@ -123,8 +128,8 @@ export default function LoginWithOtp({
                     <Button
                       type="submit"
                       className="w-full"
-                      disabled={!isIdentifierValid || loader}>
-                      {loader ? "Sending..." : "Send code"}
+                      disabled={!isIdentifierValid || isRequestingOtp}>
+                      {isRequestingOtp ? "Sending..." : "Send code"}
                     </Button>
                   </Field>
                 </FieldGroup>
@@ -157,8 +162,8 @@ export default function LoginWithOtp({
                     <Button
                       type="submit"
                       className="w-full"
-                      disabled={!isOtpValid || loader}>
-                      {loader ? "Verifying..." : "Verify and sign in"}
+                      disabled={!isOtpValid || isVerifying}>
+                      {isVerifying ? "Verifying..." : "Verify and sign in"}
                     </Button>
                     <Button
                       type="button"

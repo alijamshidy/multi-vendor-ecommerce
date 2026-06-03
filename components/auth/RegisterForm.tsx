@@ -40,7 +40,8 @@ export default function RegisterForm() {
   const router = useRouter();
   const register = useAuthStore(state => state.register);
   const verifyOtp = useAuthStore(state => state.verifyOtp);
-  const loader = useAuthStore(state => state.loader);
+  const isRegistering = useAuthStore(state => state.loading.register);
+  const isVerifying = useAuthStore(state => state.loading.verifyOtp);
 
   const [name, setName] = useState("");
   const [identifier, setIdentifier] = useState("");
@@ -66,7 +67,7 @@ export default function RegisterForm() {
 
   const handleRegister = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isValid || loader) return;
+    if (!isValid || isRegistering) return;
 
     try {
       await register({
@@ -85,7 +86,7 @@ export default function RegisterForm() {
 
   const handleVerifyOtp = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isOtpValid || loader) return;
+    if (!isOtpValid || isVerifying) return;
 
     try {
       await verifyOtp({ identifier, code: otp });
@@ -174,8 +175,8 @@ export default function RegisterForm() {
                     <Button
                       type="submit"
                       className="w-full"
-                      disabled={!isValid || loader}>
-                      {loader ? "Creating account..." : "Create account"}
+                      disabled={!isValid || isRegistering}>
+                      {isRegistering ? "Creating account..." : "Create account"}
                     </Button>
                     <FieldDescription className="text-center">
                       Already have an account?{" "}
@@ -214,8 +215,8 @@ export default function RegisterForm() {
                     <Button
                       type="submit"
                       className="w-full"
-                      disabled={!isOtpValid || loader}>
-                      {loader ? "Verifying..." : "Verify and continue"}
+                      disabled={!isOtpValid || isVerifying}>
+                      {isVerifying ? "Verifying..." : "Verify and continue"}
                     </Button>
                     <Button
                       type="button"

@@ -12,7 +12,6 @@ const shopLinks = [
 ];
 
 const companyLinks = [
-  { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
   { href: "/reviews", label: "Reviews" },
 ];

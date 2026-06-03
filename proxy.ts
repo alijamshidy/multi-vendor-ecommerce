@@ -1,6 +1,7 @@
 // middleware.ts
 import { Categorys } from "@/utils/Category";
-import { getToken } from "next-auth/jwt";
+import type { AuthRole } from "@/lib/auth-cookie";
+import { isSafeCallbackUrl } from "@/lib/auth-cookie";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
@@ -13,9 +14,6 @@ const publicPaths = [
   "products",
   "reset_password",
   "about",
-  "cart",
-  "wishlist",
-  "checkout",
   "reviews",
   "contact",
 ];
@@ -47,6 +45,22 @@ function getLocaleFromPath(pathname: string): string | null {
   return match ? match[1] : null;
 }
 
+function getDefaultDashboardPath(locale: string, role?: AuthRole): string {
+  if (role === "admin") return `/${locale}/admin/dashboard`;
+  if (role === "seller") return `/${locale}/seller/dashboard`;
+  return `/${locale}/customer/dashboard`;
+}
+
+function getAuthFromRequest(request: NextRequest) {
+  const accessToken = request.cookies.get("accessToken")?.value;
+  const role = request.cookies.get("authRole")?.value as AuthRole | undefined;
+
+  return {
+    isAuthenticated: !!accessToken,
+    role,
+  };
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -58,30 +72,27 @@ export async function proxy(request: NextRequest) {
   // 2. پروکسی API (اختیاری)
   if (pathname.startsWith("/api/proxy/")) {
     const newUrl = pathname.replace("/api/proxy", "");
-    return NextResponse.rewrite(new URL(newUrl, "http://localhost:5000"));
+    return NextResponse.rewrite(new URL(newUrl, "http://localhost:8000"));
   }
 
   if (pathname.startsWith("/api/")) {
     return NextResponse.next();
   }
   // 3. کنترل دسترسی و احراز هویت
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
-  const isAuthenticated = !!token;
-  const role = token?.role as "admin" | "customer" | undefined;
+  const { isAuthenticated, role } = getAuthFromRequest(request);
 
   const isPublic = isPublicPath(pathname);
 
-  // اگر کاربر لاگین کرده و در صفحات لاگین/ثبت‌نام است → هدایت به داشبورد
+  // اگر کاربر لاگین کرده و در صفحات لاگین/ثبت‌نام است → هدایت به callbackUrl یا داشبورد
   const isLoginOrRegister =
     pathname.includes("/login") || pathname.includes("/register");
   if (isAuthenticated && isLoginOrRegister) {
     const locale = getLocaleFromPath(pathname) || DEFAULT_LOCALE;
-    const dashboardPath =
-      role === "admin" ? `/${locale}/admin/dashboard` : `/${locale}/dashboard`;
-    return NextResponse.redirect(new URL(dashboardPath, request.url));
+    const callbackUrl = request.nextUrl.searchParams.get("callbackUrl");
+    const destination = isSafeCallbackUrl(callbackUrl)
+      ? callbackUrl
+      : getDefaultDashboardPath(locale, role);
+    return NextResponse.redirect(new URL(destination, request.url));
   }
 
   // صفحات عمومی → دسترسی آزاد
@@ -101,18 +112,20 @@ export async function proxy(request: NextRequest) {
   const isAdminRoute = pathname.includes("/admin");
   if (isAdminRoute && role !== "admin") {
     const locale = getLocaleFromPath(pathname) || DEFAULT_LOCALE;
-    return NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url));
+    return NextResponse.redirect(
+      new URL(getDefaultDashboardPath(locale, role), request.url),
+    );
   }
 
   // جلوگیری از دسترسی ادمین به صفحات مشتری (اختیاری)
   const isCustomerRoute =
-    pathname.includes("/dashboard") ||
+    pathname.includes("/customer/dashboard") ||
     pathname.includes("/profile") ||
     pathname.includes("/orders");
   if (isCustomerRoute && role === "admin") {
     const locale = getLocaleFromPath(pathname) || DEFAULT_LOCALE;
     return NextResponse.redirect(
-      new URL(`/${locale}/admin/dashboard`, request.url),
+      new URL(getDefaultDashboardPath(locale, role), request.url),
     );
   }
   // هدایت ریشه با تشخیص زبان مرورگر

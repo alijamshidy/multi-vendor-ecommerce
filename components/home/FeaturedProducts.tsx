@@ -1,15 +1,23 @@
 "use client";
 
-import { Products } from "@/utils/products";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ProductGrid from "../products/ProductGrid";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
+import { useStoreInit } from "@/hooks/use-store-init";
+import useProductStore from "@/store/productStore";
 
 export default function FeaturedProducts() {
   const pathname = usePathname();
   const locale = pathname.split("/")[1] || "en";
+  const featuredProducts = useProductStore(state => state.featuredProducts);
+  const fetchFeaturedProducts = useProductStore(
+    state => state.fetchFeaturedProducts,
+  );
+  const isLoading = useProductStore(state => state.loading.fetchFeatured);
+
+  useStoreInit(() => fetchFeaturedProducts(8));
 
   return (
     <section className="flex w-full flex-col gap-4 sm:gap-6">
@@ -19,10 +27,16 @@ export default function FeaturedProducts() {
         </Label>
         <Separator className="w-24 bg-primary sm:w-32" />
       </div>
-      <ProductGrid
-        products={Products.slice(0, 8)}
-        locale={locale}
-      />
+      {isLoading && featuredProducts.length === 0 ? (
+        <p className="text-center text-sm text-muted-foreground">
+          Loading products...
+        </p>
+      ) : (
+        <ProductGrid
+          products={featuredProducts}
+          locale={locale}
+        />
+      )}
       <Link
         href={`/${locale}/products`}
         className="inline-flex text-lg font-bold text-primary transition-transform -translate-x-6 hover:translate-x-7 duration-300 hover:scale-105 sm:text-xl">

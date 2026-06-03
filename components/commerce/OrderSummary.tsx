@@ -1,9 +1,12 @@
+"use client";
+
 import { formatCurrency } from "@/utils/format";
 import Link from "next/link";
+import { useStoreInit } from "@/hooks/use-store-init";
+import useCartStore from "@/store/cartStore";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Separator } from "../ui/separator";
-import { cartSubtotal, orderTotal, shipping, tax } from "./MockCart";
 
 type OrderSummaryProps = {
   locale: string;
@@ -14,6 +17,14 @@ export default function OrderSummary({
   locale,
   showCheckoutButton = true,
 }: OrderSummaryProps) {
+  const subtotal = useCartStore(state => state.subtotal);
+  const shipping = useCartStore(state => state.shipping);
+  const tax = useCartStore(state => state.tax);
+  const orderTotal = useCartStore(state => state.orderTotal);
+  const fetchItems = useCartStore(state => state.fetchItems);
+
+  useStoreInit(() => fetchItems());
+
   return (
     <Card className="rounded-md">
       <CardHeader>
@@ -22,7 +33,7 @@ export default function OrderSummary({
       <CardContent className="space-y-4">
         <SummaryRow
           label="Subtotal"
-          value={formatCurrency(cartSubtotal)}
+          value={formatCurrency(subtotal)}
         />
         <SummaryRow
           label="Shipping"

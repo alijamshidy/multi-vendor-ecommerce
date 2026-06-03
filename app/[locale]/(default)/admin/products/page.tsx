@@ -1,3 +1,5 @@
-import SellerProductsPage from "../../seller/products/page";
+import SellerProductsContent from "@/components/pages/SellerProductsContent";
 
-export default SellerProductsPage;
+export default function AdminProductsPage() {
+  return <SellerProductsContent />;
+}

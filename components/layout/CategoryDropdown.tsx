@@ -8,12 +8,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Categorys, category } from "@/utils/Category";
 import { GetLocale } from "@/utils/GetUrlParams";
+import { useStoreInit } from "@/hooks/use-store-init";
+import useCategoryStore from "@/store/categoryStore";
 import { ArrowDownIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function CategoryDropdown() {
   const locale = GetLocale();
+  const categories = useCategoryStore(state => state.categories);
+  const fetchCategories = useCategoryStore(state => state.fetchCategories);
+
+  useStoreInit(() => fetchCategories());
+
+  const categoryList = categories.length > 0 ? categories : Categorys;
+
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger>
@@ -28,7 +37,7 @@ export default function CategoryDropdown() {
         sideOffset={5}>
         <RenderCategories
           locale={locale}
-          categorys={Categorys}
+          categorys={categoryList}
         />
       </DropdownMenuContent>
     </DropdownMenu>

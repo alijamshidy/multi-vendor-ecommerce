@@ -1,9 +1,4 @@
-import Container from "@/components/Global/Container";
-import Filter from "@/components/products/Filter";
-import MobileFilterSheet from "@/components/products/MobileFilterSheet";
-import ProductsContainer from "@/components/products/ProductsContainer";
-import { Products, productType } from "@/utils/products";
-import { Suspense } from "react";
+import ProductsPageContent from "@/components/pages/ProductsPageContent";
 
 export default async function Page({
   searchParams,
@@ -13,22 +8,6 @@ export default async function Page({
   }>;
 }) {
   const layout = (await searchParams).layout || "grid";
-  const products: productType[] = Products;
-  const totalProducts = products.length;
 
-  return (
-    <Container className="flex flex-col mt-12 md:mt-0 gap-6 md:flex-row md:items-start md:justify-center">
-      <div className="w-full shrink-0 md:w-auto">
-        <MobileFilterSheet />
-      </div>
-      <Filter />
-      <Suspense fallback={<div>loading ...</div>}>
-        <ProductsContainer
-          layout={layout}
-          totalProducts={totalProducts}
-          products={products}
-        />
-      </Suspense>
-    </Container>
-  );
+  return <ProductsPageContent layout={layout} />;
 }

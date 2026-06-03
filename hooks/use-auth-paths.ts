@@ -13,6 +13,6 @@ export function useAuthPaths() {
     login: `${base}/login`,
     register: `${base}/register`,
     resetPassword: `${base}/reset_password`,
-    dashboard: `${base}/dashboard`,
+    dashboard: `${base}/customer/dashboard`,
   };
 }

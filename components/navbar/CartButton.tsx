@@ -1,20 +1,29 @@
-// import { fetchCartItems } from "@/utils/actions";
+"use client";
+
+import { useStoreInit } from "@/hooks/use-store-init";
+import useCartStore from "@/store/cartStore";
+import { GetLocale } from "@/utils/GetUrlParams";
 import Link from "next/link";
 import { FaShoppingCart } from "react-icons/fa";
 import { Button } from "../ui/button";
 
-export default async function CartButton() {
-  const numItemsInCart = 3;
+export default function CartButton() {
+  const locale = GetLocale();
+  const itemCount = useCartStore(state => state.itemCount);
+  const fetchItems = useCartStore(state => state.fetchItems);
+
+  useStoreInit(() => fetchItems());
+
   return (
     <Button
       asChild
-      variant={"link"}
-      size={"icon"}
-      className="flex justify-center items-center relative rounded-full text-green-500 border">
-      <Link href={"/whishlist"}>
+      variant="link"
+      size="icon"
+      className="relative flex items-center justify-center rounded-full border text-green-500">
+      <Link href={`/${locale}/cart`}>
         <FaShoppingCart />
-        <span className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs">
-          {numItemsInCart}
+        <span className="absolute -top-3 -right-3 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+          {itemCount}
         </span>
       </Link>
     </Button>

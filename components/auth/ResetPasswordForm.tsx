@@ -17,30 +17,74 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { useAuthPaths } from "@/hooks/use-auth-paths";
+import useAuthStore from "@/store/authStore";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const phoneRegex = /^(09[0-9]{9}|\+989[0-9]{9})$/;
 
 export default function ResetPasswordForm() {
   const paths = useAuthPaths();
+  const router = useRouter();
+  const resetPasswordRequest = useAuthStore(state => state.resetPasswordRequest);
+  const resetPasswordConfirm = useAuthStore(state => state.resetPasswordConfirm);
+  const isRequesting = useAuthStore(state => state.loading.resetPasswordRequest);
+  const isConfirming = useAuthStore(state => state.loading.resetPasswordConfirm);
+
   const [identifier, setIdentifier] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const phoneRegex = /^(09[0-9]{9}|\+989[0-9]{9})$/;
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const [codeSent, setCodeSent] = useState(false);
+  const [code, setCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
 
   const isIdentifierValid = useMemo(
     () => emailRegex.test(identifier) || phoneRegex.test(identifier),
     [identifier],
   );
+  const isCodeValid = code.length === 6;
+  const isPasswordValid = newPassword.length >= 8;
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleRequest = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log(identifier);
-    if (!isIdentifierValid) return;
-    setSubmitted(true);
-    // TODO: connect to reset password API
+    if (!isIdentifierValid || isRequesting) return;
+
+    try {
+      await resetPasswordRequest({ identifier });
+      toast.success("Reset code sent");
+      setCodeSent(true);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send reset code",
+      );
+    }
+  };
+
+  const handleConfirm = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!isCodeValid || !isPasswordValid || isConfirming) return;
+
+    try {
+      await resetPasswordConfirm({
+        identifier,
+        code,
+        new_password: newPassword,
+      });
+      toast.success("Password reset successfully");
+      router.push(paths.login);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to reset password",
+      );
+    }
   };
 
   return (
@@ -50,27 +94,14 @@ export default function ResetPasswordForm() {
           <CardHeader className="text-center">
             <CardTitle className="text-xl">Reset password</CardTitle>
             <CardDescription>
-              Enter your email or phone number and we&apos;ll send you a reset
-              link
+              {codeSent
+                ? "Enter the code and your new password"
+                : "Enter your email or phone number to receive a reset code"}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {submitted ? (
-              <div className="space-y-4 text-center">
-                <p className="text-sm leading-7 text-muted-foreground">
-                  If an account exists for{" "}
-                  <strong dir="ltr">{identifier}</strong>, you will receive
-                  password reset instructions shortly.
-                </p>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="w-full">
-                  <Link href={paths.login}>Back to sign in</Link>
-                </Button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit}>
+            {!codeSent ? (
+              <form onSubmit={handleRequest}>
                 <FieldGroup>
                   <Field>
                     <FieldLabel htmlFor="reset-email">
@@ -90,13 +121,69 @@ export default function ResetPasswordForm() {
                     <Button
                       type="submit"
                       className="w-full"
-                      disabled={!isIdentifierValid}>
-                      Send reset link
+                      disabled={!isIdentifierValid || isRequesting}>
+                      {isRequesting ? "Sending..." : "Send reset code"}
                     </Button>
                     <FieldDescription className="text-center">
                       Remember your password?{" "}
                       <Link href={paths.login}>Sign in</Link>
                     </FieldDescription>
+                  </Field>
+                </FieldGroup>
+              </form>
+            ) : (
+              <form onSubmit={handleConfirm}>
+                <FieldGroup>
+                  <Field>
+                    <FieldLabel htmlFor="reset-code">Verification code</FieldLabel>
+                    <InputOTP
+                      id="reset-code"
+                      maxLength={6}
+                      value={code}
+                      onChange={setCode}
+                      containerClassName="justify-center">
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                      </InputOTPGroup>
+                      <InputOTPSeparator />
+                      <InputOTPGroup>
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="new-password">New password</FieldLabel>
+                    <Input
+                      id="new-password"
+                      type="password"
+                      value={newPassword}
+                      onChange={event => setNewPassword(event.target.value)}
+                      autoComplete="new-password"
+                      required
+                    />
+                  </Field>
+                  <Field>
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={!isCodeValid || !isPasswordValid || isConfirming}>
+                      {isConfirming ? "Resetting..." : "Reset password"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setCodeSent(false);
+                        setCode("");
+                        setNewPassword("");
+                      }}>
+                      Use a different contact
+                    </Button>
                   </Field>
                 </FieldGroup>
               </form>

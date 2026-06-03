@@ -6,16 +6,21 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import { Categorys } from "@/utils/Category";
 import { GetLocale } from "@/utils/GetUrlParams";
 import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 import Link from "next/link";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
+import { useStoreInit } from "@/hooks/use-store-init";
+import useCategoryStore from "@/store/categoryStore";
 
 function CategoryCarousel() {
   const locale = GetLocale();
+  const categories = useCategoryStore(state => state.categories);
+  const fetchCategories = useCategoryStore(state => state.fetchCategories);
+
+  useStoreInit(() => fetchCategories());
 
   return (
     <Carousel
@@ -23,7 +28,7 @@ function CategoryCarousel() {
       plugins={[Autoplay({ delay: 2000 })]}
       opts={{ loop: false, align: "start" }}>
       <CarouselContent>
-        {Categorys.map(category => (
+        {categories.map(category => (
           <CarouselItem
             key={category.id}
             className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6">

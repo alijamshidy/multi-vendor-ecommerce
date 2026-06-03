@@ -1,16 +1,22 @@
 "use client";
+
+import BadgeIconButton from "@/components/Global/BadgeIconButton";
+import { useStoreInit } from "@/hooks/use-store-init";
+import useCartStore from "@/store/cartStore";
 import { GetLocale } from "@/utils/GetUrlParams";
 import { LuShoppingCart } from "react-icons/lu";
-import BadgeIconButton from "../Global/BadgeIconButton";
 
 export default function CardButton() {
-  // const numItemsInCart = await fetchCartItems();
   const locale = GetLocale();
-  const numItemsInCart = 0;
+  const itemCount = useCartStore(state => state.itemCount);
+  const fetchItems = useCartStore(state => state.fetchItems);
+
+  useStoreInit(() => fetchItems());
+
   return (
     <BadgeIconButton
       href={`/${locale}/cart`}
-      count={numItemsInCart}
+      count={itemCount}
       icon={<LuShoppingCart />}
       label="Cart"
     />

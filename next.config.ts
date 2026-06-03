@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  skipTrailingSlashRedirect: true,
   images: {
     remotePatterns: [{ protocol: "https", hostname: "images.pexels.com" }],
     unoptimized: true,
@@ -9,6 +9,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-module.exports = {
-  allowedDevOrigins: ["192.168.1.*"],
-};

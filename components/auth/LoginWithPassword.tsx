@@ -19,16 +19,34 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useAuthPaths } from "@/hooks/use-auth-paths";
+import {
+  AuthRequestError,
+  parseThrottleCooldownSeconds,
+} from "@/lib/api-utils";
+import { isSafeCallbackUrl } from "@/lib/auth-cookie";
 import useAuthStore from "@/store/authStore";
 import { isLoginPasswordValid } from "@/utils/password";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const phoneRegex = /^(09[0-9]{9}|\+989[0-9]{9})$/;
+const MIN_LOGIN_COOLDOWN_SECONDS = 60;
+
+function formatCooldown(seconds: number): string {
+  if (seconds >= 3600) {
+    const hours = Math.ceil(seconds / 3600);
+    return `${hours}h`;
+  }
+  if (seconds >= 60) {
+    const minutes = Math.ceil(seconds / 60);
+    return `${minutes}m`;
+  }
+  return `${seconds}s`;
+}
 
 export default function LoginWithPassword({
   onSwitchToOtp,
@@ -39,10 +57,36 @@ export default function LoginWithPassword({
   const router = useRouter();
   const searchParams = useSearchParams();
   const login = useAuthStore(state => state.login);
-  const loader = useAuthStore(state => state.loader);
+  const isLoading = useAuthStore(state => state.loading.login);
+  const errorMessage = useAuthStore(state => state.errorMessage);
   const [isVisible, setIsVisible] = useState(false);
   const [password, setPassword] = useState("");
   const [identifier, setIdentifier] = useState("");
+  const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
+  const [cooldownSecondsLeft, setCooldownSecondsLeft] = useState(0);
+
+  const isRateLimited = cooldownUntil !== null && Date.now() < cooldownUntil;
+
+  useEffect(() => {
+    if (!cooldownUntil) {
+      setCooldownSecondsLeft(0);
+      return;
+    }
+
+    const tick = () => {
+      const remaining = Math.ceil((cooldownUntil - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setCooldownUntil(null);
+        setCooldownSecondsLeft(0);
+        return;
+      }
+      setCooldownSecondsLeft(remaining);
+    };
+
+    tick();
+    const intervalId = window.setInterval(tick, 1000);
+    return () => window.clearInterval(intervalId);
+  }, [cooldownUntil]);
 
   const isValid = useMemo(() => {
     const isEmail = emailRegex.test(identifier);
@@ -53,17 +97,30 @@ export default function LoginWithPassword({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isValid || loader) return;
+    if (!isValid || isLoading || isRateLimited) return;
 
     try {
       await login({ identifier, password });
       toast.success("Signed in successfully");
-      const callbackUrl = searchParams.get("callbackUrl") || paths.dashboard;
-      router.push(callbackUrl);
+      const callbackUrl = searchParams.get("callbackUrl");
+      const destination = isSafeCallbackUrl(callbackUrl)
+        ? callbackUrl
+        : paths.dashboard;
+      router.replace(destination);
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Login failed",
-      );
+      const message =
+        error instanceof Error ? error.message : "Login failed";
+
+      if (error instanceof AuthRequestError && error.status === 429) {
+        const parsedSeconds = parseThrottleCooldownSeconds(message);
+        const cooldownSeconds = Math.max(
+          parsedSeconds ?? MIN_LOGIN_COOLDOWN_SECONDS,
+          MIN_LOGIN_COOLDOWN_SECONDS,
+        );
+        setCooldownUntil(Date.now() + cooldownSeconds * 1000);
+      }
+
+      toast.error(message);
     }
   };
 
@@ -173,9 +230,18 @@ export default function LoginWithPassword({
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={!isValid || loader}>
-                    {loader ? "Signing in..." : "Sign in"}
+                    disabled={!isValid || isLoading || isRateLimited}>
+                    {isLoading
+                      ? "Signing in..."
+                      : isRateLimited
+                        ? `Try again in ${formatCooldown(cooldownSecondsLeft)}`
+                        : "Sign in"}
                   </Button>
+                  {errorMessage ? (
+                    <p className="text-center text-sm text-destructive" role="alert">
+                      {errorMessage}
+                    </p>
+                  ) : null}
                   <FieldDescription className="text-center">
                     Don&apos;t have an account?{" "}
                     <Link href={paths.register}>Create one</Link>
