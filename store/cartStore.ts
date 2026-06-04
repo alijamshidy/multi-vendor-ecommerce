@@ -2,6 +2,7 @@ import type { ApiCartItem } from "@/lib/api-types";
 import {
   createLoadingState,
   getApiErrorMessage,
+  getApiErrorStatus,
   unwrapList,
 } from "@/lib/api-utils";
 import api from "@/lib/axios";
@@ -85,6 +86,11 @@ const useCartStore = create<CartState>((set, get) => ({
       );
       set({ items, ...computeTotals(items as CartItemView[]) });
     } catch (error) {
+      if (getApiErrorStatus(error) === 401) {
+        set({ items: [], errorMessage: "", ...computeTotals([]) });
+        return;
+      }
+
       set({
         errorMessage: getApiErrorMessage(error, "Failed to load cart"),
         items: [],

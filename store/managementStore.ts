@@ -1,6 +1,7 @@
 import type { ApiProduct } from "@/lib/api-types";
 import {
   createLoadingState,
+  extractCreatedResourceId,
   getApiErrorMessage,
   unwrapList,
 } from "@/lib/api-utils";
@@ -17,7 +18,14 @@ type ManagementState = {
   successMessage: string;
   loading: Record<ManagementAction, boolean>;
   fetchProducts: () => Promise<void>;
-  createProduct: (payload: Record<string, unknown>) => Promise<void>;
+  createProduct: (payload: {
+    name: string;
+    price: string;
+    stuck: string;
+    description?: string;
+    categories: string[];
+    images?: File[];
+  }) => Promise<void>;
   clearMessages: () => void;
 };
 
@@ -64,7 +72,36 @@ const useManagementStore = create<ManagementState>((set, get) => ({
     }));
 
     try {
-      await api.post("/managements/products/", payload);
+      const formData = new FormData();
+      formData.append("name", payload.name);
+      formData.append("price", payload.price);
+      formData.append("stuck", payload.stuck);
+      if (payload.description) {
+        formData.append("description", payload.description);
+      }
+      for (const categoryId of payload.categories) {
+        formData.append("categories", categoryId);
+      }
+      if (payload.images?.[0]) {
+        formData.append("images", payload.images[0]);
+      }
+
+      const { data } = await api.post("/managements/products/", formData);
+      const productId = extractCreatedResourceId(data);
+      const remainingImages = payload.images?.slice(1) ?? [];
+
+      if (productId && remainingImages.length > 0) {
+        await Promise.all(
+          remainingImages.map((file, index) => {
+            const imageForm = new FormData();
+            imageForm.append("product", productId);
+            imageForm.append("image", file);
+            imageForm.append("is_primary", "false");
+            return api.post("/managements/products/images/", imageForm);
+          }),
+        );
+      }
+
       set({ successMessage: "Product created" });
       await get().fetchProducts();
     } catch (error) {

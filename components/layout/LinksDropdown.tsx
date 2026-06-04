@@ -6,6 +6,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { deriveAuthRole } from "@/lib/auth-cookie";
+import useAuthStore from "@/store/authStore";
 import { GetLocale } from "@/utils/GetUrlParams";
 import {
   adminLinks,
@@ -14,48 +16,37 @@ import {
   visitorLinks,
 } from "@/utils/links";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { LuAlignLeft } from "react-icons/lu";
 import { Button } from "../ui/button";
 import AuthorizeLinks from "./AuthorizeLinks";
 import SignOutLink from "./SignOutLink";
 import UserIcon from "./UserIcon";
 
-enum User {
-  Admin = "admin",
-  Visitor = "visitor",
-  Seller = "Seller",
-  Customer = "Customer",
-}
-
 export default function LinksDropdown() {
-  const [user, setUser] = useState<User>(User.Visitor);
+  const [open, setOpen] = useState(false);
   const locale = GetLocale();
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const authUser = useAuthStore(state => state.user);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      // Replace with actual API call
-      // const res = await fetch('/api/current-user');
-      // const data = await res.json();
-      const mockUser = User.Visitor; // change to actual role logic
-      setUser(mockUser);
-    };
-    fetchUser();
-  }, []);
+  const closeMenu = () => setOpen(false);
 
-  const links =
-    user === User.Admin
-      ? adminLinks
-      : user === User.Seller
-        ? sellerLinks
-        : user === User.Customer
-          ? customerLinks
-          : visitorLinks;
+  const links = useMemo(() => {
+    if (!isAuthenticated || !authUser) return visitorLinks;
+
+    const role = deriveAuthRole(authUser);
+    if (role === "admin") return adminLinks;
+    if (role === "seller") return sellerLinks;
+    return customerLinks;
+  }, [isAuthenticated, authUser]);
 
   return (
-    <DropdownMenu modal={false}>
+    <DropdownMenu
+      open={open}
+      onOpenChange={setOpen}
+      modal={false}>
       <DropdownMenuTrigger
-        className={"cursor-pointer"}
+        className="cursor-pointer"
         asChild>
         <Button
           variant="outline"
@@ -69,27 +60,27 @@ export default function LinksDropdown() {
         className="w-40"
         align="start"
         sideOffset={10}>
-        {links.map(link => {
-          return (
-            <DropdownMenuItem
-              key={link.href}
-              className="cursor-pointer">
-              <Link
-                href={`/${locale}${link.href === "/" ? "" : link.href}`}
-                className="capitalize w-full">
-                {link.label}
-              </Link>
-            </DropdownMenuItem>
-          );
-        })}
-        {user === User.Visitor && <AuthorizeLinks />}
-        {user !== User.Visitor && (
-          <>
-            <DropdownMenuItem>
-              <SignOutLink />
-            </DropdownMenuItem>
-          </>
-        )}
+        {links.map(link => (
+          <DropdownMenuItem
+            key={link.href}
+            asChild
+            className="cursor-pointer"
+            onSelect={closeMenu}>
+            <Link
+              href={`/${locale}${link.href === "/" ? "" : link.href}`}
+              className="w-full capitalize">
+              {link.label}
+            </Link>
+          </DropdownMenuItem>
+        ))}
+        {!isAuthenticated ? <AuthorizeLinks onNavigate={closeMenu} /> : null}
+        {isAuthenticated ? (
+          <DropdownMenuItem
+            className="cursor-pointer p-0"
+            onSelect={closeMenu}>
+            <SignOutLink onNavigate={closeMenu} />
+          </DropdownMenuItem>
+        ) : null}
       </DropdownMenuContent>
     </DropdownMenu>
   );

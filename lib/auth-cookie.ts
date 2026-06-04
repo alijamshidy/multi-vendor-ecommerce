@@ -27,6 +27,34 @@ export function clearAuthCookies() {
   document.cookie = `${AUTH_ROLE_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
 }
 
+export function getAccessTokenFromCookie(): string | null {
+  if (typeof document === "undefined") return null;
+
+  const match = document.cookie.match(/(?:^|;\s*)accessToken=([^;]*)/);
+  return match?.[1] ? decodeURIComponent(match[1]) : null;
+}
+
+/** Reads access token from localStorage or cookie and keeps both in sync. */
+export function getStoredAccessToken(): string | null {
+  if (typeof window === "undefined") return null;
+
+  const fromStorage = localStorage.getItem("accessToken");
+  const fromCookie = getAccessTokenFromCookie();
+
+  if (fromCookie && fromCookie !== fromStorage) {
+    localStorage.setItem("accessToken", fromCookie);
+    return fromCookie;
+  }
+
+  return fromStorage ?? fromCookie;
+}
+
 export function isSafeCallbackUrl(url: string | null): url is string {
   return !!url && url.startsWith("/") && !url.startsWith("//");
+}
+
+/** Full page navigation so proxy/middleware receives freshly set auth cookies. */
+export function redirectAfterAuth(destination: string) {
+  if (typeof window === "undefined") return;
+  window.location.assign(destination);
 }

@@ -20,6 +20,19 @@ const publicPaths = [
 
 const categoryPaths = Categorys.map(category => category.href);
 
+/** First path segment after locale that always requires authentication. */
+const protectedFirstSegments = new Set([
+  "admin",
+  "seller",
+  "customer",
+  "dashboard",
+  "cart",
+  "checkout",
+  "orders",
+  "wishlist",
+  "profile",
+]);
+
 function isPublicPath(pathname: string): boolean {
   const segments = pathname.split("/").filter(Boolean);
   if (segments.length === 0) return true;
@@ -30,11 +43,20 @@ function isPublicPath(pathname: string): boolean {
     ? segments.slice(1).join("/")
     : segments.join("/");
 
-  const firstPathPart = pathWithoutLocale.split("/")[0];
+  const pathParts = pathWithoutLocale.split("/").filter(Boolean);
+  const firstPathPart = pathParts[0] ?? "";
 
   if (firstPathPart === "") return true;
   if (publicPaths.includes(firstPathPart)) return true;
   if (categoryPaths.includes(firstPathPart)) return true;
+
+  // Dynamic category pages from API: /{locale}/{category-slug}
+  if (
+    pathParts.length === 1 &&
+    !protectedFirstSegments.has(firstPathPart)
+  ) {
+    return true;
+  }
 
   return false;
 }
@@ -52,11 +74,21 @@ function getDefaultDashboardPath(locale: string, role?: AuthRole): string {
 }
 
 function getAuthFromRequest(request: NextRequest) {
-  const accessToken = request.cookies.get("accessToken")?.value;
+  const rawToken = request.cookies.get("accessToken")?.value?.trim();
+  let accessToken = rawToken;
+
+  if (rawToken) {
+    try {
+      accessToken = decodeURIComponent(rawToken);
+    } catch {
+      accessToken = rawToken;
+    }
+  }
+
   const role = request.cookies.get("authRole")?.value as AuthRole | undefined;
 
   return {
-    isAuthenticated: !!accessToken,
+    isAuthenticated: Boolean(accessToken),
     role,
   };
 }

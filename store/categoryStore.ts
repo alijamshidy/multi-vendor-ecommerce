@@ -9,25 +9,40 @@ import { mapCategory } from "@/lib/mappers";
 import type { category } from "@/utils/Category";
 import { create } from "zustand";
 
-type CategoryAction = "fetchCategories" | "fetchCategory";
+type CategoryAction = "fetchCategories" | "fetchCategory" | "createCategory";
 
 type CategoryState = {
   categories: category[];
   activeCategory: category | null;
   errorMessage: string;
+  successMessage: string;
   loading: Record<CategoryAction, boolean>;
   fetchCategories: () => Promise<void>;
   fetchCategoryBySlug: (slug: string) => Promise<category | null>;
+  createCategory: (payload: {
+    name: string;
+    slug?: string;
+    description?: string;
+    parent?: string;
+    image?: File;
+  }) => Promise<void>;
   clearError: () => void;
+  clearMessages: () => void;
 };
 
-const useCategoryStore = create<CategoryState>(set => ({
+const useCategoryStore = create<CategoryState>((set, get) => ({
   categories: [],
   activeCategory: null,
   errorMessage: "",
-  loading: createLoadingState(["fetchCategories", "fetchCategory"] as const),
+  successMessage: "",
+  loading: createLoadingState([
+    "fetchCategories",
+    "fetchCategory",
+    "createCategory",
+  ] as const),
 
   clearError: () => set({ errorMessage: "" }),
+  clearMessages: () => set({ errorMessage: "", successMessage: "" }),
 
   fetchCategories: async () => {
     set(state => ({
@@ -38,11 +53,12 @@ const useCategoryStore = create<CategoryState>(set => ({
     try {
       const { data } = await api.get<
         ApiCategory[] | { results: ApiCategory[] }
-      >("/categories/");
+      >("/categories/", { skipAuth: true });
       set({
         categories: unwrapList(data).map((item: unknown) =>
           mapCategory(item as ApiCategory),
         ),
+        errorMessage: "",
       });
     } catch (error) {
       set({
@@ -74,6 +90,35 @@ const useCategoryStore = create<CategoryState>(set => ({
     } finally {
       set(state => ({
         loading: { ...state.loading, fetchCategory: false },
+      }));
+    }
+  },
+
+  createCategory: async payload => {
+    set(state => ({
+      loading: { ...state.loading, createCategory: true },
+      errorMessage: "",
+      successMessage: "",
+    }));
+
+    try {
+      const formData = new FormData();
+      formData.append("name", payload.name);
+      if (payload.slug) formData.append("slug", payload.slug);
+      if (payload.description) formData.append("description", payload.description);
+      if (payload.parent) formData.append("parent", payload.parent);
+      if (payload.image) formData.append("image", payload.image);
+
+      await api.post("/managements/categories/", formData);
+      set({ successMessage: "Category created" });
+      await get().fetchCategories();
+    } catch (error) {
+      const message = getApiErrorMessage(error, "Failed to create category");
+      set({ errorMessage: message });
+      throw new Error(message);
+    } finally {
+      set(state => ({
+        loading: { ...state.loading, createCategory: false },
       }));
     }
   },

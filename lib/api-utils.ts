@@ -53,8 +53,43 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
       return "Too many login attempts. Please wait before trying again.";
     }
 
+    if (status === 403) {
+      const detail = data?.errors?.[0]?.detail;
+      if (detail) return detail;
+      return "You don't have permission to perform this action.";
+    }
+
     if (status === 401) {
-      return ACTION_MESSAGES.invalid_credentials;
+      const action = data?.action ?? data?.errors?.[0]?.action;
+      const codeFromErrors = data?.errors?.find(
+        entry => entry.attr === "code" || entry.code,
+      );
+      const code =
+        (typeof codeFromErrors?.detail === "string"
+          ? codeFromErrors.detail
+          : codeFromErrors?.code) ?? data?.errors?.[0]?.code;
+
+      if (
+        action === "invalid_credentials" ||
+        action?.includes("invalid_credentials")
+      ) {
+        return ACTION_MESSAGES.invalid_credentials;
+      }
+
+      if (
+        code === "not_authenticated" ||
+        code === "token_not_valid" ||
+        action?.includes("token_not_valid")
+      ) {
+        return "Your session has expired. Please log in again.";
+      }
+
+      const detail =
+        data?.errors?.find(entry => entry.attr === "detail")?.detail ??
+        data?.errors?.[0]?.detail;
+      if (typeof detail === "string" && detail) return detail;
+
+      return "Authentication required. Please log in again.";
     }
 
     const detail = data?.errors?.[0]?.detail;
@@ -71,18 +106,44 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-export function unwrapList<T>(
-  data: T[] | PaginatedResponse<T> | null | undefined,
-): T[] {
+export function unwrapList<T>(data: unknown): T[] {
   if (!data) return [];
   if (Array.isArray(data)) return data;
-  return data.results ?? [];
+
+  if (typeof data === "object" && data !== null) {
+    const record = data as PaginatedResponse<T> & { data?: T[] };
+    if (Array.isArray(record.data)) return record.data;
+    if (Array.isArray(record.results)) return record.results;
+  }
+
+  return [];
 }
 
 export function createLoadingState<T extends string>(
   keys: readonly T[],
 ): Record<T, boolean> {
   return Object.fromEntries(keys.map(key => [key, false])) as Record<T, boolean>;
+}
+
+/** Reads a created resource id from common Django API response shapes. */
+export function extractCreatedResourceId(data: unknown): string | null {
+  if (!data || typeof data !== "object") return null;
+
+  const record = data as Record<string, unknown>;
+  const candidates = [
+    record.id,
+    record.code,
+    (record.data as Record<string, unknown> | undefined)?.id,
+    (record.data as Record<string, unknown> | undefined)?.code,
+  ];
+
+  for (const candidate of candidates) {
+    if (candidate != null && candidate !== "") {
+      return String(candidate);
+    }
+  }
+
+  return null;
 }
 
 export const API_ORIGIN =

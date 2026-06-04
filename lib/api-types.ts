@@ -1,5 +1,6 @@
 export type ApiErrorResponse = {
   message?: string;
+  action?: string;
   errors?: Array<{
     action?: string;
     detail?: string;

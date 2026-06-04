@@ -23,12 +23,12 @@ import {
   AuthRequestError,
   parseThrottleCooldownSeconds,
 } from "@/lib/api-utils";
-import { isSafeCallbackUrl } from "@/lib/auth-cookie";
+import { isSafeCallbackUrl, redirectAfterAuth } from "@/lib/auth-cookie";
 import useAuthStore from "@/store/authStore";
 import { isLoginPasswordValid } from "@/utils/password";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -54,7 +54,6 @@ export default function LoginWithPassword({
   onSwitchToOtp?: () => void;
 }) {
   const paths = useAuthPaths();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const login = useAuthStore(state => state.login);
   const isLoading = useAuthStore(state => state.loading.login);
@@ -106,7 +105,7 @@ export default function LoginWithPassword({
       const destination = isSafeCallbackUrl(callbackUrl)
         ? callbackUrl
         : paths.dashboard;
-      router.replace(destination);
+      redirectAfterAuth(destination);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Login failed";

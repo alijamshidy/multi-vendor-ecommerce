@@ -7,6 +7,7 @@ import type {
 import {
   clearAuthCookies,
   deriveAuthRole,
+  getStoredAccessToken,
   setAuthCookies,
 } from "@/lib/auth-cookie";
 import { normalizeAuthIdentifier } from "@/lib/auth-utils";
@@ -136,6 +137,7 @@ const useAuthStore = create<AuthState>()(
               identifier: normalizeAuthIdentifier(payload.identifier),
               password: payload.password,
             },
+            { skipAuth: true },
           );
 
           if (!data?.data) {
@@ -166,6 +168,7 @@ const useAuthStore = create<AuthState>()(
           const { data } = await api.post<ApiSuccessResponse<RegisterResponse>>(
             "/auth/register/",
             payload,
+            { skipAuth: true },
           );
           set({ successMessage: data.message });
         } catch (error) {
@@ -189,7 +192,8 @@ const useAuthStore = create<AuthState>()(
         try {
           const { data } = await api.post<{ message: string }>(
             "/auth/request-otp/",
-            payload,
+            { identifier: normalizeAuthIdentifier(payload.identifier) },
+            { skipAuth: true },
           );
           set({ successMessage: data.message });
         } catch (error) {
@@ -213,7 +217,11 @@ const useAuthStore = create<AuthState>()(
         try {
           const { data } = await api.post<ApiSuccessResponse<LoginResponse>>(
             "/auth/verify-otp/",
-            payload,
+            {
+              identifier: normalizeAuthIdentifier(payload.identifier),
+              code: payload.code,
+            },
+            { skipAuth: true },
           );
 
           if (!data?.data) {
@@ -243,6 +251,7 @@ const useAuthStore = create<AuthState>()(
           const { data } = await api.post<{ message: string }>(
             "/auth/reset-password-request/",
             payload,
+            { skipAuth: true },
           );
           set({ successMessage: data.message });
         } catch (error) {
@@ -270,6 +279,7 @@ const useAuthStore = create<AuthState>()(
           const { data } = await api.post<{ message: string }>(
             "/auth/reset-password-confirm/",
             payload,
+            { skipAuth: true },
           );
           set({ successMessage: data.message });
         } catch (error) {
@@ -292,10 +302,11 @@ const useAuthStore = create<AuthState>()(
         isAuthenticated: state.isAuthenticated,
       }),
       onRehydrateStorage: () => state => {
-        if (state?.accessToken) {
-          setAuthHeader(state.accessToken);
-          if (state.user) {
-            setAuthCookies(state.accessToken, deriveAuthRole(state.user));
+        const token = getStoredAccessToken();
+        if (token) {
+          setAuthHeader(token);
+          if (state?.user) {
+            setAuthCookies(token, deriveAuthRole(state.user));
           }
         }
       },

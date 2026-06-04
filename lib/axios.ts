@@ -1,4 +1,11 @@
 import axios from "axios";
+import { clearAuthCookies, getStoredAccessToken } from "@/lib/auth-cookie";
+
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    skipAuth?: boolean;
+  }
+}
 
 const SERVER_API_URL =
   // process.env.API_URL?.replace(/\/$/, "") ??
@@ -16,14 +23,88 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+/** Auth endpoints that must not receive a stale Bearer token. */
+const PUBLIC_AUTH_PATH =
+  /^\/auth\/(login-password|register|request-otp|verify-otp|reset-password-request|reset-password-confirm)\/?$/;
+
+function isPublicAuthRequest(url: string | undefined): boolean {
+  if (!url) return false;
+  const path = url.split("?")[0]?.replace(/\/$/, "") ?? "";
+  return PUBLIC_AUTH_PATH.test(path);
+}
+
 api.interceptors.request.use(config => {
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+
+  if (config.skipAuth || isPublicAuthRequest(config.url)) {
+    delete config.headers.Authorization;
+    return config;
+  }
+
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("accessToken");
+    const token = getStoredAccessToken();
     if (token && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${token}`;
     }
   }
   return config;
 });
+
+let handlingUnauthorized = false;
+
+api.interceptors.response.use(
+  response => response,
+  async error => {
+    const status = error.response?.status;
+    const url = String(error.config?.url ?? "");
+    const skipAuth = error.config?.skipAuth;
+    const isAuthEndpoint = url.includes("/auth/");
+    const hadAuth = Boolean(
+      error.config?.headers?.Authorization ??
+        error.config?.headers?.authorization,
+    );
+    const isGuestOptionalEndpoint = url.includes("/ordering/cart/");
+
+    if (
+      status === 401 &&
+      isGuestOptionalEndpoint &&
+      typeof window !== "undefined"
+    ) {
+      if (hadAuth) {
+        clearAuthCookies();
+        localStorage.removeItem("accessToken");
+        const { default: useAuthStore } = await import("@/store/authStore");
+        useAuthStore.getState().clearSession();
+      }
+      return Promise.reject(error);
+    }
+
+    if (
+      status === 401 &&
+      hadAuth &&
+      !skipAuth &&
+      !isAuthEndpoint &&
+      typeof window !== "undefined" &&
+      !handlingUnauthorized &&
+      !window.location.pathname.includes("/login")
+    ) {
+      handlingUnauthorized = true;
+      clearAuthCookies();
+      localStorage.removeItem("accessToken");
+
+      const { default: useAuthStore } = await import("@/store/authStore");
+      useAuthStore.getState().clearSession();
+
+      const pathname = window.location.pathname;
+      const locale = pathname.split("/")[1] || "en";
+      const callbackUrl = encodeURIComponent(pathname + window.location.search);
+      window.location.assign(`/${locale}/login?callbackUrl=${callbackUrl}`);
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 export default api;

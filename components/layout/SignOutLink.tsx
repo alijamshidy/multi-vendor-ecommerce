@@ -1,19 +1,32 @@
 "use client";
-import Link from "next/link";
+
+import useAuthStore from "@/store/authStore";
+import { GetLocale } from "@/utils/GetUrlParams";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Button } from "../ui/button";
-export default function SignOutLink() {
+
+type SignOutLinkProps = {
+  onNavigate?: () => void;
+};
+
+export default function SignOutLink({ onNavigate }: SignOutLinkProps) {
+  const router = useRouter();
+  const locale = GetLocale();
+  const logout = useAuthStore(state => state.logout);
+
   const handleLogout = () => {
-    toast("Logout Successful");
+    logout();
+    onNavigate?.();
+    toast.success("Logged out");
+    router.replace(`/${locale}`);
   };
+
   return (
-    <Button className={"w-full"}>
-      <Link
-        href={``}
-          className="w-full text-start"
-        onClick={handleLogout}>
-        Logout
-      </Link>
-    </Button>
+    <button
+      type="button"
+      className="w-full px-2 py-1.5 text-start text-sm capitalize"
+      onClick={handleLogout}>
+      Logout
+    </button>
   );
 }

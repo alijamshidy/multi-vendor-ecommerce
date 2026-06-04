@@ -24,10 +24,10 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { useAuthPaths } from "@/hooks/use-auth-paths";
-import { isSafeCallbackUrl } from "@/lib/auth-cookie";
+import { isSafeCallbackUrl, redirectAfterAuth } from "@/lib/auth-cookie";
 import useAuthStore from "@/store/authStore";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -42,7 +42,6 @@ export default function LoginWithOtp({
   onSwitchToPassword,
 }: LoginWithOtpProps) {
   const paths = useAuthPaths();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const requestOtp = useAuthStore(state => state.requestOtp);
   const verifyOtp = useAuthStore(state => state.verifyOtp);
@@ -86,7 +85,7 @@ export default function LoginWithOtp({
       const destination = isSafeCallbackUrl(callbackUrl)
         ? callbackUrl
         : paths.dashboard;
-      router.replace(destination);
+      redirectAfterAuth(destination);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "OTP verification failed",

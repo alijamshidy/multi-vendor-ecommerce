@@ -1,36 +1,38 @@
 "use client";
+
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { GetLocale } from "@/utils/GetUrlParams";
 import Link from "next/link";
-import { toast } from "sonner";
-import { Button } from "../ui/button";
 
-export default function AuthorizeLinks() {
+type AuthorizeLinksProps = {
+  onNavigate?: () => void;
+};
+
+export default function AuthorizeLinks({ onNavigate }: AuthorizeLinksProps) {
   const locale = GetLocale();
-
-  const handleLogin = () => {
-    toast.success("Login Successful");
-  };
-  const handleRegister = () => {
-    toast.success("Register Successful");
-  };
 
   return (
     <>
-      <Button className="w-full">
+      <DropdownMenuItem
+        asChild
+        className="cursor-pointer"
+        onSelect={onNavigate}>
         <Link
           href={`/${locale}/login`}
-          className="w-full text-start">
+          className="w-full capitalize">
           Login
         </Link>
-      </Button>
-
-      <Button className="mt-1 w-full">
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        asChild
+        className="cursor-pointer"
+        onSelect={onNavigate}>
         <Link
           href={`/${locale}/register`}
-          className="w-full text-start">
+          className="w-full capitalize">
           Register
         </Link>
-      </Button>
+      </DropdownMenuItem>
     </>
   );
 }

@@ -25,10 +25,10 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { useAuthPaths } from "@/hooks/use-auth-paths";
+import { redirectAfterAuth } from "@/lib/auth-cookie";
 import useAuthStore from "@/store/authStore";
 import { isRegistrationPasswordValid } from "@/utils/password";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -37,7 +37,6 @@ const phoneRegex = /^(09[0-9]{9}|\+989[0-9]{9})$/;
 
 export default function RegisterForm() {
   const paths = useAuthPaths();
-  const router = useRouter();
   const register = useAuthStore(state => state.register);
   const verifyOtp = useAuthStore(state => state.verifyOtp);
   const isRegistering = useAuthStore(state => state.loading.register);
@@ -91,7 +90,7 @@ export default function RegisterForm() {
     try {
       await verifyOtp({ identifier, code: otp });
       toast.success("Account verified successfully");
-      router.push(paths.dashboard);
+      redirectAfterAuth(paths.dashboard);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "OTP verification failed",
