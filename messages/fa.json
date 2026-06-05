@@ -188,7 +188,10 @@
     "addToCartFailed": "افزودن به سبد ناموفق بود",
     "updateFailed": "به‌روزرسانی تعداد ناموفق بود",
     "removeFailed": "حذف آیتم ناموفق بود",
-    "signIn": "ورود"
+    "outOfStock": "این محصول موجود نیست.",
+    "signIn": "ورود",
+    "updated": "تعداد به‌روزرسانی شد",
+    "updatedDescription": "تعداد به‌روزرسانی شد به {quantity} برای {product}."
   },
   "checkout": {
     "eyebrow": "تسویه حساب",

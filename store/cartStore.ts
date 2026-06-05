@@ -32,7 +32,7 @@ type CartState = {
   itemCount: number;
   fetchItems: () => Promise<void>;
   addItem: (payload: { product: string; quantity?: number }) => Promise<void>;
-  updateItem: (payload: { id: string; quantity: number }) => Promise<void>;
+  updateItem: (payload: { id: string; product: string; quantity: number }) => Promise<void>;
   removeItem: (id: string) => Promise<void>;
   checkout: (cartId?: string) => Promise<string | null>;
   clearMessages: () => void;
@@ -139,11 +139,58 @@ const useCartStore = create<CartState>()(
     }));
 
     try {
-      await api.patch(`/ordering/cart/items/${payload.id}/`, {
+      const productId = Number(payload.product);
+      const patchBody = {
+        product: productId,
         quantity: payload.quantity,
-      });
+      };
+      // #region agent log
+      fetch("http://127.0.0.1:7673/ingest/3195856a-0976-4ff2-982f-62bf78f50b86", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "e997a5",
+        },
+        body: JSON.stringify({
+          sessionId: "e997a5",
+          runId: "cart-patch",
+          hypothesisId: "D",
+          location: "cartStore.ts:updateItem",
+          message: "cart patch request",
+          data: { id: payload.id, patchBody },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+      // Django expects product id + quantity delta (e.g. +1 / -1), not absolute quantity.
+      await api.patch(`/ordering/cart/items/${payload.id}/`, patchBody);
       await get().fetchItems();
     } catch (error) {
+      // #region agent log
+      fetch("http://127.0.0.1:7673/ingest/3195856a-0976-4ff2-982f-62bf78f50b86", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "e997a5",
+        },
+        body: JSON.stringify({
+          sessionId: "e997a5",
+          runId: "cart-patch",
+          hypothesisId: "D",
+          location: "cartStore.ts:updateItem:catch",
+          message: "cart patch failed",
+          data: {
+            id: payload.id,
+            status: getApiErrorStatus(error),
+            apiError:
+              error instanceof Error && "response" in error
+                ? (error as { response?: { data?: unknown } }).response?.data
+                : null,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       const message = getApiErrorMessage(error, "Failed to update cart item");
       set({ errorMessage: message });
       throw new Error(message);

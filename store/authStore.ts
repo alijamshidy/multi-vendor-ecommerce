@@ -109,6 +109,32 @@ const useAuthStore = create<AuthState>()(
         },
 
         clearSession: () => {
+          // #region agent log
+          if (typeof window !== "undefined") {
+            fetch(
+              "http://127.0.0.1:7673/ingest/3195856a-0976-4ff2-982f-62bf78f50b86",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-Debug-Session-Id": "e997a5",
+                },
+                body: JSON.stringify({
+                  sessionId: "e997a5",
+                  runId: "token-clear",
+                  hypothesisId: "C",
+                  location: "authStore.ts:clearSession",
+                  message: "clearSession called",
+                  data: {
+                    pathname: window.location.pathname,
+                    hadToken: Boolean(getStoredAccessToken()),
+                  },
+                  timestamp: Date.now(),
+                }),
+              },
+            ).catch(() => {});
+          }
+          // #endregion
           localStorage.removeItem("accessToken");
           clearAuthCookies();
           setAuthHeader(null);

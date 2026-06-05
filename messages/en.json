@@ -188,7 +188,10 @@
     "addToCartFailed": "Failed to add to cart",
     "updateFailed": "Failed to update quantity",
     "removeFailed": "Failed to remove item",
-    "signIn": "Sign in"
+    "outOfStock": "This product is out of stock.",
+    "signIn": "Sign in",
+    "updated": "Quantity updated",
+    "updatedDescription": "Updated quantity to {quantity} for {product}."
   },
   "checkout": {
     "eyebrow": "Checkout",

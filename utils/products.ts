@@ -11,6 +11,7 @@ export type productType = {
   price: number;
   category: string;
   description: string;
+  isOutOfStock?: boolean;
 };
 
 const heroImages = [

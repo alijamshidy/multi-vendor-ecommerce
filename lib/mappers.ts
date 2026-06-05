@@ -38,6 +38,7 @@ export function mapProduct(item: ApiProduct): productType {
     price: Number(item.discount_price ?? item.price),
     category: item.categories?.[0]?.name ?? "",
     description,
+    isOutOfStock: Boolean(item.is_out_of_stock),
   };
 }
 

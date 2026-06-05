@@ -4,6 +4,10 @@ import { AxiosError } from "axios";
 const ACTION_MESSAGES: Record<string, string> = {
   invalid_credentials:
     "Invalid credentials. Check your email/phone and password, or create an account.",
+  cart_item_quantity_exceed:
+    "Not enough stock to update this item.",
+  cart_item_max_no_exceed:
+    "You reached the maximum order quantity for this product.",
 };
 
 export class AuthRequestError extends Error {
@@ -57,6 +61,13 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
       const detail = data?.errors?.[0]?.detail;
       if (detail) return detail;
       return "You don't have permission to perform this action.";
+    }
+
+    if (status === 400) {
+      const code = data?.errors?.[0]?.code;
+      if (code && ACTION_MESSAGES[code]) return ACTION_MESSAGES[code];
+      const detail = data?.errors?.[0]?.detail;
+      if (typeof detail === "string" && detail) return detail;
     }
 
     if (status === 401) {

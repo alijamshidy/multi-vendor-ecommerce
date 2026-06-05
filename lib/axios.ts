@@ -67,17 +67,30 @@ api.interceptors.response.use(
     );
     const isGuestOptionalEndpoint = url.includes("/ordering/cart/");
 
+    // Cart works for guests; 401 here must not wipe the login session.
     if (
       status === 401 &&
       isGuestOptionalEndpoint &&
       typeof window !== "undefined"
     ) {
-      if (hadAuth) {
-        clearAuthCookies();
-        localStorage.removeItem("accessToken");
-        const { default: useAuthStore } = await import("@/store/authStore");
-        useAuthStore.getState().clearSession();
-      }
+      // #region agent log
+      fetch("http://127.0.0.1:7673/ingest/3195856a-0976-4ff2-982f-62bf78f50b86", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "e997a5",
+        },
+        body: JSON.stringify({
+          sessionId: "e997a5",
+          runId: "post-fix",
+          hypothesisId: "A",
+          location: "axios.ts:cart-401",
+          message: "cart 401 ignored for session (no clear)",
+          data: { url, hadAuth, pathname: window.location.pathname },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       return Promise.reject(error);
     }
 
@@ -86,10 +99,29 @@ api.interceptors.response.use(
       hadAuth &&
       !skipAuth &&
       !isAuthEndpoint &&
+      !isGuestOptionalEndpoint &&
       typeof window !== "undefined" &&
       !handlingUnauthorized &&
       !window.location.pathname.includes("/login")
     ) {
+      // #region agent log
+      fetch("http://127.0.0.1:7673/ingest/3195856a-0976-4ff2-982f-62bf78f50b86", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "e997a5",
+        },
+        body: JSON.stringify({
+          sessionId: "e997a5",
+          runId: "token-clear",
+          hypothesisId: "B",
+          location: "axios.ts:global-401",
+          message: "clearing session due to global 401 redirect",
+          data: { url, hadAuth, pathname: window.location.pathname },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       handlingUnauthorized = true;
       clearAuthCookies();
       localStorage.removeItem("accessToken");

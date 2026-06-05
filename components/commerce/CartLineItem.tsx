@@ -6,9 +6,9 @@ import useCartStore from "@/store/cartStore";
 import { formatCurrency } from "@/utils/format";
 import { productType } from "@/utils/products";
 import { Minus, Plus, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Card, CardContent } from "../ui/card";
@@ -38,18 +38,29 @@ export default function CartLineItem({
   }, [quantity]);
 
   const handleUpdateQuantity = async (nextQuantity: number) => {
-    if (nextQuantity < 1 || nextQuantity === localQuantity) return;
+    const previousQuantity = localQuantity;
+    if (nextQuantity < 1 || nextQuantity === previousQuantity) return;
+
+    const delta = nextQuantity - previousQuantity;
+    if (delta > 0 && product.isOutOfStock) {
+      toast.error(t("outOfStock"));
+      return;
+    }
 
     setIsUpdating(true);
     setLocalQuantity(nextQuantity);
 
     try {
-      await updateItem({ id, quantity: nextQuantity });
+      await updateItem({ id, product: product.id, quantity: delta });
+      toast.success(t("updated"), {
+        description: t("updatedDescription", {
+          quantity: nextQuantity,
+          product: product.label,
+        }),
+      });
     } catch (error) {
       setLocalQuantity(quantity);
-      toast.error(
-        error instanceof Error ? error.message : t("updateFailed"),
-      );
+      toast.error(error instanceof Error ? error.message : t("updateFailed"));
     } finally {
       setIsUpdating(false);
     }
@@ -61,9 +72,7 @@ export default function CartLineItem({
     try {
       await removeItem(id);
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t("removeFailed"),
-      );
+      toast.error(error instanceof Error ? error.message : t("removeFailed"));
     } finally {
       setIsRemoving(false);
     }
@@ -108,7 +117,7 @@ export default function CartLineItem({
                 variant="outline"
                 size="icon-sm"
                 onClick={() => handleUpdateQuantity(localQuantity + 1)}
-                disabled={isBusy}>
+                disabled={isBusy || product.isOutOfStock}>
                 <Plus />
               </Button>
             </ButtonGroup>
