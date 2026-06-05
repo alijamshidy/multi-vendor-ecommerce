@@ -8,6 +8,8 @@ import api from "@/lib/axios";
 import { mapProduct } from "@/lib/mappers";
 import type { productType } from "@/utils/products";
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { withStoreDevtools } from "./devtools";
 
 export type ProductQuery = {
   search?: string;
@@ -39,7 +41,9 @@ type ProductState = {
   clearError: () => void;
 };
 
-const useProductStore = create<ProductState>(set => ({
+const useProductStore = create<ProductState>()(
+  devtools(
+    set => ({
   products: [],
   product: null,
   similarProducts: [],
@@ -165,6 +169,9 @@ const useProductStore = create<ProductState>(set => ({
       }));
     }
   },
-}));
+    }),
+    withStoreDevtools("product"),
+  ),
+);
 
 export default useProductStore;

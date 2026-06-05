@@ -5,20 +5,21 @@ import type {
   RegisterResponse,
 } from "@/lib/api-types";
 import {
+  AuthRequestError,
+  getApiErrorMessage,
+  getApiErrorStatus,
+} from "@/lib/api-utils";
+import {
   clearAuthCookies,
   deriveAuthRole,
   getStoredAccessToken,
   setAuthCookies,
 } from "@/lib/auth-cookie";
 import { normalizeAuthIdentifier } from "@/lib/auth-utils";
-import {
-  AuthRequestError,
-  getApiErrorMessage,
-  getApiErrorStatus,
-} from "@/lib/api-utils";
 import api from "@/lib/axios";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { devtools, persist } from "zustand/middleware";
+import { withStoreDevtools } from "./devtools";
 
 type AuthAction =
   | "login"
@@ -76,241 +77,248 @@ type AuthState = {
 };
 
 const useAuthStore = create<AuthState>()(
-  persist(
-    (set, get) => ({
-      errorMessage: "",
-      successMessage: "",
-      loading: initialLoading,
-      user: null,
-      accessToken: null,
-      refreshToken: null,
-      isAuthenticated: false,
+  devtools(
+    persist(
+      (set, get) => ({
+        errorMessage: "",
+        successMessage: "",
+        loading: initialLoading,
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isAuthenticated: false,
 
-      clearMessages: () => set({ errorMessage: "", successMessage: "" }),
+        clearMessages: () => set({ errorMessage: "", successMessage: "" }),
 
-      setSession: data => {
-        if (!data?.tokens?.access_token) {
-          throw new Error("Invalid login response from server");
-        }
-
-        localStorage.setItem("accessToken", data.tokens.access_token);
-        setAuthHeader(data.tokens.access_token);
-        setAuthCookies(data.tokens.access_token, deriveAuthRole(data.user));
-        set({
-          user: data.user,
-          accessToken: data.tokens.access_token,
-          refreshToken: data.tokens.refresh_token ?? null,
-          isAuthenticated: true,
-          successMessage: "Signed in successfully",
-          errorMessage: "",
-        });
-      },
-
-      clearSession: () => {
-        localStorage.removeItem("accessToken");
-        clearAuthCookies();
-        setAuthHeader(null);
-        set({
-          user: null,
-          accessToken: null,
-          refreshToken: null,
-          isAuthenticated: false,
-          errorMessage: "",
-          successMessage: "",
-        });
-      },
-
-      logout: () => {
-        get().clearSession();
-      },
-
-      login: async payload => {
-        set(state => ({
-          loading: { ...state.loading, login: true },
-          errorMessage: "",
-          successMessage: "",
-        }));
-        try {
-          const { data } = await api.post<ApiSuccessResponse<LoginResponse>>(
-            "/auth/login-password/",
-            {
-              identifier: normalizeAuthIdentifier(payload.identifier),
-              password: payload.password,
-            },
-            { skipAuth: true },
-          );
-
-          if (!data?.data) {
+        setSession: data => {
+          if (!data?.tokens?.access_token) {
             throw new Error("Invalid login response from server");
           }
 
-          get().setSession(data.data);
-        } catch (error) {
-          const message = getApiErrorMessage(error, "Login failed");
-          const status = getApiErrorStatus(error);
-          set({ errorMessage: message });
-          throw new AuthRequestError(message, status);
-        } finally {
+          localStorage.setItem("accessToken", data.tokens.access_token);
+          setAuthHeader(data.tokens.access_token);
+          setAuthCookies(data.tokens.access_token, deriveAuthRole(data.user));
+          set({
+            user: data.user,
+            accessToken: data.tokens.access_token,
+            refreshToken: data.tokens.refresh_token ?? null,
+            isAuthenticated: true,
+            successMessage: "Signed in successfully",
+            errorMessage: "",
+          });
+        },
+
+        clearSession: () => {
+          localStorage.removeItem("accessToken");
+          clearAuthCookies();
+          setAuthHeader(null);
+          set({
+            user: null,
+            accessToken: null,
+            refreshToken: null,
+            isAuthenticated: false,
+            errorMessage: "",
+            successMessage: "",
+          });
+        },
+
+        logout: () => {
+          get().clearSession();
+        },
+
+        login: async payload => {
           set(state => ({
-            loading: { ...state.loading, login: false },
+            loading: { ...state.loading, login: true },
+            errorMessage: "",
+            successMessage: "",
           }));
-        }
-      },
+          try {
+            const { data } = await api.post<ApiSuccessResponse<LoginResponse>>(
+              "/auth/login-password/",
+              {
+                identifier: normalizeAuthIdentifier(payload.identifier),
+                password: payload.password,
+              },
+              { skipAuth: true },
+            );
 
-      register: async payload => {
-        set(state => ({
-          loading: { ...state.loading, register: true },
-          errorMessage: "",
-          successMessage: "",
-        }));
+            if (!data?.data) {
+              throw new Error("Invalid login response from server");
+            }
 
-        try {
-          const { data } = await api.post<ApiSuccessResponse<RegisterResponse>>(
-            "/auth/register/",
-            payload,
-            { skipAuth: true },
-          );
-          set({ successMessage: data.message });
-        } catch (error) {
-          const message = getApiErrorMessage(error, "Registration failed");
-          set({ errorMessage: message });
-          throw new Error(message);
-        } finally {
-          set(state => ({
-            loading: { ...state.loading, register: false },
-          }));
-        }
-      },
-
-      requestOtp: async payload => {
-        set(state => ({
-          loading: { ...state.loading, requestOtp: true },
-          errorMessage: "",
-          successMessage: "",
-        }));
-
-        try {
-          const { data } = await api.post<{ message: string }>(
-            "/auth/request-otp/",
-            { identifier: normalizeAuthIdentifier(payload.identifier) },
-            { skipAuth: true },
-          );
-          set({ successMessage: data.message });
-        } catch (error) {
-          const message = getApiErrorMessage(error, "Failed to send OTP");
-          set({ errorMessage: message });
-          throw new Error(message);
-        } finally {
-          set(state => ({
-            loading: { ...state.loading, requestOtp: false },
-          }));
-        }
-      },
-
-      verifyOtp: async payload => {
-        set(state => ({
-          loading: { ...state.loading, verifyOtp: true },
-          errorMessage: "",
-          successMessage: "",
-        }));
-
-        try {
-          const { data } = await api.post<ApiSuccessResponse<LoginResponse>>(
-            "/auth/verify-otp/",
-            {
-              identifier: normalizeAuthIdentifier(payload.identifier),
-              code: payload.code,
-            },
-            { skipAuth: true },
-          );
-
-          if (!data?.data) {
-            throw new Error("Invalid login response from server");
+            get().setSession(data.data);
+          } catch (error) {
+            const message = getApiErrorMessage(error, "Login failed");
+            const status = getApiErrorStatus(error);
+            set({ errorMessage: message });
+            throw new AuthRequestError(message, status);
+          } finally {
+            set(state => ({
+              loading: { ...state.loading, login: false },
+            }));
           }
+        },
 
-          get().setSession(data.data);
-        } catch (error) {
-          const message = getApiErrorMessage(error, "OTP verification failed");
-          set({ errorMessage: message });
-          throw new Error(message);
-        } finally {
+        register: async payload => {
           set(state => ({
-            loading: { ...state.loading, verifyOtp: false },
+            loading: { ...state.loading, register: true },
+            errorMessage: "",
+            successMessage: "",
           }));
-        }
-      },
 
-      resetPasswordRequest: async payload => {
-        set(state => ({
-          loading: { ...state.loading, resetPasswordRequest: true },
-          errorMessage: "",
-          successMessage: "",
-        }));
+          try {
+            const { data } = await api.post<
+              ApiSuccessResponse<RegisterResponse>
+            >("/auth/register/", payload, { skipAuth: true });
+            set({ successMessage: data.message });
+          } catch (error) {
+            const message = getApiErrorMessage(error, "Registration failed");
+            set({ errorMessage: message });
+            throw new Error(message);
+          } finally {
+            set(state => ({
+              loading: { ...state.loading, register: false },
+            }));
+          }
+        },
 
-        try {
-          const { data } = await api.post<{ message: string }>(
-            "/auth/reset-password-request/",
-            payload,
-            { skipAuth: true },
-          );
-          set({ successMessage: data.message });
-        } catch (error) {
-          const message = getApiErrorMessage(
-            error,
-            "Failed to send reset code",
-          );
-          set({ errorMessage: message });
-          throw new Error(message);
-        } finally {
+        requestOtp: async payload => {
           set(state => ({
-            loading: { ...state.loading, resetPasswordRequest: false },
+            loading: { ...state.loading, requestOtp: true },
+            errorMessage: "",
+            successMessage: "",
           }));
-        }
-      },
 
-      resetPasswordConfirm: async payload => {
-        set(state => ({
-          loading: { ...state.loading, resetPasswordConfirm: true },
-          errorMessage: "",
-          successMessage: "",
-        }));
+          try {
+            const { data } = await api.post<{ message: string }>(
+              "/auth/request-otp/",
+              { identifier: normalizeAuthIdentifier(payload.identifier) },
+              { skipAuth: true },
+            );
+            set({ successMessage: data.message });
+          } catch (error) {
+            const message = getApiErrorMessage(error, "Failed to send OTP");
+            set({ errorMessage: message });
+            throw new Error(message);
+          } finally {
+            set(state => ({
+              loading: { ...state.loading, requestOtp: false },
+            }));
+          }
+        },
 
-        try {
-          const { data } = await api.post<{ message: string }>(
-            "/auth/reset-password-confirm/",
-            payload,
-            { skipAuth: true },
-          );
-          set({ successMessage: data.message });
-        } catch (error) {
-          const message = getApiErrorMessage(error, "Failed to reset password");
-          set({ errorMessage: message });
-          throw new Error(message);
-        } finally {
+        verifyOtp: async payload => {
           set(state => ({
-            loading: { ...state.loading, resetPasswordConfirm: false },
+            loading: { ...state.loading, verifyOtp: true },
+            errorMessage: "",
+            successMessage: "",
           }));
-        }
-      },
-    }),
-    {
-      name: "auth-storage",
-      partialize: state => ({
-        user: state.user,
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
-        isAuthenticated: state.isAuthenticated,
+
+          try {
+            const { data } = await api.post<ApiSuccessResponse<LoginResponse>>(
+              "/auth/verify-otp/",
+              {
+                identifier: normalizeAuthIdentifier(payload.identifier),
+                code: payload.code,
+              },
+              { skipAuth: true },
+            );
+
+            if (!data?.data) {
+              throw new Error("Invalid login response from server");
+            }
+
+            get().setSession(data.data);
+          } catch (error) {
+            const message = getApiErrorMessage(
+              error,
+              "OTP verification failed",
+            );
+            set({ errorMessage: message });
+            throw new Error(message);
+          } finally {
+            set(state => ({
+              loading: { ...state.loading, verifyOtp: false },
+            }));
+          }
+        },
+
+        resetPasswordRequest: async payload => {
+          set(state => ({
+            loading: { ...state.loading, resetPasswordRequest: true },
+            errorMessage: "",
+            successMessage: "",
+          }));
+
+          try {
+            const { data } = await api.post<{ message: string }>(
+              "/auth/reset-password-request/",
+              payload,
+              { skipAuth: true },
+            );
+            set({ successMessage: data.message });
+          } catch (error) {
+            const message = getApiErrorMessage(
+              error,
+              "Failed to send reset code",
+            );
+            set({ errorMessage: message });
+            throw new Error(message);
+          } finally {
+            set(state => ({
+              loading: { ...state.loading, resetPasswordRequest: false },
+            }));
+          }
+        },
+
+        resetPasswordConfirm: async payload => {
+          set(state => ({
+            loading: { ...state.loading, resetPasswordConfirm: true },
+            errorMessage: "",
+            successMessage: "",
+          }));
+
+          try {
+            const { data } = await api.post<{ message: string }>(
+              "/auth/reset-password-confirm/",
+              payload,
+              { skipAuth: true },
+            );
+            set({ successMessage: data.message });
+          } catch (error) {
+            const message = getApiErrorMessage(
+              error,
+              "Failed to reset password",
+            );
+            set({ errorMessage: message });
+            throw new Error(message);
+          } finally {
+            set(state => ({
+              loading: { ...state.loading, resetPasswordConfirm: false },
+            }));
+          }
+        },
       }),
-      onRehydrateStorage: () => state => {
-        const token = getStoredAccessToken();
-        if (token) {
-          setAuthHeader(token);
-          if (state?.user) {
-            setAuthCookies(token, deriveAuthRole(state.user));
+      {
+        name: "auth-storage",
+        partialize: state => ({
+          user: state.user,
+          accessToken: state.accessToken,
+          refreshToken: state.refreshToken,
+          isAuthenticated: state.isAuthenticated,
+        }),
+        onRehydrateStorage: () => state => {
+          const token = getStoredAccessToken();
+          if (token) {
+            setAuthHeader(token);
+            if (state?.user) {
+              setAuthCookies(token, deriveAuthRole(state.user));
+            }
           }
-        }
+        },
       },
-    },
+    ),
+    withStoreDevtools("auth"),
   ),
 );
 

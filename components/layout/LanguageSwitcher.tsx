@@ -1,4 +1,5 @@
 "use client";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,19 +9,18 @@ import {
 import { GetAfterUrl, GetLocale } from "@/utils/GetUrlParams";
 import { IR, US } from "country-flag-icons/react/3x2";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export default function LanguageSwitcher() {
+  const t = useTranslations("common");
   const locale = GetLocale();
   const afterUrl = GetAfterUrl();
-  const Languages = [
-    { label: "En", icon: <US />, href: "en" },
-    { label: "Fa", icon: <IR />, href: "fa" },
+  const languages = [
+    { label: t("english"), icon: <US />, href: "en" },
+    { label: t("persian"), icon: <IR />, href: "fa" },
   ];
-  const icon = Languages.map(language => {
-    if (language.label.toLowerCase() === locale) {
-      return language.icon;
-    }
-  });
+  const icon = languages.find(language => language.href === locale)?.icon;
+
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger>
@@ -30,21 +30,19 @@ export default function LanguageSwitcher() {
         </span>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-24 rounded-sm"
+        className="w-28 rounded-sm"
         align="start"
         sideOffset={5}>
-        {Languages.map(link => {
-          return (
-            <DropdownMenuItem key={link.label}>
-              <Link
-                href={afterUrl ? `/${link.href}/${afterUrl}` : `/${link.href}`}
-                className="capitalize w-full flex justify-between items-center">
-                <span>{link.label}</span>
-                {link.icon}
-              </Link>
-            </DropdownMenuItem>
-          );
-        })}
+        {languages.map(link => (
+          <DropdownMenuItem key={link.href}>
+            <Link
+              href={afterUrl ? `/${link.href}/${afterUrl}` : `/${link.href}`}
+              className="flex w-full items-center justify-between capitalize">
+              <span>{link.label}</span>
+              {link.icon}
+            </Link>
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

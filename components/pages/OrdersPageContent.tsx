@@ -9,8 +9,11 @@ import { useStoreInit } from "@/hooks/use-store-init";
 import useOrderStore from "@/store/orderStore";
 import { formatCurrency } from "@/utils/format";
 import { Clock3, PackageCheck, ReceiptText } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function OrdersPageContent() {
+  const t = useTranslations("orders");
+  const tCommon = useTranslations("common");
   const orders = useOrderStore(state => state.orders);
   const fetchOrders = useOrderStore(state => state.fetchOrders);
   const isLoading = useOrderStore(state => state.loading.fetchOrders);
@@ -26,32 +29,34 @@ export default function OrdersPageContent() {
   return (
     <PageShell>
       <PageHeader
-        eyebrow="Orders"
-        title="Order history"
-        description="Track purchases, review order totals, and keep recent deliveries easy to scan."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        description={t("description")}
       />
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <SummaryCard
-          label="Open orders"
+          label={t("openOrders")}
           value={String(openOrders)}
           icon={Clock3}
         />
         <SummaryCard
-          label="Delivered"
+          label={t("delivered")}
           value={String(deliveredOrders)}
           icon={PackageCheck}
         />
         <SummaryCard
-          label="Total spent"
+          label={t("totalSpent")}
           value={formatCurrency(totalSpent)}
           icon={ReceiptText}
         />
       </section>
       <section className="space-y-4">
         {isLoading && orders.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Loading orders...</p>
+          <p className="text-sm text-muted-foreground">
+            {tCommon("loadingOrders")}
+          </p>
         ) : orders.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No orders yet.</p>
+          <p className="text-sm text-muted-foreground">{t("empty")}</p>
         ) : (
           orders.map(order => (
             <Card
@@ -67,7 +72,7 @@ export default function OrdersPageContent() {
                   {order.status}
                 </Badge>
                 <p className="text-sm text-muted-foreground">
-                  {order.items} item{order.items > 1 ? "s" : ""}
+                  {tCommon("itemCount", { count: order.items })}
                 </p>
                 <p className="font-semibold sm:text-end">
                   {formatCurrency(order.total)}

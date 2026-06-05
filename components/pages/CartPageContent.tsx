@@ -9,8 +9,11 @@ import { Separator } from "@/components/ui/separator";
 import { useStoreInit } from "@/hooks/use-store-init";
 import useCartStore from "@/store/cartStore";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export default function CartPageContent({ locale }: { locale: string }) {
+  const t = useTranslations("cart");
+  const tCommon = useTranslations("common");
   const items = useCartStore(state => state.items);
   const fetchItems = useCartStore(state => state.fetchItems);
   const isLoading = useCartStore(state => state.loading.fetchItems);
@@ -20,16 +23,18 @@ export default function CartPageContent({ locale }: { locale: string }) {
   return (
     <PageShell>
       <PageHeader
-        eyebrow="Cart"
-        title="Review your cart"
-        description="Check quantities, seller availability, and order totals before checkout."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        description={t("description")}
       />
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="space-y-4">
           {isLoading && items.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Loading cart...</p>
+            <p className="text-sm text-muted-foreground">
+              {tCommon("loadingCart")}
+            </p>
           ) : items.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Your cart is empty.</p>
+            <p className="text-sm text-muted-foreground">{t("empty")}</p>
           ) : (
             items.map(({ product, quantity }) => (
               <CartLineItem
@@ -44,7 +49,7 @@ export default function CartPageContent({ locale }: { locale: string }) {
           <Button
             variant="outline"
             asChild>
-            <Link href={`/${locale}/products`}>Continue shopping</Link>
+            <Link href={`/${locale}/products`}>{t("continueShopping")}</Link>
           </Button>
         </div>
         <OrderSummary locale={locale} />

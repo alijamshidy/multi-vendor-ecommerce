@@ -6,6 +6,7 @@ import ProductGrid from "@/components/products/ProductGrid";
 import { useStoreInit } from "@/hooks/use-store-init";
 import useCategoryStore from "@/store/categoryStore";
 import useProductStore from "@/store/productStore";
+import { useTranslations } from "next-intl";
 
 export default function CategoryPageContent({
   locale,
@@ -14,6 +15,8 @@ export default function CategoryPageContent({
   locale: string;
   categorySlug: string;
 }) {
+  const t = useTranslations("product");
+  const tCommon = useTranslations("common");
   const activeCategory = useCategoryStore(state => state.activeCategory);
   const fetchCategoryBySlug = useCategoryStore(
     state => state.fetchCategoryBySlug,
@@ -34,12 +37,14 @@ export default function CategoryPageContent({
   return (
     <PageShell>
       <PageHeader
-        eyebrow="Category"
+        eyebrow={t("categoryEyebrow")}
         title={title}
-        description="Browse curated products from trusted sellers in this collection."
+        description={t("categoryDescription")}
       />
       {isLoading && products.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Loading products...</p>
+        <p className="text-sm text-muted-foreground">
+          {tCommon("loadingProducts")}
+        </p>
       ) : (
         <ProductGrid
           products={products}

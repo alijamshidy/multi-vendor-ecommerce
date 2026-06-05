@@ -17,10 +17,11 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 
 type NavItem = {
-  title: string;
+  titleKey: "home" | "products" | "cart" | "wishlist" | "reviews";
   href: string;
   icon: LucideIcon;
 };
@@ -34,6 +35,7 @@ function NavGroup({
   items: NavItem[];
   prefix: string;
 }) {
+  const t = useTranslations("nav");
   const pathname = usePathname();
 
   return (
@@ -53,7 +55,7 @@ function NavGroup({
                 isActive={isActive}>
                 <Link href={item.href}>
                   <item.icon />
-                  <span>{item.title}</span>
+                  <span>{t(item.titleKey)}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -65,37 +67,23 @@ function NavGroup({
 }
 
 export function StoreNav() {
+  const t = useTranslations("nav");
   const locale = GetLocale();
   const prefix = `/${locale}`;
 
   const shopItems: NavItem[] = [
-    { title: "Home", href: prefix, icon: Home },
-    { title: "Products", href: `${prefix}/products`, icon: Package },
-    { title: "Cart", href: `${prefix}/cart`, icon: ShoppingCart },
-    { title: "Wishlist", href: `${prefix}/wishlist`, icon: Heart },
-    { title: "Reviews", href: `${prefix}/reviews`, icon: Star },
+    { titleKey: "home", href: prefix, icon: Home },
+    { titleKey: "products", href: `${prefix}/products`, icon: Package },
+    { titleKey: "cart", href: `${prefix}/cart`, icon: ShoppingCart },
+    { titleKey: "wishlist", href: `${prefix}/wishlist`, icon: Heart },
+    { titleKey: "reviews", href: `${prefix}/reviews`, icon: Star },
   ];
 
-  // const accountItems: NavItem[] = [
-  //   {
-  //     title: "Dashboard",
-  //     href: `${prefix}/customer/dashboard`,
-  //     icon: LayoutDashboard,
-  //   },
-  // ];
-
   return (
-    <>
-      <NavGroup
-        label="Shop"
-        items={shopItems}
-        prefix={prefix}
-      />
-      {/* <NavGroup
-        label="Account"
-        items={accountItems}
-        prefix={prefix}
-      /> */}
-    </>
+    <NavGroup
+      label={t("shop")}
+      items={shopItems}
+      prefix={prefix}
+    />
   );
 }

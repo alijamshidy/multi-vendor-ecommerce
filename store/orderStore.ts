@@ -7,6 +7,8 @@ import {
 import api from "@/lib/axios";
 import { mapOrder } from "@/lib/mappers";
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { withStoreDevtools } from "./devtools";
 
 export type OrderView = ReturnType<typeof mapOrder>;
 
@@ -22,7 +24,9 @@ type OrderState = {
   clearError: () => void;
 };
 
-const useOrderStore = create<OrderState>(set => ({
+const useOrderStore = create<OrderState>()(
+  devtools(
+    set => ({
   orders: [],
   activeOrder: null,
   errorMessage: "",
@@ -79,6 +83,9 @@ const useOrderStore = create<OrderState>(set => ({
       }));
     }
   },
-}));
+    }),
+    withStoreDevtools("order"),
+  ),
+);
 
 export default useOrderStore;

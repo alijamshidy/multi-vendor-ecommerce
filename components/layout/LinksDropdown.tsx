@@ -16,6 +16,7 @@ import {
   visitorLinks,
 } from "@/utils/links";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { LuAlignLeft } from "react-icons/lu";
 import { Button } from "../ui/button";
@@ -24,6 +25,7 @@ import SignOutLink from "./SignOutLink";
 import UserIcon from "./UserIcon";
 
 export default function LinksDropdown() {
+  const t = useTranslations("nav");
   const [open, setOpen] = useState(false);
   const locale = GetLocale();
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
@@ -57,7 +59,7 @@ export default function LinksDropdown() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-40"
+        className="w-44"
         align="start"
         sideOffset={10}>
         {links.map(link => (
@@ -68,8 +70,8 @@ export default function LinksDropdown() {
             onSelect={closeMenu}>
             <Link
               href={`/${locale}${link.href === "/" ? "" : link.href}`}
-              className="w-full capitalize">
-              {link.label}
+              className="w-full">
+              {t(link.labelKey)}
             </Link>
           </DropdownMenuItem>
         ))}

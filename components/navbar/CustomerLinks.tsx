@@ -1,24 +1,29 @@
 "use client";
-import { links } from "@/utils/links";
+
+import Container from "@/components/Global/Container";
+import { GetLocale } from "@/utils/GetUrlParams";
+import { visitorLinks } from "@/utils/links";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
-import Container from "../global/Container";
 
 export default function CustomerLinks() {
+  const t = useTranslations("nav");
+  const locale = GetLocale();
   const path = usePathname();
-  console.log(path);
+
   return (
-    <Container className="md:flex hidden gap-x-6">
-      {links.map(link => {
-        const { href, label } = link;
+    <Container className="hidden gap-x-6 md:flex">
+      {visitorLinks.map(link => {
+        const href = `/${locale}${link.href === "/" ? "" : link.href}`;
         return (
           <Link
             className={`font-semibold ${
               path === href ? "text-[#059473]" : "text-slate-600"
             }`}
             href={href}
-            key={label}>
-            {label.toUpperCase()}
+            key={link.href}>
+            {t(link.labelKey).toUpperCase()}
           </Link>
         );
       })}

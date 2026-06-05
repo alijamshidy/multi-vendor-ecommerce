@@ -11,6 +11,7 @@ import { GetAfterUrl, GetLocale } from "@/utils/GetUrlParams";
 import { IR, US } from "country-flag-icons/react/3x2";
 import { Ellipsis, Heart, ShoppingCart } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "../ui/button";
 import CardButton from "./CardButton";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -26,6 +27,8 @@ export default function HeaderActions({
   compact = false,
   mobile = false,
 }: HeaderActionsProps) {
+  const t = useTranslations("common");
+  const tNav = useTranslations("nav");
   const locale = GetLocale();
   const afterUrl = GetAfterUrl();
 
@@ -37,7 +40,7 @@ export default function HeaderActions({
             <Button
               variant="outline"
               size="icon"
-              aria-label="More options">
+              aria-label={t("moreOptions")}>
               <Ellipsis className="size-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -49,7 +52,7 @@ export default function HeaderActions({
               <Link
                 href={afterUrl ? `/en/${afterUrl}` : "/en"}
                 className="flex items-center justify-between">
-                English <US className="h-3 w-4" />
+                {t("english")} <US className="h-3 w-4" />
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -57,7 +60,7 @@ export default function HeaderActions({
               <Link
                 href={afterUrl ? `/fa/${afterUrl}` : "/fa"}
                 className="flex items-center justify-between">
-                فارسی <IR className="h-3 w-4" />
+                {t("persian")} <IR className="h-3 w-4" />
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -79,7 +82,7 @@ export default function HeaderActions({
             <Button
               variant="outline"
               size="icon"
-              aria-label="More options">
+              aria-label={t("moreOptions")}>
               <Ellipsis className="size-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -91,14 +94,14 @@ export default function HeaderActions({
               <Link
                 href={afterUrl ? `/en/${afterUrl}` : "/en"}
                 className="flex items-center justify-between">
-                English <US className="h-3 w-4" />
+                {t("english")} <US className="h-3 w-4" />
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link
                 href={afterUrl ? `/fa/${afterUrl}` : "/fa"}
                 className="flex items-center justify-between">
-                فارسی <IR className="h-3 w-4" />
+                {t("persian")} <IR className="h-3 w-4" />
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -107,7 +110,7 @@ export default function HeaderActions({
                 href={`/${locale}/wishlist`}
                 className="flex items-center gap-2">
                 <Heart className="size-4" />
-                Wishlist
+                {tNav("wishlist")}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
@@ -115,7 +118,7 @@ export default function HeaderActions({
                 href={`/${locale}/cart`}
                 className="flex items-center gap-2">
                 <ShoppingCart className="size-4" />
-                Cart
+                {tNav("cart")}
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

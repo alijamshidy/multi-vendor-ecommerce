@@ -1,3 +1,5 @@
+"use client";
+
 import RangeSlider from "../filter/RangeSlider";
 import {
   Accordion,
@@ -6,32 +8,34 @@ import {
   AccordionTrigger,
 } from "../ui/accordion";
 import { Label } from "../ui/label";
+import { useTranslations } from "next-intl";
 import ResetFilterButton from "./ResetFilterButton";
 
-const filterItems = [
-  {
-    value: "priceRange",
-    trigger: "Price Range",
-    content: <RangeSlider />,
-  },
-  {
-    value: "category",
-    trigger: "Category",
-    content:
-      "Browse by electronics, fashion, home goods, and more from verified sellers.",
-  },
-  {
-    value: "rating",
-    trigger: "Rating",
-    content: "Filter products by customer rating and review count.",
-  },
-];
-
 export default function FilterPanel() {
+  const t = useTranslations("filters");
+
+  const filterItems = [
+    {
+      value: "priceRange",
+      trigger: t("priceRange"),
+      content: <RangeSlider />,
+    },
+    {
+      value: "category",
+      trigger: t("category"),
+      content: t("categoriesDescription"),
+    },
+    {
+      value: "rating",
+      trigger: t("rating"),
+      content: t("ratingDescription"),
+    },
+  ];
+
   return (
     <>
       <div className="flex items-center justify-between">
-        <Label>Filter</Label>
+        <Label>{t("title")}</Label>
         <ResetFilterButton />
       </div>
       <Accordion

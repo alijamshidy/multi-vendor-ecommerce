@@ -27,6 +27,7 @@ import { useAuthPaths } from "@/hooks/use-auth-paths";
 import { isSafeCallbackUrl, redirectAfterAuth } from "@/lib/auth-cookie";
 import useAuthStore from "@/store/authStore";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -41,6 +42,7 @@ type LoginWithOtpProps = {
 export default function LoginWithOtp({
   onSwitchToPassword,
 }: LoginWithOtpProps) {
+  const t = useTranslations("auth");
   const paths = useAuthPaths();
   const searchParams = useSearchParams();
   const requestOtp = useAuthStore(state => state.requestOtp);
@@ -65,11 +67,11 @@ export default function LoginWithOtp({
 
     try {
       await requestOtp({ identifier });
-      toast.success("OTP sent successfully");
+      toast.success(t("otpSentSuccess"));
       setCodeSent(true);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to send OTP",
+        error instanceof Error ? error.message : t("otpSendFailed"),
       );
     }
   };
@@ -80,7 +82,7 @@ export default function LoginWithOtp({
 
     try {
       await verifyOtp({ identifier, code: otp });
-      toast.success("Signed in successfully");
+      toast.success(t("signedInSuccess"));
       const callbackUrl = searchParams.get("callbackUrl");
       const destination = isSafeCallbackUrl(callbackUrl)
         ? callbackUrl
@@ -88,7 +90,7 @@ export default function LoginWithOtp({
       redirectAfterAuth(destination);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "OTP verification failed",
+        error instanceof Error ? error.message : t("otpVerifyFailed"),
       );
     }
   };
@@ -98,11 +100,11 @@ export default function LoginWithOtp({
       <div className="flex flex-col gap-6">
         <Card className="rounded-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-xl">Sign in with OTP</CardTitle>
+            <CardTitle className="text-xl">{t("signInWithOtpTitle")}</CardTitle>
             <CardDescription>
               {codeSent
-                ? "Enter the 6-digit code we sent you"
-                : "We will send a one-time code to your email or phone"}
+                ? t("otpSentDescription")
+                : t("otpSendDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -111,7 +113,7 @@ export default function LoginWithOtp({
                 <FieldGroup>
                   <Field>
                     <FieldLabel htmlFor="otp-identifier">
-                      Email or phone number
+                      {t("emailOrPhone")}
                     </FieldLabel>
                     <Input
                       id="otp-identifier"
@@ -119,7 +121,7 @@ export default function LoginWithOtp({
                       onChange={event => setIdentifier(event.target.value)}
                       type="text"
                       inputMode="email"
-                      placeholder="m@example.com or 09181234567"
+                      placeholder={t("emailOrPhonePlaceholder")}
                       required
                     />
                   </Field>
@@ -128,7 +130,7 @@ export default function LoginWithOtp({
                       type="submit"
                       className="w-full"
                       disabled={!isIdentifierValid || isRequestingOtp}>
-                      {isRequestingOtp ? "Sending..." : "Send code"}
+                      {isRequestingOtp ? t("sending") : t("sendCode")}
                     </Button>
                   </Field>
                 </FieldGroup>
@@ -137,7 +139,7 @@ export default function LoginWithOtp({
               <form onSubmit={handleVerify}>
                 <FieldGroup>
                   <Field>
-                    <FieldLabel htmlFor="otp">Verification code</FieldLabel>
+                    <FieldLabel htmlFor="otp">{t("verificationCode")}</FieldLabel>
                     <InputOTP
                       id="otp"
                       maxLength={6}
@@ -162,7 +164,7 @@ export default function LoginWithOtp({
                       type="submit"
                       className="w-full"
                       disabled={!isOtpValid || isVerifying}>
-                      {isVerifying ? "Verifying..." : "Verify and sign in"}
+                      {isVerifying ? t("verifying") : t("verifyAndSignIn")}
                     </Button>
                     <Button
                       type="button"
@@ -172,7 +174,7 @@ export default function LoginWithOtp({
                         setCodeSent(false);
                         setOtp("");
                       }}>
-                      Use a different contact
+                      {t("useDifferentContact")}
                     </Button>
                   </Field>
                 </FieldGroup>
@@ -186,14 +188,14 @@ export default function LoginWithOtp({
                   variant="link"
                   className="h-auto p-0"
                   onClick={onSwitchToPassword}>
-                  Sign in with password instead
+                  {t("signInWithPassword")}
                 </Button>
               ) : null}
             </FieldDescription>
 
             <FieldDescription className="text-center">
-              Don&apos;t have an account?{" "}
-              <Link href={paths.register}>Create one</Link>
+              {t("noAccount")}{" "}
+              <Link href={paths.register}>{t("createOne")}</Link>
             </FieldDescription>
           </CardContent>
         </Card>

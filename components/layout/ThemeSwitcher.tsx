@@ -3,28 +3,11 @@
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Monitor, Moon, Sun } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-
-const themes = [
-  {
-    key: "system",
-    icon: Monitor,
-    label: "System theme",
-  },
-  {
-    key: "light",
-    icon: Sun,
-    label: "Light theme",
-  },
-  {
-    key: "dark",
-    icon: Moon,
-    label: "Dark theme",
-  },
-];
 
 export type ThemeSwitcherProps = {
   open?: boolean;
@@ -41,8 +24,27 @@ export const ThemeSwitcher = ({
   defaultValue = "system",
   className,
 }: ThemeSwitcherProps) => {
+  const t = useTranslations("theme");
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+
+  const themes = [
+    {
+      key: "system",
+      icon: Monitor,
+      label: t("system"),
+    },
+    {
+      key: "light",
+      icon: Sun,
+      label: t("light"),
+    },
+    {
+      key: "dark",
+      icon: Moon,
+      label: t("dark"),
+    },
+  ];
 
   const handleThemeClick = useCallback(
     (themeKey: "light" | "dark" | "system") => {

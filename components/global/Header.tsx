@@ -1,4 +1,7 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import { Suspense } from "react";
 import { LuSearch } from "react-icons/lu";
 import HeaderActions from "../layout/HeaderActions";
@@ -10,11 +13,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { SidebarTrigger } from "../ui/sidebar";
 
 export default function Header({ open }: { open: boolean }) {
+  const t = useTranslations("nav");
+
   return (
     <>
-      {/* Mobile header */}
-      <section className="fixed top-5 w-full z-30  bg-background/95 backdrop-blur md:hidden">
-        <header className="flex h-16 min-w-0  w-[90%] border rounded-md mx-auto items-center justify-between gap-2 px-3 shadow-sm">
+      <section className="fixed top-5 z-30 w-full bg-background/95 backdrop-blur md:hidden">
+        <header className="mx-[2%] flex h-16 w-[calc(100%-4%)] min-w-0 items-center justify-between gap-2 rounded-md border px-3 shadow-sm">
           <div className="flex min-w-0 items-center gap-2">
             <SidebarTrigger />
             <Logo />
@@ -26,12 +30,12 @@ export default function Header({ open }: { open: boolean }) {
                   <Button
                     variant="outline"
                     size="icon"
-                    aria-label="Search products">
+                    aria-label={t("searchProducts")}>
                     <LuSearch className="size-4" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-[calc(80vw)] mr:10 sm:mr-20"
+                  className="mr:10 w-[calc(80vw)] sm:mr-20"
                   sideOffset={10}>
                   <NavSearch />
                 </PopoverContent>
@@ -42,16 +46,9 @@ export default function Header({ open }: { open: boolean }) {
         </header>
       </section>
 
-      {/* Desktop header - sticky inside sidebar inset, adapts when sidebar opens */}
-      <section className="sticky top-5 z-30 hidden min-w-0 md:block">
-        <header
-          className={cn(
-            "flex h-20 shrink-0 items-center gap-2 rounded-md border bg-background shadow-sm transition-[width,margin] duration-200 ease-linear",
-            open
-              ? "ms-[1.5%] me-[4%] w-[calc(100%-5.5%)]"
-              : "ms-[2.1%] me-[5%] w-[calc(100%-7.1%)]",
-          )}>
-          <SidebarTrigger className="ms-2 shrink-0" />
+      <section className="sticky top-5 z-30 mx-[2%] hidden min-w-0 w-[calc(100%-4%)] md:block">
+        <header className="flex h-20 w-full shrink-0 items-center gap-2 rounded-md border bg-background px-2 shadow-sm transition-all duration-200 ease-linear sm:px-4">
+          <SidebarTrigger className="shrink-0" />
           <div
             className={cn(
               "flex min-w-0 flex-1 items-center gap-2",
@@ -86,7 +83,7 @@ export default function Header({ open }: { open: boolean }) {
                     <Button
                       variant="outline"
                       size="icon"
-                      aria-label="Search products">
+                      aria-label={t("searchProducts")}>
                       <LuSearch className="size-4" />
                     </Button>
                   </PopoverTrigger>

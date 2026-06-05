@@ -1,42 +1,56 @@
 type NavLink = {
   href: string;
-  label: string;
+  labelKey:
+    | "home"
+    | "about"
+    | "products"
+    | "wishlist"
+    | "reviews"
+    | "cart"
+    | "orders"
+    | "contact"
+    | "dashboard"
+    | "sales"
+    | "myProducts"
+    | "createProduct"
+    | "createCategory";
 };
 
 export const visitorLinks: NavLink[] = [
-  { href: "/", label: "home" },
-  { href: "/about", label: "about" },
-  { href: "/products", label: "products" },
-  { href: "/wishlist", label: "wishlist" },
-  { href: "/reviews", label: "reviews" },
-  { href: "/cart", label: "cart" },
-  { href: "/orders", label: "orders" },
-  { href: "/contact", label: "contact" },
-  { href: "/customer/dashboard", label: "dashboard" },
+  { href: "/", labelKey: "home" },
+  { href: "/about", labelKey: "about" },
+  { href: "/products", labelKey: "products" },
+  { href: "/wishlist", labelKey: "wishlist" },
+  { href: "/reviews", labelKey: "reviews" },
+  { href: "/cart", labelKey: "cart" },
+  { href: "/orders", labelKey: "orders" },
+  { href: "/contact", labelKey: "contact" },
+  { href: "/customer/dashboard", labelKey: "dashboard" },
 ];
+
 export const customerLinks: NavLink[] = [
-  { href: "/", label: "home" },
-  { href: "/about", label: "about" },
-  { href: "/products", label: "products" },
-  { href: "/wishlist", label: "wishlist" },
-  { href: "/reviews", label: "reviews" },
-  { href: "/cart", label: "cart" },
-  { href: "/orders", label: "orders" },
-  { href: "/contact", label: "contact" },
-  { href: "/customer/dashboard", label: "dashboard" },
+  { href: "/", labelKey: "home" },
+  { href: "/about", labelKey: "about" },
+  { href: "/products", labelKey: "products" },
+  { href: "/wishlist", labelKey: "wishlist" },
+  { href: "/reviews", labelKey: "reviews" },
+  { href: "/cart", labelKey: "cart" },
+  { href: "/orders", labelKey: "orders" },
+  { href: "/contact", labelKey: "contact" },
+  { href: "/customer/dashboard", labelKey: "dashboard" },
 ];
 
 export const adminLinks: NavLink[] = [
-  { href: "/admin/dashboard", label: "dashboard" },
-  { href: "/admin/sales", label: "sales" },
-  { href: "/admin/products", label: "my products" },
-  { href: "/admin/products/create", label: "create product" },
-  { href: "/admin/categories/create", label: "create category" },
+  { href: "/admin/dashboard", labelKey: "dashboard" },
+  { href: "/admin/sales", labelKey: "sales" },
+  { href: "/admin/products", labelKey: "myProducts" },
+  { href: "/admin/products/create", labelKey: "createProduct" },
+  { href: "/admin/categories/create", labelKey: "createCategory" },
 ];
 
 export const sellerLinks: NavLink[] = [
-  { href: "/seller/dashboard", label: "dashboard" },
-  { href: "/seller/sales", label: "sales" },
-  { href: "/seller/products", label: "my products" },
-  { href: "/seller/products/create", label: "create product" },
+  { href: "/seller/dashboard", labelKey: "dashboard" },
+  { href: "/seller/sales", labelKey: "sales" },
+  { href: "/seller/products", labelKey: "myProducts" },
+  { href: "/seller/products/create", labelKey: "createProduct" },
 ];

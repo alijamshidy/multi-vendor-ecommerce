@@ -6,9 +6,11 @@ import MobileFilterSheet from "@/components/products/MobileFilterSheet";
 import ProductsContainer from "@/components/products/ProductsContainer";
 import { useStoreInit } from "@/hooks/use-store-init";
 import useProductStore from "@/store/productStore";
+import { useTranslations } from "next-intl";
 import { Suspense } from "react";
 
 export default function ProductsPageContent({ layout }: { layout: string }) {
+  const t = useTranslations("common");
   const products = useProductStore(state => state.products);
   const totalCount = useProductStore(state => state.totalCount);
   const fetchProducts = useProductStore(state => state.fetchProducts);
@@ -17,15 +19,15 @@ export default function ProductsPageContent({ layout }: { layout: string }) {
   useStoreInit(() => fetchProducts());
 
   return (
-    <Container className="flex flex-col mt-12 md:mt-0 gap-6 md:flex-row md:items-start md:justify-center">
+    <Container className="mt-12 flex flex-col gap-6 md:mt-0 md:flex-row md:items-start md:justify-center">
       <div className="w-full shrink-0 md:w-auto">
         <MobileFilterSheet />
       </div>
       <Filter />
-      <Suspense fallback={<div>loading ...</div>}>
+      <Suspense fallback={<div>{t("loading")}</div>}>
         {isLoading && products.length === 0 ? (
           <div className="py-12 text-center text-muted-foreground">
-            Loading products...
+            {t("loadingProducts")}
           </div>
         ) : (
           <ProductsContainer

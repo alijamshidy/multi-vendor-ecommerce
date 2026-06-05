@@ -8,6 +8,8 @@ import api from "@/lib/axios";
 import { mapCategory } from "@/lib/mappers";
 import type { category } from "@/utils/Category";
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { withStoreDevtools } from "./devtools";
 
 type CategoryAction = "fetchCategories" | "fetchCategory" | "createCategory";
 
@@ -30,7 +32,9 @@ type CategoryState = {
   clearMessages: () => void;
 };
 
-const useCategoryStore = create<CategoryState>((set, get) => ({
+const useCategoryStore = create<CategoryState>()(
+  devtools(
+    (set, get) => ({
   categories: [],
   activeCategory: null,
   errorMessage: "",
@@ -122,6 +126,9 @@ const useCategoryStore = create<CategoryState>((set, get) => ({
       }));
     }
   },
-}));
+    }),
+    withStoreDevtools("category"),
+  ),
+);
 
 export default useCategoryStore;

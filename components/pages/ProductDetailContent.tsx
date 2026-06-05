@@ -17,12 +17,7 @@ import { CheckCircle2, ShieldCheck, Truck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
-
-const features = [
-  { icon: Truck, text: "Estimated delivery in 3-5 business days" },
-  { icon: ShieldCheck, text: "Buyer protection included" },
-  { icon: CheckCircle2, text: "Quality checked before shipping" },
-];
+import { useTranslations } from "next-intl";
 
 export default function ProductDetailContent({
   locale,
@@ -31,6 +26,14 @@ export default function ProductDetailContent({
   locale: string;
   id: string;
 }) {
+  const t = useTranslations("product");
+  const tCart = useTranslations("cart");
+  const tCommon = useTranslations("common");
+  const features = [
+    { icon: Truck, text: t("deliveryEstimate") },
+    { icon: ShieldCheck, text: t("buyerProtection") },
+    { icon: CheckCircle2, text: t("qualityChecked") },
+  ];
   const product = useProductStore(state => state.product);
   const fetchProduct = useProductStore(state => state.fetchProduct);
   const isLoading = useProductStore(state => state.loading.fetchProduct);
@@ -43,7 +46,7 @@ export default function ProductDetailContent({
     return (
       <PageShell>
         <div className="py-16 text-center text-muted-foreground">
-          Loading product...
+          {tCommon("loadingProduct")}
         </div>
       </PageShell>
     );
@@ -53,7 +56,7 @@ export default function ProductDetailContent({
     return (
       <PageShell>
         <div className="py-16 text-center text-muted-foreground">
-          Product not found.
+          {t("notFound")}
         </div>
       </PageShell>
     );
@@ -62,10 +65,10 @@ export default function ProductDetailContent({
   const handleAddToCart = async () => {
     try {
       await addItem({ product: product.id, quantity: 1 });
-      toast.success("Added to cart");
+      toast.success(tCart("addedToCart"));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to add to cart",
+        error instanceof Error ? error.message : tCart("addToCartFailed"),
       );
     }
   };
@@ -93,13 +96,12 @@ export default function ProductDetailContent({
             </div>
             <div className="flex flex-col justify-between gap-6">
               <div className="space-y-4">
-                <Badge className="w-fit">Verified seller</Badge>
+                <Badge className="w-fit">{t("verifiedSeller")}</Badge>
                 <p className="text-3xl font-semibold">
                   {formatCurrency(product.price)}
                 </p>
                 <p className="leading-7 text-muted-foreground">
-                  Reliable marketplace item with protected checkout, fast
-                  dispatch, and support from the vendor team.
+                  {t("description")}
                 </p>
                 <ProductFeatureList features={features} />
               </div>
@@ -108,13 +110,13 @@ export default function ProductDetailContent({
                   className="flex-1"
                   disabled={isAdding}
                   onClick={handleAddToCart}>
-                  {isAdding ? "Adding..." : "Add to cart"}
+                  {isAdding ? tCart("adding") : tCart("addToCart")}
                 </Button>
                 <Button
                   variant="outline"
                   className="flex-1"
                   asChild>
-                  <Link href={`/${locale}/wishlist`}>Save item</Link>
+                  <Link href={`/${locale}/wishlist`}>{t("saveItem")}</Link>
                 </Button>
               </div>
             </div>
@@ -125,7 +127,7 @@ export default function ProductDetailContent({
 
       <section className="space-y-4">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-xl font-semibold">More actions</h2>
+          <h2 className="text-xl font-semibold">{t("moreActions")}</h2>
           <Separator className="hidden flex-1 sm:block" />
         </div>
         <div className="flex flex-wrap gap-2">

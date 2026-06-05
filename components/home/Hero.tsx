@@ -1,24 +1,26 @@
 import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Button } from "../ui/button";
 import HeroCarousel from "./HeroCarousel";
 
-export default function Hero() {
+export default async function Hero() {
+  const t = await getTranslations("home");
+  const locale = await getLocale();
+
   return (
     <section className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
       <div className="">
         <h1 className="max-w-2xl font-bold text-4xl tracking-tight sm:text-6xl">
-          We are changing the way people shop
+          {t("heroTitle")}
         </h1>
         <p className="mt-8 max-w-xl text-lg leading-8 text-muted-foreground">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum ducimus
-          ratione voluptatem cupiditate? Rerum dicta dolorum nobis officiis?
-          Earum, deleniti!
+          {t("heroDescription")}
         </p>
         <Button
           asChild
           size={"lg"}
           className="mt-10">
-          <Link href={`/products`}>Our Products</Link>
+          <Link href={`/${locale}/products`}>{t("ourProducts")}</Link>
         </Button>
       </div>
       <HeroCarousel />

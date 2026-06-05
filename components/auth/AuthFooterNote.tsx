@@ -1,19 +1,24 @@
+"use client";
+
 import { FieldDescription } from "@/components/ui/field";
+import { useTranslations } from "next-intl";
 
 export default function AuthFooterNote() {
+  const t = useTranslations("auth");
+
   return (
     <FieldDescription className="px-2 text-center text-xs sm:px-4">
-      By continuing, you agree to our{" "}
+      {t("termsPrefix")}{" "}
       <a
         href="#"
         className="underline-offset-4 hover:underline">
-        Terms of Service
+        {t("termsOfService")}
       </a>{" "}
-      and{" "}
+      {t("and")}{" "}
       <a
         href="#"
         className="underline-offset-4 hover:underline">
-        Privacy Policy
+        {t("privacyPolicy")}
       </a>
       .
     </FieldDescription>

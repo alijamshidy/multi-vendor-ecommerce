@@ -1,6 +1,8 @@
 "use client";
+
 import { useQueryParams } from "@/hooks/use-query-params";
 import { GetLocale } from "@/utils/GetUrlParams";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Button } from "../ui/button";
@@ -8,6 +10,8 @@ import { Field } from "../ui/field";
 import { Input } from "../ui/input";
 
 export default function NavSearch() {
+  const t = useTranslations("nav");
+  const tCommon = useTranslations("common");
   const { searchParams, replaceQuery } = useQueryParams();
   const searchParam = searchParams.get("search")?.toString() || "";
   const [search, setSearch] = useState(
@@ -23,16 +27,18 @@ export default function NavSearch() {
     }
     replaceQuery(`/${locale}/products?${params.toString()}`);
   }, 500);
+
   useEffect(() => {
     if (!searchParams.get("search")) {
       setTimeout(() => setSearch(""), 0);
     }
   }, [searchParams]);
+
   return (
     <Field orientation="horizontal">
       <Input
         type="search"
-        placeholder="search product..."
+        placeholder={t("searchPlaceholder")}
         className="w-full min-w-0 max-w-full dark:bg-muted"
         value={search}
         onChange={e => {
@@ -42,7 +48,7 @@ export default function NavSearch() {
       <Button
         disabled={search === searchParam}
         onClick={() => handleSearch(search)}>
-        Search
+        {tCommon("search")}
       </Button>
     </Field>
   );

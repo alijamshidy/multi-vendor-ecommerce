@@ -2,31 +2,35 @@ import PageHeader from "@/components/commerce/PageHeader";
 import PageShell from "@/components/commerce/PageShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { ShieldCheck, Store, Truck } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
-export default function About() {
+export default async function About() {
+  const t = await getTranslations("home");
+
   const values = [
     {
-      title: "Verified sellers",
-      text: "Sellers can be reviewed, organized, and promoted from the marketplace dashboard.",
+      title: t("verifiedSellers"),
+      text: t("verifiedSellersText"),
       icon: Store,
     },
     {
-      title: "Protected checkout",
-      text: "The UI is ready for payment, shipping, and order APIs without changing the buying flow.",
+      title: t("protectedCheckout"),
+      text: t("protectedCheckoutText"),
       icon: ShieldCheck,
     },
     {
-      title: "Delivery focused",
-      text: "Product and order pages keep fulfillment status visible on every screen size.",
+      title: t("deliveryFocused"),
+      text: t("deliveryFocusedText"),
       icon: Truck,
     },
   ];
+
   return (
     <PageShell>
       <PageHeader
-        eyebrow="Why us"
-        title="A marketplace foundation for buyers and sellers"
-        description="This storefront is structured around product discovery, checkout, seller operations, and marketplace administration."
+        eyebrow={t("whyUs")}
+        title={t("aboutTitle")}
+        description={t("aboutDescription")}
       />
       <section className="grid gap-4 md:grid-cols-3">
         {values.map(value => (

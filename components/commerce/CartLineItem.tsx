@@ -1,7 +1,10 @@
+"use client";
+
 import { formatCurrency } from "@/utils/format";
 import { productType } from "@/utils/products";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Card, CardContent } from "../ui/card";
 
 type CartLineItemProps = {
@@ -15,6 +18,8 @@ export default function CartLineItem({
   quantity,
   locale,
 }: CartLineItemProps) {
+  const t = useTranslations("common");
+
   return (
     <Card className="rounded-md">
       <CardContent className="grid gap-4 p-4 sm:grid-cols-[7rem_1fr_auto] sm:items-center">
@@ -36,7 +41,7 @@ export default function CartLineItem({
           <p className="mt-1 text-sm text-muted-foreground">
             {product.category}
           </p>
-          <p className="mt-3 text-sm">Qty: {quantity}</p>
+          <p className="mt-3 text-sm">{t("qty", { quantity })}</p>
         </div>
         <p className="text-lg font-semibold sm:text-end">
           {formatCurrency(product.price * quantity)}

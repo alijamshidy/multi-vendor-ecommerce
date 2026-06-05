@@ -29,6 +29,7 @@ import { redirectAfterAuth } from "@/lib/auth-cookie";
 import useAuthStore from "@/store/authStore";
 import { isRegistrationPasswordValid } from "@/utils/password";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { FormEvent, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -36,6 +37,7 @@ const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const phoneRegex = /^(09[0-9]{9}|\+989[0-9]{9})$/;
 
 export default function RegisterForm() {
+  const t = useTranslations("auth");
   const paths = useAuthPaths();
   const register = useAuthStore(state => state.register);
   const verifyOtp = useAuthStore(state => state.verifyOtp);
@@ -74,11 +76,11 @@ export default function RegisterForm() {
         password,
         full_name: name.trim(),
       });
-      toast.success("Account created. Enter the OTP we sent you.");
+      toast.success(t("accountCreated"));
       setOtpSent(true);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Registration failed",
+        error instanceof Error ? error.message : t("registrationFailed"),
       );
     }
   };
@@ -89,11 +91,11 @@ export default function RegisterForm() {
 
     try {
       await verifyOtp({ identifier, code: otp });
-      toast.success("Account verified successfully");
+      toast.success(t("accountVerified"));
       redirectAfterAuth(paths.dashboard);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "OTP verification failed",
+        error instanceof Error ? error.message : t("otpVerifyFailed"),
       );
     }
   };
@@ -104,12 +106,12 @@ export default function RegisterForm() {
         <Card className="rounded-md">
           <CardHeader className="text-center">
             <CardTitle className="text-xl">
-              {otpSent ? "Verify your account" : "Create your account"}
+              {otpSent ? t("verifyAccount") : t("createAccount")}
             </CardTitle>
             <CardDescription>
               {otpSent
-                ? "Enter the 6-digit code sent to your email or phone"
-                : "Join the marketplace to shop and manage orders"}
+                ? t("verifyAccountDescription")
+                : t("createAccountDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -117,11 +119,11 @@ export default function RegisterForm() {
               <form onSubmit={handleRegister}>
                 <FieldGroup>
                   <Field>
-                    <FieldLabel htmlFor="name">Full name</FieldLabel>
+                    <FieldLabel htmlFor="name">{t("fullName")}</FieldLabel>
                     <Input
                       id="name"
                       type="text"
-                      placeholder="John Doe"
+                      placeholder={t("fullNamePlaceholder")}
                       value={name}
                       onChange={event => setName(event.target.value)}
                       autoComplete="name"
@@ -131,12 +133,12 @@ export default function RegisterForm() {
 
                   <Field>
                     <FieldLabel htmlFor="register-identifier">
-                      Email or phone number
+                      {t("emailOrPhone")}
                     </FieldLabel>
                     <Input
                       id="register-identifier"
                       type="text"
-                      placeholder="m@example.com or 09181234567"
+                      placeholder={t("emailOrPhonePlaceholder")}
                       value={identifier}
                       onChange={event => setIdentifier(event.target.value)}
                       autoComplete="username"
@@ -153,7 +155,7 @@ export default function RegisterForm() {
 
                   <Field>
                     <FieldLabel htmlFor="confirm-password">
-                      Confirm password
+                      {t("confirmPassword")}
                     </FieldLabel>
                     <Input
                       id="confirm-password"
@@ -165,7 +167,7 @@ export default function RegisterForm() {
                     />
                     {confirmPassword.length > 0 && !passwordsMatch ? (
                       <FieldDescription className="text-destructive">
-                        Passwords do not match
+                        {t("passwordsNoMatch")}
                       </FieldDescription>
                     ) : null}
                   </Field>
@@ -175,11 +177,11 @@ export default function RegisterForm() {
                       type="submit"
                       className="w-full"
                       disabled={!isValid || isRegistering}>
-                      {isRegistering ? "Creating account..." : "Create account"}
+                      {isRegistering ? t("creatingAccount") : t("createAccountButton")}
                     </Button>
                     <FieldDescription className="text-center">
-                      Already have an account?{" "}
-                      <Link href={paths.login}>Sign in</Link>
+                      {t("alreadyHaveAccount")}{" "}
+                      <Link href={paths.login}>{t("signIn")}</Link>
                     </FieldDescription>
                   </Field>
                 </FieldGroup>
@@ -189,7 +191,7 @@ export default function RegisterForm() {
                 <FieldGroup>
                   <Field>
                     <FieldLabel htmlFor="register-otp">
-                      Verification code
+                      {t("verificationCode")}
                     </FieldLabel>
                     <InputOTP
                       id="register-otp"
@@ -215,7 +217,7 @@ export default function RegisterForm() {
                       type="submit"
                       className="w-full"
                       disabled={!isOtpValid || isVerifying}>
-                      {isVerifying ? "Verifying..." : "Verify and continue"}
+                      {isVerifying ? t("verifying") : t("verifyAndContinue")}
                     </Button>
                     <Button
                       type="button"
@@ -225,7 +227,7 @@ export default function RegisterForm() {
                         setOtpSent(false);
                         setOtp("");
                       }}>
-                      Back to registration
+                      {t("backToRegistration")}
                     </Button>
                   </Field>
                 </FieldGroup>

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 
 import { cn } from "@/lib/utils";
 import { PASSWORD_REQUIREMENTS } from "@/utils/password";
+import { useTranslations } from "next-intl";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
@@ -24,6 +25,7 @@ export default function InputPasswordStrength({
   onChange,
   id: idProp,
 }: InputPasswordStrengthProps) {
+  const t = useTranslations("auth");
   const [internalValue, setInternalValue] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const generatedId = useId();
@@ -39,7 +41,7 @@ export default function InputPasswordStrength({
 
   const strength = requirements.map(req => ({
     met: req.regex.test(password),
-    text: req.text,
+    key: req.key,
   }));
 
   const strengthScore = useMemo(() => {
@@ -57,23 +59,23 @@ export default function InputPasswordStrength({
   };
 
   const getText = (score: number) => {
-    if (score === 0) return "Enter a password";
-    if (score <= 2) return "Weak password";
-    if (score <= 3) return "Medium password";
-    if (score === 4) return "Strong password";
+    if (score === 0) return t("passwordStrength.enter");
+    if (score <= 2) return t("passwordStrength.weak");
+    if (score <= 3) return t("passwordStrength.medium");
+    if (score === 4) return t("passwordStrength.strong");
 
-    return "Very strong password";
+    return t("passwordStrength.veryStrong");
   };
 
   return (
     <div className="w-full space-y-2">
-      <Label htmlFor={id}>Password</Label>
+      <Label htmlFor={id}>{t("password")}</Label>
       <div className="relative">
         <Input
           required
           id={id}
           type={isVisible ? "text" : "password"}
-          placeholder="Password"
+          placeholder={t("password")}
           value={password}
           onChange={event => setPassword(event.target.value)}
           autoComplete="new-password"
@@ -87,7 +89,7 @@ export default function InputPasswordStrength({
           className="absolute inset-y-0 end-0 text-muted-foreground hover:bg-transparent">
           {isVisible ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
           <span className="sr-only">
-            {isVisible ? "Hide password" : "Show password"}
+            {isVisible ? t("hidePassword") : t("showPassword")}
           </span>
         </Button>
       </div>
@@ -105,7 +107,7 @@ export default function InputPasswordStrength({
       </div>
 
       <p className="text-sm font-medium text-foreground">
-        {getText(strengthScore)}. Must contain:
+        {getText(strengthScore)}. {t("passwordStrength.mustContain")}
       </p>
 
       <ul className="space-y-1.5 px-2">
@@ -125,7 +127,7 @@ export default function InputPasswordStrength({
                   ? "text-green-600 dark:text-green-400"
                   : "text-muted-foreground",
               )}>
-              {req.text}
+              {t(`passwordRequirements.${req.key}`)}
             </span>
           </li>
         ))}

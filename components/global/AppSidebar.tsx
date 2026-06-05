@@ -14,19 +14,26 @@ import {
 import { GetLocale } from "@/utils/GetUrlParams";
 import { Store } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { NavUser } from "../sidebar/NavUser";
 
-const user = {
-  name: "Guest",
-  email: "guest@storefront.demo",
-  avatar: "/avatars/shadcn.jpg",
-};
-
 export function AppSidebar() {
+  const t = useTranslations("nav");
   const locale = GetLocale();
+  const isRtl = locale === "fa";
+  const side = isRtl ? "right" : "left";
+
+  const user = {
+    name: t("guest"),
+    email: "guest@storefront.demo",
+    avatar: "/avatars/shadcn.jpg",
+  };
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar
+      collapsible="icon"
+      side={side}
+      dir={isRtl ? "rtl" : "ltr"}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -38,9 +45,9 @@ export function AppSidebar() {
                   <Store className="size-4" />
                 </span>
                 <div className="grid flex-1 text-start text-sm leading-tight">
-                  <span className="truncate font-semibold">Next Store</span>
+                  <span className="truncate font-semibold">{t("storeName")}</span>
                   <span className="truncate text-xs text-muted-foreground">
-                    Marketplace
+                    {t("storeTagline")}
                   </span>
                 </div>
               </Link>

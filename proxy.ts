@@ -1,11 +1,13 @@
-// middleware.ts
 import { Categorys } from "@/utils/Category";
 import type { AuthRole } from "@/lib/auth-cookie";
 import { isSafeCallbackUrl } from "@/lib/auth-cookie";
+import { DEFAULT_LOCALE } from "@/i18n/routing";
+import createIntlMiddleware from "next-intl/middleware";
+import { routing } from "@/i18n/routing";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-const DEFAULT_LOCALE = "en";
+const handleI18nRouting = createIntlMiddleware(routing);
 
 const publicPaths = [
   "",
@@ -20,7 +22,6 @@ const publicPaths = [
 
 const categoryPaths = Categorys.map(category => category.href);
 
-/** First path segment after locale that always requires authentication. */
 const protectedFirstSegments = new Set([
   "admin",
   "seller",
@@ -50,7 +51,6 @@ function isPublicPath(pathname: string): boolean {
   if (publicPaths.includes(firstPathPart)) return true;
   if (categoryPaths.includes(firstPathPart)) return true;
 
-  // Dynamic category pages from API: /{locale}/{category-slug}
   if (
     pathParts.length === 1 &&
     !protectedFirstSegments.has(firstPathPart)
@@ -61,7 +61,6 @@ function isPublicPath(pathname: string): boolean {
   return false;
 }
 
-// استخراج لوکیل از مسیر (در صورت وجود)
 function getLocaleFromPath(pathname: string): string | null {
   const match = pathname.match(/^\/([a-z]{2})(?:\/|$)/);
   return match ? match[1] : null;
@@ -93,29 +92,11 @@ function getAuthFromRequest(request: NextRequest) {
   };
 }
 
-export async function proxy(request: NextRequest) {
+function runAuthChecks(request: NextRequest): NextResponse | null {
   const { pathname } = request.nextUrl;
-
-  // 1. هدایت ریشه '/' به '/en'
-  if (pathname === "/") {
-    return NextResponse.redirect(new URL(`/${DEFAULT_LOCALE}`, request.url));
-  }
-
-  // 2. پروکسی API (اختیاری)
-  if (pathname.startsWith("/api/proxy/")) {
-    const newUrl = pathname.replace("/api/proxy", "");
-    return NextResponse.rewrite(new URL(newUrl, "http://localhost:8000"));
-  }
-
-  if (pathname.startsWith("/api/")) {
-    return NextResponse.next();
-  }
-  // 3. کنترل دسترسی و احراز هویت
   const { isAuthenticated, role } = getAuthFromRequest(request);
-
   const isPublic = isPublicPath(pathname);
 
-  // اگر کاربر لاگین کرده و در صفحات لاگین/ثبت‌نام است → هدایت به callbackUrl یا داشبورد
   const isLoginOrRegister =
     pathname.includes("/login") || pathname.includes("/register");
   if (isAuthenticated && isLoginOrRegister) {
@@ -127,12 +108,10 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(destination, request.url));
   }
 
-  // صفحات عمومی → دسترسی آزاد
   if (isPublic) {
-    return NextResponse.next();
+    return null;
   }
 
-  // صفحات غیرعمومی: احراز هویت لازم است
   if (!isAuthenticated) {
     const locale = getLocaleFromPath(pathname) || DEFAULT_LOCALE;
     const loginUrl = new URL(`/${locale}/login`, request.url);
@@ -140,7 +119,6 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // بررسی نقش برای مسیرهای ادمین
   const isAdminRoute = pathname.includes("/admin");
   if (isAdminRoute && role !== "admin") {
     const locale = getLocaleFromPath(pathname) || DEFAULT_LOCALE;
@@ -149,7 +127,6 @@ export async function proxy(request: NextRequest) {
     );
   }
 
-  // جلوگیری از دسترسی ادمین به صفحات مشتری (اختیاری)
   const isCustomerRoute =
     pathname.includes("/customer/dashboard") ||
     pathname.includes("/profile") ||
@@ -160,30 +137,38 @@ export async function proxy(request: NextRequest) {
       new URL(getDefaultDashboardPath(locale, role), request.url),
     );
   }
-  // هدایت ریشه با تشخیص زبان مرورگر
-  if (pathname === "/") {
-    const acceptLanguage = request.headers.get("accept-language") || "";
-    const preferredLocale =
-      acceptLanguage.split(",")[0]?.split("-")[0] || DEFAULT_LOCALE;
-    const supportedLocales = ["en", "fa"]; // لوکیل‌های پشتیبانی شده
-    const locale = supportedLocales.includes(preferredLocale)
-      ? preferredLocale
-      : DEFAULT_LOCALE;
-    return NextResponse.redirect(new URL(`/${locale}`, request.url));
-  }
-  return NextResponse.next();
+
+  return null;
 }
 
-// پیکربندی مسیرهای تحت نظر middleware
+export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith("/api/proxy/")) {
+    const newUrl = pathname.replace("/api/proxy", "");
+    return NextResponse.rewrite(new URL(newUrl, "http://localhost:8000"));
+  }
+
+  if (pathname.startsWith("/api/")) {
+    return NextResponse.next();
+  }
+
+  const intlResponse = handleI18nRouting(request);
+
+  if (intlResponse.headers.get("location")) {
+    return intlResponse;
+  }
+
+  const authResponse = runAuthChecks(request);
+  if (authResponse) {
+    return authResponse;
+  }
+
+  return intlResponse;
+}
+
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder files (images, etc.)
-     */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:jpg|jpeg|gif|png|svg|ico|webp|css|js|json|woff|woff2|ttf|eot|txt|pdf|xml)$).*)",
   ],
 };

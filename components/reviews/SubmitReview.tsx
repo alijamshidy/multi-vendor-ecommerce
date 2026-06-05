@@ -6,9 +6,12 @@ import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import RatingInput from "./RatingInput";
 import useReviewStore from "@/store/reviewStore";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 export default function SubmitReview({ productId }: { productId: string }) {
+  const t = useTranslations("reviews");
+  const tCommon = useTranslations("common");
   const [isReviewFormVisible, setIsReviewFormVisible] = useState(false);
   const createReview = useReviewStore(state => state.createReview);
   const isLoading = useReviewStore(state => state.loading.createReview);
@@ -25,12 +28,12 @@ export default function SubmitReview({ productId }: { productId: string }) {
 
     try {
       await createReview({ productId, comment, rating });
-      toast.success("Review submitted");
+      toast.success(t("submitSuccess"));
       setIsReviewFormVisible(false);
       event.currentTarget.reset();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to submit review",
+        error instanceof Error ? error.message : t("submitFailed"),
       );
     }
   };
@@ -41,7 +44,7 @@ export default function SubmitReview({ productId }: { productId: string }) {
         size="lg"
         className="capitalize"
         onClick={() => setIsReviewFormVisible(prev => !prev)}>
-        leave review
+        {t("leaveReview")}
       </Button>
       {isReviewFormVisible ? (
         <Card className="mt-8 p-8">
@@ -54,7 +57,7 @@ export default function SubmitReview({ productId }: { productId: string }) {
             />
             <TextAreaInput
               name="comment"
-              labelText="feedback"
+              labelText={t("feedback")}
               defaultValue=""
             />
             <Button
@@ -62,7 +65,7 @@ export default function SubmitReview({ productId }: { productId: string }) {
               className="mt-4 capitalize"
               size="lg"
               disabled={isLoading}>
-              {isLoading ? "Submitting..." : "submit"}
+              {isLoading ? t("submitting") : tCommon("submit")}
             </Button>
           </form>
         </Card>

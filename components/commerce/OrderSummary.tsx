@@ -7,6 +7,7 @@ import useCartStore from "@/store/cartStore";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Separator } from "../ui/separator";
+import { useTranslations } from "next-intl";
 
 type OrderSummaryProps = {
   locale: string;
@@ -17,6 +18,7 @@ export default function OrderSummary({
   locale,
   showCheckoutButton = true,
 }: OrderSummaryProps) {
+  const t = useTranslations("cart");
   const subtotal = useCartStore(state => state.subtotal);
   const shipping = useCartStore(state => state.shipping);
   const tax = useCartStore(state => state.tax);
@@ -28,24 +30,24 @@ export default function OrderSummary({
   return (
     <Card className="rounded-md">
       <CardHeader>
-        <CardTitle>Order summary</CardTitle>
+        <CardTitle>{t("orderSummary")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <SummaryRow
-          label="Subtotal"
+          label={t("subtotal")}
           value={formatCurrency(subtotal)}
         />
         <SummaryRow
-          label="Shipping"
+          label={t("shipping")}
           value={formatCurrency(shipping)}
         />
         <SummaryRow
-          label="Tax"
+          label={t("tax")}
           value={formatCurrency(tax)}
         />
         <Separator />
         <SummaryRow
-          label="Total"
+          label={t("total")}
           value={formatCurrency(orderTotal)}
           strong
         />
@@ -53,7 +55,7 @@ export default function OrderSummary({
           <Button
             className="w-full"
             asChild>
-            <Link href={`/${locale}/checkout`}>Checkout</Link>
+            <Link href={`/${locale}/checkout`}>{t("checkout")}</Link>
           </Button>
         ) : null}
       </CardContent>

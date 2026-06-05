@@ -13,8 +13,10 @@ import useCartStore from "@/store/cartStore";
 import { useRouter } from "next/navigation";
 import { FormEvent } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export default function CheckoutPageContent({ locale }: { locale: string }) {
+  const t = useTranslations("checkout");
   const router = useRouter();
   const fetchItems = useCartStore(state => state.fetchItems);
   const checkout = useCartStore(state => state.checkout);
@@ -26,64 +28,66 @@ export default function CheckoutPageContent({ locale }: { locale: string }) {
     event.preventDefault();
     try {
       await checkout();
-      toast.success("Order placed successfully");
+      toast.success(t("orderPlaced"));
       router.push(`/${locale}/orders`);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Checkout failed");
+      toast.error(
+        error instanceof Error ? error.message : t("checkoutFailed"),
+      );
     }
   };
 
   return (
     <PageShell>
       <PageHeader
-        eyebrow="Checkout"
-        title="Delivery and payment"
-        description="Complete your shipping details and place the order."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        description={t("description")}
       />
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <Card className="rounded-md">
           <CardHeader>
-            <CardTitle>Shipping details</CardTitle>
+            <CardTitle>{t("shippingDetails")}</CardTitle>
           </CardHeader>
           <CardContent>
             <form
               className="grid gap-4 sm:grid-cols-2"
               onSubmit={handleSubmit}>
               <CheckoutField
-                label="Full name"
+                label={t("fullName")}
                 name="name"
-                placeholder="Alex Morgan"
+                placeholder={t("fullNamePlaceholder")}
               />
               <CheckoutField
-                label="Phone"
+                label={t("phone")}
                 name="phone"
-                placeholder="+1 555 0188"
+                placeholder={t("phonePlaceholder")}
               />
               <CheckoutField
-                label="Email"
+                label={t("email")}
                 name="email"
-                placeholder="alex@example.com"
+                placeholder={t("emailPlaceholder")}
                 type="email"
               />
               <CheckoutField
-                label="City"
+                label={t("city")}
                 name="city"
-                placeholder="New York"
+                placeholder={t("cityPlaceholder")}
               />
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="address">Address</Label>
+                <Label htmlFor="address">{t("address")}</Label>
                 <Textarea
                   id="address"
                   name="address"
                   className="min-h-28 resize-none"
-                  placeholder="Street, building, apartment"
+                  placeholder={t("addressPlaceholder")}
                 />
               </div>
               <Button
                 className="sm:col-span-2"
                 type="submit"
                 disabled={isCheckingOut}>
-                {isCheckingOut ? "Placing order..." : "Place order"}
+                {isCheckingOut ? t("placingOrder") : t("placeOrder")}
               </Button>
             </form>
           </CardContent>

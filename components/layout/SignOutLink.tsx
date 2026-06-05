@@ -3,6 +3,7 @@
 import useAuthStore from "@/store/authStore";
 import { GetLocale } from "@/utils/GetUrlParams";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 type SignOutLinkProps = {
@@ -10,6 +11,7 @@ type SignOutLinkProps = {
 };
 
 export default function SignOutLink({ onNavigate }: SignOutLinkProps) {
+  const t = useTranslations("nav");
   const router = useRouter();
   const locale = GetLocale();
   const logout = useAuthStore(state => state.logout);
@@ -17,16 +19,16 @@ export default function SignOutLink({ onNavigate }: SignOutLinkProps) {
   const handleLogout = () => {
     logout();
     onNavigate?.();
-    toast.success("Logged out");
+    toast.success(t("loggedOut"));
     router.replace(`/${locale}`);
   };
 
   return (
     <button
       type="button"
-      className="w-full px-2 py-1.5 text-start text-sm capitalize"
+      className="w-full px-2 py-1.5 text-start text-sm"
       onClick={handleLogout}>
-      Logout
+      {t("logout")}
     </button>
   );
 }

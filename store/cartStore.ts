@@ -8,6 +8,8 @@ import {
 import api from "@/lib/axios";
 import { mapCartItem } from "@/lib/mappers";
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { withStoreDevtools } from "./devtools";
 
 export type CartItemView = ReturnType<typeof mapCartItem>;
 
@@ -52,7 +54,9 @@ function computeTotals(items: CartItemView[]) {
   };
 }
 
-const useCartStore = create<CartState>((set, get) => ({
+const useCartStore = create<CartState>()(
+  devtools(
+    (set, get) => ({
   items: [],
   errorMessage: "",
   successMessage: "",
@@ -196,6 +200,9 @@ const useCartStore = create<CartState>((set, get) => ({
       }));
     }
   },
-}));
+    }),
+    withStoreDevtools("cart"),
+  ),
+);
 
 export default useCartStore;

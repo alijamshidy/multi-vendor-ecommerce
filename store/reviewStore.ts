@@ -7,6 +7,8 @@ import {
 import api from "@/lib/axios";
 import { mapComment } from "@/lib/mappers";
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { withStoreDevtools } from "./devtools";
 
 export type ReviewView = ReturnType<typeof mapComment>;
 
@@ -26,7 +28,9 @@ type ReviewState = {
   clearMessages: () => void;
 };
 
-const useReviewStore = create<ReviewState>((set, get) => ({
+const useReviewStore = create<ReviewState>()(
+  devtools(
+    (set, get) => ({
   reviews: [],
   errorMessage: "",
   successMessage: "",
@@ -89,6 +93,9 @@ const useReviewStore = create<ReviewState>((set, get) => ({
       }));
     }
   },
-}));
+    }),
+    withStoreDevtools("review"),
+  ),
+);
 
 export default useReviewStore;

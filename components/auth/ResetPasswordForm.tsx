@@ -26,6 +26,7 @@ import {
 import { useAuthPaths } from "@/hooks/use-auth-paths";
 import useAuthStore from "@/store/authStore";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -34,6 +35,7 @@ const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const phoneRegex = /^(09[0-9]{9}|\+989[0-9]{9})$/;
 
 export default function ResetPasswordForm() {
+  const t = useTranslations("auth");
   const paths = useAuthPaths();
   const router = useRouter();
   const resetPasswordRequest = useAuthStore(state => state.resetPasswordRequest);
@@ -59,11 +61,11 @@ export default function ResetPasswordForm() {
 
     try {
       await resetPasswordRequest({ identifier });
-      toast.success("Reset code sent");
+      toast.success(t("resetCodeSent"));
       setCodeSent(true);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to send reset code",
+        error instanceof Error ? error.message : t("resetCodeFailed"),
       );
     }
   };
@@ -78,11 +80,11 @@ export default function ResetPasswordForm() {
         code,
         new_password: newPassword,
       });
-      toast.success("Password reset successfully");
+      toast.success(t("passwordResetSuccess"));
       router.push(paths.login);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to reset password",
+        error instanceof Error ? error.message : t("passwordResetFailed"),
       );
     }
   };
@@ -92,11 +94,11 @@ export default function ResetPasswordForm() {
       <div className="flex flex-col gap-6">
         <Card className="rounded-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-xl">Reset password</CardTitle>
+            <CardTitle className="text-xl">{t("resetPassword")}</CardTitle>
             <CardDescription>
               {codeSent
-                ? "Enter the code and your new password"
-                : "Enter your email or phone number to receive a reset code"}
+                ? t("resetCodeDescription")
+                : t("resetRequestDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -105,7 +107,7 @@ export default function ResetPasswordForm() {
                 <FieldGroup>
                   <Field>
                     <FieldLabel htmlFor="reset-email">
-                      Email or phone number
+                      {t("emailOrPhone")}
                     </FieldLabel>
                     <Input
                       id="reset-email"
@@ -113,7 +115,7 @@ export default function ResetPasswordForm() {
                       onChange={event => setIdentifier(event.target.value)}
                       type="text"
                       inputMode="email"
-                      placeholder="m@example.com or 09181234567"
+                      placeholder={t("emailOrPhonePlaceholder")}
                       required
                     />
                   </Field>
@@ -122,11 +124,11 @@ export default function ResetPasswordForm() {
                       type="submit"
                       className="w-full"
                       disabled={!isIdentifierValid || isRequesting}>
-                      {isRequesting ? "Sending..." : "Send reset code"}
+                      {isRequesting ? t("sending") : t("sendResetCode")}
                     </Button>
                     <FieldDescription className="text-center">
-                      Remember your password?{" "}
-                      <Link href={paths.login}>Sign in</Link>
+                      {t("rememberPassword")}{" "}
+                      <Link href={paths.login}>{t("signIn")}</Link>
                     </FieldDescription>
                   </Field>
                 </FieldGroup>
@@ -135,7 +137,7 @@ export default function ResetPasswordForm() {
               <form onSubmit={handleConfirm}>
                 <FieldGroup>
                   <Field>
-                    <FieldLabel htmlFor="reset-code">Verification code</FieldLabel>
+                    <FieldLabel htmlFor="reset-code">{t("verificationCode")}</FieldLabel>
                     <InputOTP
                       id="reset-code"
                       maxLength={6}
@@ -156,7 +158,7 @@ export default function ResetPasswordForm() {
                     </InputOTP>
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="new-password">New password</FieldLabel>
+                    <FieldLabel htmlFor="new-password">{t("newPassword")}</FieldLabel>
                     <Input
                       id="new-password"
                       type="password"
@@ -171,7 +173,7 @@ export default function ResetPasswordForm() {
                       type="submit"
                       className="w-full"
                       disabled={!isCodeValid || !isPasswordValid || isConfirming}>
-                      {isConfirming ? "Resetting..." : "Reset password"}
+                      {isConfirming ? t("resetting") : t("resetPasswordButton")}
                     </Button>
                     <Button
                       type="button"
@@ -182,7 +184,7 @@ export default function ResetPasswordForm() {
                         setCode("");
                         setNewPassword("");
                       }}>
-                      Use a different contact
+                      {t("useDifferentContact")}
                     </Button>
                   </Field>
                 </FieldGroup>

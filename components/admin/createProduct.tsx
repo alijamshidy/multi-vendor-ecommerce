@@ -18,10 +18,13 @@ import useCategoryStore from "@/store/categoryStore";
 import useManagementStore from "@/store/managementStore";
 import { GetLocale } from "@/utils/GetUrlParams";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 
 export default function CreateProductForm() {
+  const t = useTranslations("adminForms");
+  const tNav = useTranslations("nav");
   const router = useRouter();
   const locale = GetLocale();
   const [categoryId, setCategoryId] = useState("");
@@ -43,7 +46,7 @@ export default function CreateProductForm() {
     event.preventDefault();
 
     if (!categoryId) {
-      toast.error("Please select a category");
+      toast.error(t("selectCategory"));
       return;
     }
 
@@ -62,12 +65,12 @@ export default function CreateProductForm() {
         ...(description ? { description } : {}),
         ...(images.length > 0 ? { images } : {}),
       });
-      toast.success("Product created");
+      toast.success(t("productCreated"));
       router.push(`/${locale}/admin/products`);
       router.refresh();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to create product",
+        error instanceof Error ? error.message : t("productCreateFailed"),
       );
     }
   };
@@ -80,19 +83,19 @@ export default function CreateProductForm() {
           className="grid gap-4 sm:grid-cols-2">
           <Field
             name="name"
-            label="Product name"
+            label={t("productName")}
             required
           />
           <Field
             name="price"
-            label="Price"
+            label={t("price")}
             type="number"
             min="0"
             step="0.01"
             required
           />
           <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category">{tNav("categories")}</Label>
             <input
               type="hidden"
               name="category"
@@ -109,10 +112,10 @@ export default function CreateProductForm() {
                 <SelectValue
                   placeholder={
                     isLoadingCategories
-                      ? "Loading categories..."
+                      ? t("loadingCategories")
                       : categories.length === 0
-                        ? "No categories available"
-                        : "Select a category"
+                        ? t("noCategories")
+                        : t("selectCategoryPlaceholder")
                   }
                 />
               </SelectTrigger>
@@ -132,14 +135,14 @@ export default function CreateProductForm() {
           </div>
           <Field
             name="stuck"
-            label="Stock"
+            label={t("stock")}
             type="number"
             min="0"
             step="1"
             required
           />
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t("description")}</Label>
             <Textarea
               id="description"
               name="description"
@@ -148,17 +151,17 @@ export default function CreateProductForm() {
           </div>
           <MultiImageInput
             className="sm:col-span-2"
-            label="Product images"
+            label={t("productImages")}
             files={images}
             onChange={setImages}
             maxFiles={10}
-            helperText="Select one or more images. The first image is used as the primary photo."
+            helperText={t("productImagesHelper")}
           />
           <Button
             type="submit"
             className="sm:col-span-2"
             disabled={isSubmitting || isLoadingCategories}>
-            {isSubmitting ? "Saving..." : "Save product"}
+            {isSubmitting ? t("saving") : t("saveProduct")}
           </Button>
         </form>
       </CardContent>

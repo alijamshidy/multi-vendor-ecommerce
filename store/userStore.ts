@@ -2,6 +2,8 @@ import type { UserProfile } from "@/lib/api-types";
 import { createLoadingState, getApiErrorMessage, resolveMediaUrl } from "@/lib/api-utils";
 import api from "@/lib/axios";
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { withStoreDevtools } from "./devtools";
 
 type UserAction = "fetchMe" | "fetchProfile" | "updateProfile";
 
@@ -15,7 +17,9 @@ type UserState = {
   clearError: () => void;
 };
 
-const useUserStore = create<UserState>((set, get) => ({
+const useUserStore = create<UserState>()(
+  devtools(
+    (set, get) => ({
   profile: null,
   errorMessage: "",
   loading: createLoadingState(["fetchMe", "fetchProfile", "updateProfile"] as const),
@@ -93,6 +97,9 @@ const useUserStore = create<UserState>((set, get) => ({
       }));
     }
   },
-}));
+    }),
+    withStoreDevtools("user"),
+  ),
+);
 
 export default useUserStore;

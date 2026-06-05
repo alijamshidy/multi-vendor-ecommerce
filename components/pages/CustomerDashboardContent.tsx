@@ -11,12 +11,14 @@ import useOrderStore from "@/store/orderStore";
 import useUserStore from "@/store/userStore";
 import { Heart, Package, ShoppingCart, UserRound } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export default function CustomerDashboardContent({
   locale,
 }: {
   locale: string;
 }) {
+  const t = useTranslations("dashboard");
   const itemCount = useCartStore(state => state.itemCount);
   const fetchItems = useCartStore(state => state.fetchItems);
   const orders = useOrderStore(state => state.orders);
@@ -31,49 +33,49 @@ export default function CustomerDashboardContent({
   return (
     <PageShell>
       <PageHeader
-        eyebrow="Customer"
-        title="Your dashboard"
-        description="A compact overview of your marketplace activity."
+        eyebrow={t("customer")}
+        title={t("title")}
+        description={t("description")}
       />
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
-          label="Cart items"
+          label={t("cartItems")}
           value={String(itemCount)}
           icon={ShoppingCart}
         />
         <SummaryCard
-          label="Wishlist"
+          label={t("wishlist")}
           value="—"
           icon={Heart}
         />
         <SummaryCard
-          label="Orders"
+          label={t("orders")}
           value={String(orders.length)}
           icon={Package}
         />
         <SummaryCard
-          label="Profile"
-          value={profile?.full_name ? "Ready" : "Incomplete"}
+          label={t("profile")}
+          value={profile?.full_name ? t("ready") : t("incomplete")}
           icon={UserRound}
         />
       </section>
       <Card className="rounded-md">
         <CardHeader>
-          <CardTitle>Quick actions</CardTitle>
+          <CardTitle>{t("quickActions")}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Button asChild>
-            <Link href={`/${locale}/products`}>Browse products</Link>
+            <Link href={`/${locale}/products`}>{t("browseProducts")}</Link>
           </Button>
           <Button
             variant="outline"
             asChild>
-            <Link href={`/${locale}/orders`}>View orders</Link>
+            <Link href={`/${locale}/orders`}>{t("viewOrders")}</Link>
           </Button>
           <Button
             variant="outline"
             asChild>
-            <Link href={`/${locale}/wishlist`}>Open wishlist</Link>
+            <Link href={`/${locale}/wishlist`}>{t("openWishlist")}</Link>
           </Button>
         </CardContent>
       </Card>

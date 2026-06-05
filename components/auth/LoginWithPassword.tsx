@@ -28,6 +28,7 @@ import useAuthStore from "@/store/authStore";
 import { isLoginPasswordValid } from "@/utils/password";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -53,6 +54,7 @@ export default function LoginWithPassword({
 }: {
   onSwitchToOtp?: () => void;
 }) {
+  const t = useTranslations("auth");
   const paths = useAuthPaths();
   const searchParams = useSearchParams();
   const login = useAuthStore(state => state.login);
@@ -100,7 +102,7 @@ export default function LoginWithPassword({
 
     try {
       await login({ identifier, password });
-      toast.success("Signed in successfully");
+      toast.success(t("signedInSuccess"));
       const callbackUrl = searchParams.get("callbackUrl");
       const destination = isSafeCallbackUrl(callbackUrl)
         ? callbackUrl
@@ -108,7 +110,7 @@ export default function LoginWithPassword({
       redirectAfterAuth(destination);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Login failed";
+        error instanceof Error ? error.message : t("loginFailed");
 
       if (error instanceof AuthRequestError && error.status === 429) {
         const parsedSeconds = parseThrottleCooldownSeconds(message);
@@ -128,9 +130,9 @@ export default function LoginWithPassword({
       <div className="flex flex-col gap-6">
         <Card className="rounded-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-xl">Welcome back</CardTitle>
+            <CardTitle className="text-xl">{t("welcomeBack")}</CardTitle>
             <CardDescription>
-              Sign in with email, phone, or a social account
+              {t("signInDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -150,7 +152,7 @@ export default function LoginWithPassword({
                         fill="currentColor"
                       />
                     </svg>
-                    Apple
+                    {t("apple")}
                   </Button>
                   <Button
                     variant="outline"
@@ -165,15 +167,15 @@ export default function LoginWithPassword({
                         fill="currentColor"
                       />
                     </svg>
-                    Google
+                    {t("google")}
                   </Button>
                 </Field>
 
-                <FieldSeparator>Or continue with</FieldSeparator>
+                <FieldSeparator>{t("orContinueWith")}</FieldSeparator>
 
                 <Field>
                   <FieldLabel htmlFor="identifier">
-                    Email or phone number
+                    {t("emailOrPhone")}
                   </FieldLabel>
                   <Input
                     id="identifier"
@@ -182,18 +184,18 @@ export default function LoginWithPassword({
                     type="text"
                     inputMode="email"
                     autoComplete="username"
-                    placeholder="m@example.com or 09181234567"
+                    placeholder={t("emailOrPhonePlaceholder")}
                     required
                   />
                 </Field>
 
                 <Field>
                   <div className="flex items-center gap-2">
-                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <FieldLabel htmlFor="password">{t("password")}</FieldLabel>
                     <Link
                       href={paths.resetPassword}
                       className="ms-auto text-sm underline-offset-4 hover:underline">
-                      Forgot password?
+                      {t("forgotPassword")}
                     </Link>
                   </div>
                   <div className="relative">
@@ -201,7 +203,7 @@ export default function LoginWithPassword({
                       id="password"
                       required
                       type={isVisible ? "text" : "password"}
-                      placeholder="Password"
+                      placeholder={t("password")}
                       value={password}
                       onChange={event => setPassword(event.target.value)}
                       autoComplete="current-password"
@@ -219,7 +221,7 @@ export default function LoginWithPassword({
                         <EyeIcon className="size-4" />
                       )}
                       <span className="sr-only">
-                        {isVisible ? "Hide password" : "Show password"}
+                        {isVisible ? t("hidePassword") : t("showPassword")}
                       </span>
                     </Button>
                   </div>
@@ -231,10 +233,12 @@ export default function LoginWithPassword({
                     className="w-full"
                     disabled={!isValid || isLoading || isRateLimited}>
                     {isLoading
-                      ? "Signing in..."
+                      ? t("signingIn")
                       : isRateLimited
-                        ? `Try again in ${formatCooldown(cooldownSecondsLeft)}`
-                        : "Sign in"}
+                        ? t("tryAgainIn", {
+                            time: formatCooldown(cooldownSecondsLeft),
+                          })
+                        : t("signIn")}
                   </Button>
                   {errorMessage ? (
                     <p className="text-center text-sm text-destructive" role="alert">
@@ -242,8 +246,8 @@ export default function LoginWithPassword({
                     </p>
                   ) : null}
                   <FieldDescription className="text-center">
-                    Don&apos;t have an account?{" "}
-                    <Link href={paths.register}>Create one</Link>
+                    {t("noAccount")}{" "}
+                    <Link href={paths.register}>{t("createOne")}</Link>
                   </FieldDescription>
                   {onSwitchToOtp ? (
                     <Button
@@ -251,7 +255,7 @@ export default function LoginWithPassword({
                       variant="link"
                       className="w-full"
                       onClick={onSwitchToOtp}>
-                      Sign in with OTP instead
+                      {t("signInWithOtp")}
                     </Button>
                   ) : null}
                 </Field>

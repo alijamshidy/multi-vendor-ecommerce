@@ -17,6 +17,7 @@ import { useStoreInit } from "@/hooks/use-store-init";
 import useCategoryStore from "@/store/categoryStore";
 import { GetLocale } from "@/utils/GetUrlParams";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -30,6 +31,7 @@ function slugify(value: string) {
 }
 
 export default function CreateCategoryForm() {
+  const t = useTranslations("adminForms");
   const router = useRouter();
   const locale = GetLocale();
   const [name, setName] = useState("");
@@ -77,12 +79,12 @@ export default function CreateCategoryForm() {
         ...(parentId !== "none" ? { parent: parentId } : {}),
         ...(images[0] ? { image: images[0] } : {}),
       });
-      toast.success("Category created");
+      toast.success(t("categoryCreated"));
       router.push(`/${locale}/admin/dashboard`);
       router.refresh();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Failed to create category";
+        error instanceof Error ? error.message : t("categoryCreateFailed");
       setSubmitError(message);
       toast.error(message);
     }
@@ -95,7 +97,7 @@ export default function CreateCategoryForm() {
           onSubmit={handleSubmit}
           className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="name">Category name</Label>
+            <Label htmlFor="name">{t("categoryName")}</Label>
             <Input
               id="name"
               name="name"
@@ -105,7 +107,7 @@ export default function CreateCategoryForm() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="slug">Slug</Label>
+            <Label htmlFor="slug">{t("slug")}</Label>
             <Input
               id="slug"
               name="slug"
@@ -118,7 +120,7 @@ export default function CreateCategoryForm() {
             />
           </div>
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="parent">Parent category</Label>
+            <Label htmlFor="parent">{t("parentCategory")}</Label>
             <Select
               value={parentId}
               onValueChange={setParentId}
@@ -129,13 +131,13 @@ export default function CreateCategoryForm() {
                 <SelectValue
                   placeholder={
                     isLoadingCategories
-                      ? "Loading categories..."
-                      : "Select parent (optional)"
+                      ? t("loadingCategories")
+                      : t("selectParentOptional")
                   }
                 />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">No parent</SelectItem>
+                <SelectItem value="none">{t("noParent")}</SelectItem>
                 {categories.map(category => (
                   <SelectItem
                     key={category.id}
@@ -147,7 +149,7 @@ export default function CreateCategoryForm() {
             </Select>
           </div>
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t("description")}</Label>
             <Textarea
               id="description"
               name="description"
@@ -156,11 +158,11 @@ export default function CreateCategoryForm() {
           </div>
           <MultiImageInput
             className="sm:col-span-2"
-            label="Category image"
+            label={t("categoryImage")}
             files={images}
             onChange={setImages}
             maxFiles={1}
-            helperText="Optional. One image is used as the category thumbnail."
+            helperText={t("categoryImageHelper")}
           />
           {submitError ? (
             <p
@@ -173,7 +175,7 @@ export default function CreateCategoryForm() {
             type="submit"
             className="sm:col-span-2"
             disabled={isSubmitting || !name.trim() || !slug.trim()}>
-            {isSubmitting ? "Saving..." : "Save category"}
+            {isSubmitting ? t("saving") : t("saveCategory")}
           </Button>
         </form>
       </CardContent>

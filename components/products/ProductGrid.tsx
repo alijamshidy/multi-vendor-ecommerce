@@ -6,12 +6,14 @@ type ProductGridProps = {
   products: productType[];
   locale: string;
   className?: string;
+  compact?: boolean;
 };
 
 export default function ProductGrid({
   products,
   locale,
   className,
+  compact = false,
 }: ProductGridProps) {
   return (
     <section
@@ -24,6 +26,7 @@ export default function ProductGrid({
           key={product.id}
           product={product}
           href={`/${locale}/products/${product.id}`}
+          compact={compact}
         />
       ))}
     </section>
