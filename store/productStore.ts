@@ -17,6 +17,7 @@ export type ProductQuery = {
   price_min?: number;
   price_max?: number;
   page?: number;
+  page_size?: number;
   ordering?: string;
 };
 
@@ -44,131 +45,132 @@ type ProductState = {
 const useProductStore = create<ProductState>()(
   devtools(
     set => ({
-  products: [],
-  product: null,
-  similarProducts: [],
-  featuredProducts: [],
-  totalCount: 0,
-  errorMessage: "",
-  loading: createLoadingState([
-    "fetchProducts",
-    "fetchProduct",
-    "fetchSimilar",
-    "fetchFeatured",
-  ] as const),
-
-  clearError: () => set({ errorMessage: "" }),
-
-  fetchProducts: async (query = {}) => {
-    set(state => ({
-      loading: { ...state.loading, fetchProducts: true },
-      errorMessage: "",
-    }));
-
-    try {
-      const { data } = await api.get<
-        ApiProduct[] | { results: ApiProduct[]; count?: number }
-      >("/products/", { params: query });
-      const list = unwrapList(data);
-      set({
-        products: list.map((item: unknown) => mapProduct(item as ApiProduct)),
-        totalCount: Array.isArray(data)
-          ? list.length
-          : (data.count ?? list.length),
-      });
-    } catch (error) {
-      set({
-        errorMessage: getApiErrorMessage(error, "Failed to load products"),
-      });
-    } finally {
-      set(state => ({
-        loading: { ...state.loading, fetchProducts: false },
-      }));
-    }
-  },
-
-  fetchProduct: async id => {
-    set(state => ({
-      loading: { ...state.loading, fetchProduct: true },
-      errorMessage: "",
+      products: [],
       product: null,
-    }));
-
-    try {
-      const { data } = await api.get<ApiProduct>(`/products/${id}/`);
-      const mapped = mapProduct(data);
-      set({ product: mapped });
-      return mapped;
-    } catch (error) {
-      set({
-        errorMessage: getApiErrorMessage(error, "Product not found"),
-      });
-      return null;
-    } finally {
-      set(state => ({
-        loading: { ...state.loading, fetchProduct: false },
-      }));
-    }
-  },
-
-  fetchSimilarProducts: async id => {
-    set(state => ({
-      loading: { ...state.loading, fetchSimilar: true },
+      similarProducts: [],
+      featuredProducts: [],
+      totalCount: 0,
       errorMessage: "",
-    }));
+      loading: createLoadingState([
+        "fetchProducts",
+        "fetchProduct",
+        "fetchSimilar",
+        "fetchFeatured",
+      ] as const),
 
-    try {
-      const { data } = await api.get<ApiProduct[] | { results: ApiProduct[] }>(
-        `/products/${id}/similar/`,
-      );
-      set({
-        similarProducts: unwrapList(data).map((item: unknown) =>
-          mapProduct(item as ApiProduct),
-        ),
-      });
-    } catch (error) {
-      set({
-        errorMessage: getApiErrorMessage(
-          error,
-          "Failed to load similar products",
-        ),
-      });
-    } finally {
-      set(state => ({
-        loading: { ...state.loading, fetchSimilar: false },
-      }));
-    }
-  },
+      clearError: () => set({ errorMessage: "" }),
 
-  fetchFeaturedProducts: async (limit = 8) => {
-    set(state => ({
-      loading: { ...state.loading, fetchFeatured: true },
-      errorMessage: "",
-    }));
+      fetchProducts: async (query = {}) => {
+        set(state => ({
+          loading: { ...state.loading, fetchProducts: true },
+          errorMessage: "",
+        }));
 
-    try {
-      const { data } = await api.get<ApiProduct[] | { results: ApiProduct[] }>(
-        "/products/",
-        { params: { page: 1 } },
-      );
-      set({
-        featuredProducts: unwrapList(data)
-          .slice(0, limit)
-          .map((item: unknown) => mapProduct(item as ApiProduct)),
-      });
-    } catch (error) {
-      set({
-        errorMessage: getApiErrorMessage(
-          error,
-          "Failed to load featured products",
-        ),
-      });
-    } finally {
-      set(state => ({
-        loading: { ...state.loading, fetchFeatured: false },
-      }));
-    }
-  },
+        try {
+          const { data } = await api.get<
+            ApiProduct[] | { results: ApiProduct[]; count?: number }
+          >("/products/", { params: query });
+          const list = unwrapList(data);
+          set({
+            products: list.map((item: unknown) =>
+              mapProduct(item as ApiProduct),
+            ),
+            totalCount: Array.isArray(data)
+              ? list.length
+              : (data.count ?? list.length),
+          });
+        } catch (error) {
+          set({
+            errorMessage: getApiErrorMessage(error, "Failed to load products"),
+          });
+        } finally {
+          set(state => ({
+            loading: { ...state.loading, fetchProducts: false },
+          }));
+        }
+      },
+
+      fetchProduct: async id => {
+        set(state => ({
+          loading: { ...state.loading, fetchProduct: true },
+          errorMessage: "",
+          product: null,
+        }));
+
+        try {
+          const { data } = await api.get<ApiProduct>(`/products/${id}/`);
+          const mapped = mapProduct(data);
+          set({ product: mapped });
+          return mapped;
+        } catch (error) {
+          set({
+            errorMessage: getApiErrorMessage(error, "Product not found"),
+          });
+          return null;
+        } finally {
+          set(state => ({
+            loading: { ...state.loading, fetchProduct: false },
+          }));
+        }
+      },
+
+      fetchSimilarProducts: async id => {
+        set(state => ({
+          loading: { ...state.loading, fetchSimilar: true },
+          errorMessage: "",
+        }));
+
+        try {
+          const { data } = await api.get<
+            ApiProduct[] | { results: ApiProduct[] }
+          >(`/products/${id}/similar/`);
+          set({
+            similarProducts: unwrapList(data).map((item: unknown) =>
+              mapProduct(item as ApiProduct),
+            ),
+          });
+        } catch (error) {
+          set({
+            errorMessage: getApiErrorMessage(
+              error,
+              "Failed to load similar products",
+            ),
+          });
+        } finally {
+          set(state => ({
+            loading: { ...state.loading, fetchSimilar: false },
+          }));
+        }
+      },
+
+      fetchFeaturedProducts: async (limit = 8) => {
+        set(state => ({
+          loading: { ...state.loading, fetchFeatured: true },
+          errorMessage: "",
+        }));
+
+        try {
+          const { data } = await api.get<
+            ApiProduct[] | { results: ApiProduct[] }
+          >("/products/", { params: { page: 1 } });
+          set({
+            featuredProducts: unwrapList(data)
+              .slice(0, limit)
+              .map((item: unknown) => mapProduct(item as ApiProduct)),
+          });
+        } catch (error) {
+          set({
+            errorMessage: getApiErrorMessage(
+              error,
+              "Failed to load featured products",
+            ),
+          });
+        } finally {
+          set(state => ({
+            loading: { ...state.loading, fetchFeatured: false },
+          }));
+        }
+      },
     }),
     withStoreDevtools("product"),
   ),

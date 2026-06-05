@@ -1,13 +1,16 @@
 import ProductsPageContent from "@/components/pages/ProductsPageContent";
+import { Suspense } from "react";
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<{
-    layout: string;
-  }>;
-}) {
-  const layout = (await searchParams).layout || "grid";
+function ProductsPageFallback() {
+  return (
+    <div className="py-12 text-center text-muted-foreground">Loading...</div>
+  );
+}
 
-  return <ProductsPageContent layout={layout} />;
+export default function Page() {
+  return (
+    <Suspense fallback={<ProductsPageFallback />}>
+      <ProductsPageContent />
+    </Suspense>
+  );
 }

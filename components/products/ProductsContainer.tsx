@@ -5,7 +5,7 @@ import { useSidebar } from "../ui/sidebar";
 import ChangeItemPerPage from "./ChangeItemPerPage";
 import ChangeLayout from "./ChangeLayout";
 import ChangeSorting from "./ChangeSorting";
-import Pagination from "./Pagination";
+import ProductsPagination from "./Pagination";
 import ProductsGrid from "./ProductsGrid";
 import ProductsList from "./ProductsList";
 
@@ -13,10 +13,12 @@ export default function ProductsContainer({
   layout,
   totalProducts,
   products,
+  isLoading = false,
 }: {
   layout: string;
   totalProducts: number;
   products: productType[];
+  isLoading?: boolean;
 }) {
   const { open } = useSidebar();
   return (
@@ -39,7 +41,7 @@ export default function ProductsContainer({
         <Separator className="mt-4" />
       </section>
       {/* PRODUCTS */}
-      <div>
+      <div className={isLoading ? "opacity-60 transition-opacity" : undefined}>
         {totalProducts === 0 ? (
           <h5 className="text-2xl mt-16">
             Sorry, no products matched your search...
@@ -50,12 +52,12 @@ export default function ProductsContainer({
               products={products}
               open={open}
             />
-            <Pagination />
+            <ProductsPagination totalCount={totalProducts} />
           </>
         ) : (
           <>
             <ProductsList products={products} />
-            <Pagination />
+            <ProductsPagination totalCount={totalProducts} />
           </>
         )}
       </div>

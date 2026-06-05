@@ -24,6 +24,23 @@ export function useQueryParams() {
     [pathname, replace, searchParams],
   );
 
+  const setQueryParams = useCallback(
+    (updates: Record<string, string | number | null | undefined>) => {
+      const params = new URLSearchParams(searchParams);
+
+      for (const [name, value] of Object.entries(updates)) {
+        if (value == null || value === "") {
+          params.delete(name);
+        } else {
+          params.set(name, String(value));
+        }
+      }
+
+      replace(`${pathname}?${params.toString()}`);
+    },
+    [pathname, replace, searchParams],
+  );
+
   const replaceQuery = useCallback(
     (href: string) => {
       replace(href);
@@ -35,6 +52,7 @@ export function useQueryParams() {
     pathname,
     searchParams,
     setQueryParam,
+    setQueryParams,
     replaceQuery,
   };
 }

@@ -34,6 +34,7 @@ export default function RangeSlider() {
     } else {
       params.delete("range");
     }
+    params.set("page", "1");
     replace(`/${locale}/products?${params.toString()}`);
   }, 500);
   useEffect(() => {

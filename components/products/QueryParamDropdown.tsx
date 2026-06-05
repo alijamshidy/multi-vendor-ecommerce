@@ -29,10 +29,19 @@ export default function QueryParamDropdown({
   suffix,
 }: QueryParamDropdownProps) {
   const [selectedValue, setSelectedValue] = useState(value);
-  const { setQueryParam } = useQueryParams();
+  const { setQueryParam, setQueryParams } = useQueryParams();
 
   const handleChange = useDebouncedCallback((nextValue: string | number) => {
     setSelectedValue(nextValue);
+
+    if (paramName === "item" || paramName === "sortBy") {
+      setQueryParams({
+        [paramName]: nextValue,
+        page: 1,
+      });
+      return;
+    }
+
     setQueryParam(paramName, nextValue);
   }, 500);
 

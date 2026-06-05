@@ -25,6 +25,7 @@ export default function NavSearch() {
     } else {
       params.delete("search");
     }
+    params.set("page", "1");
     replaceQuery(`/${locale}/products?${params.toString()}`);
   }, 500);
 
