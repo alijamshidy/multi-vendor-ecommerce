@@ -2,6 +2,7 @@ import type { ApiProduct } from "@/lib/api-types";
 import {
   createLoadingState,
   getApiErrorMessage,
+  unwrapEntity,
   unwrapList,
 } from "@/lib/api-utils";
 import api from "@/lib/axios";
@@ -98,8 +99,13 @@ const useProductStore = create<ProductState>()(
         }));
 
         try {
-          const { data } = await api.get<ApiProduct>(`/products/${id}/`);
-          const mapped = mapProduct(data);
+          const { data } = await api.get(`/products/${id}/`);
+          const item = unwrapEntity<ApiProduct>(data);
+          if (!item) {
+            set({ errorMessage: "Product not found" });
+            return null;
+          }
+          const mapped = mapProduct(item);
           set({ product: mapped });
           return mapped;
         } catch (error) {

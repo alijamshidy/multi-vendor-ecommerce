@@ -14,10 +14,10 @@ import useCartStore from "@/store/cartStore";
 import useProductStore from "@/store/productStore";
 import { formatCurrency } from "@/utils/format";
 import { CheckCircle2, ShieldCheck, Truck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
 
 export default function ProductDetailContent({
   locale,
@@ -34,15 +34,17 @@ export default function ProductDetailContent({
     { icon: ShieldCheck, text: t("buyerProtection") },
     { icon: CheckCircle2, text: t("qualityChecked") },
   ];
+
   const product = useProductStore(state => state.product);
   const fetchProduct = useProductStore(state => state.fetchProduct);
   const isLoading = useProductStore(state => state.loading.fetchProduct);
+  const errorMessage = useProductStore(state => state.errorMessage);
   const addItem = useCartStore(state => state.addItem);
   const isAdding = useCartStore(state => state.loading.addItem);
 
   useStoreInit(() => fetchProduct(id), [id]);
 
-  if (isLoading && !product) {
+  if (isLoading || (!product && !errorMessage)) {
     return (
       <PageShell>
         <div className="py-16 text-center text-muted-foreground">
@@ -55,8 +57,8 @@ export default function ProductDetailContent({
   if (!product) {
     return (
       <PageShell>
-        <div className="py-16 text-center text-muted-foreground">
-          {t("notFound")}
+        <div className="py-16 text-center text-destructive">
+          {errorMessage || t("notFound")}
         </div>
       </PageShell>
     );
@@ -87,7 +89,7 @@ export default function ProductDetailContent({
             <div className="relative aspect-square overflow-hidden rounded-md bg-muted">
               <Image
                 src={product.images[0].url}
-                alt={product.label}
+                alt={product.label || ""}
                 fill
                 priority
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -100,9 +102,11 @@ export default function ProductDetailContent({
                 <p className="text-3xl font-semibold">
                   {formatCurrency(product.price)}
                 </p>
-                <p className="leading-7 text-muted-foreground">
-                  {t("description")}
-                </p>
+                {product.description ? (
+                  <p className="leading-7 text-muted-foreground">
+                    {product.description}
+                  </p>
+                ) : null}
                 <ProductFeatureList features={features} />
               </div>
               <div className="flex flex-col gap-3 sm:flex-row">

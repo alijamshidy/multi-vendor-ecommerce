@@ -70,7 +70,7 @@ export type ApiProduct = {
   images?: ApiProductImage[];
   categories?: ApiCategory[];
   is_out_of_stock?: boolean;
-  attribute?: string;
+  attribute?: string | Record<string, string>;
 };
 
 export type ApiCartItem = {

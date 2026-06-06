@@ -20,14 +20,24 @@ export function mapProduct(item: ApiProduct): productType {
       }))
     : [{ id: item.id, url: "/images/hero1.jpg" }];
 
+  const attribute = item.attribute;
+  const description =
+    typeof attribute === "string"
+      ? attribute
+      : attribute && typeof attribute === "object"
+        ? Object.entries(attribute)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join(" · ")
+        : "";
+
   return {
-    id: item.id,
+    id: String(item.id),
     href: item.slug,
     label: item.name,
     images,
     price: Number(item.discount_price ?? item.price),
     category: item.categories?.[0]?.name ?? "",
-    description: item.attribute ?? "",
+    description,
   };
 }
 

@@ -119,6 +119,21 @@ export function unwrapList<T>(data: unknown): T[] {
   return [];
 }
 
+export function unwrapEntity<T>(data: unknown): T | null {
+  if (!data || typeof data !== "object") return null;
+
+  const record = data as Record<string, unknown>;
+  if (
+    record.data &&
+    typeof record.data === "object" &&
+    !Array.isArray(record.data)
+  ) {
+    return record.data as T;
+  }
+
+  return data as T;
+}
+
 export function createLoadingState<T extends string>(
   keys: readonly T[],
 ): Record<T, boolean> {
