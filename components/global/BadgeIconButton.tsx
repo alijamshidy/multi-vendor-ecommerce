@@ -29,7 +29,7 @@ export default function BadgeIconButton({
         aria-label={label}
         className="justify-center items-center flex">
         {icon}
-        <span className="absolute -top-3 -end-3 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-white">
+        <span className="absolute -top-3 -inset-e-3 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-white">
           {count}
         </span>
       </Link>

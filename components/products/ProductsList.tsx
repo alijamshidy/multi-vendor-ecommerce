@@ -14,7 +14,7 @@ export default function ProductsList({
             key={id}
             className="group relative">
             <ProductList product={product} />
-            <div className="absolute bottom-8 end-8 z-5"></div>
+            <div className="absolute bottom-8 inset-e-8 z-5"></div>
           </article>
         );
       })}

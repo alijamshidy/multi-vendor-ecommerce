@@ -10,7 +10,8 @@ services:
     ports:
       - "${PORT:-3001}:3000"
     environment:
-      API_URL: ${API_URL:-http://host.docker.internal:8000}
+      # Server-side proxy must reach Django on the host; .env localhost breaks inside Docker.
+      API_URL: http://host.docker.internal:8000
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
       NEXT_PUBLIC_WEBSITE_URL: ${NEXT_PUBLIC_WEBSITE_URL:-http://localhost:3001}
       EXTERNAL_API_URL: ${EXTERNAL_API_URL:-}
@@ -28,9 +29,10 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-      - /app/.next
+      # Do not mount a persistent .next volume — stale manifests cause 404 on new routes.
     environment:
-      API_URL: ${API_URL:-http://host.docker.internal:8000}
+      # Server-side proxy must reach Django on the host; .env localhost breaks inside Docker.
+      API_URL: http://host.docker.internal:8000
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
       NEXT_PUBLIC_WEBSITE_URL: ${NEXT_PUBLIC_WEBSITE_URL:-http://localhost:3001}
       EXTERNAL_API_URL: ${EXTERNAL_API_URL:-}

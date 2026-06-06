@@ -14,6 +14,52 @@ export async function proxyToBackend(
   const targetUrl = new URL(`${API_ORIGIN}/api/v1/${path}/`);
   targetUrl.search = request.nextUrl.search;
 
+  // #region agent log
+  fetch("http://127.0.0.1:7673/ingest/3195856a-0976-4ff2-982f-62bf78f50b86", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Debug-Session-Id": "e997a5",
+    },
+    body: JSON.stringify({
+      sessionId: "e997a5",
+      runId: "pre-fix",
+      hypothesisId: "A",
+      location: "api-proxy.ts:proxyToBackend",
+      message: "proxy request start",
+      data: {
+        apiOrigin: API_ORIGIN,
+        targetUrl: targetUrl.href,
+        envApiUrl: process.env.API_URL ?? null,
+      },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+  // #endregion
+
+  // #region agent log
+  fetch("http://127.0.0.1:7673/ingest/3195856a-0976-4ff2-982f-62bf78f50b86", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Debug-Session-Id": "e997a5",
+    },
+    body: JSON.stringify({
+      sessionId: "e997a5",
+      location: "api-proxy.ts:proxyToBackend",
+      message: "proxy request start",
+      data: {
+        apiOrigin: API_ORIGIN,
+        targetUrl: targetUrl.href,
+        method: request.method,
+      },
+      timestamp: Date.now(),
+      hypothesisId: "A",
+      runId: "pre-fix",
+    }),
+  }).catch(() => {});
+  // #endregion
+
   const headers = new Headers();
   const contentType = request.headers.get("content-type");
   if (contentType) headers.set("Content-Type", contentType);
@@ -34,10 +80,29 @@ export async function proxyToBackend(
       body,
     });
   } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
     console.error(
       `[api-proxy] Failed to reach ${targetUrl.href}:`,
-      error instanceof Error ? error.message : error,
+      errMsg,
     );
+    // #region agent log
+    fetch("http://127.0.0.1:7673/ingest/3195856a-0976-4ff2-982f-62bf78f50b86", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Debug-Session-Id": "e997a5",
+      },
+      body: JSON.stringify({
+        sessionId: "e997a5",
+        runId: "pre-fix",
+        hypothesisId: "A",
+        location: "api-proxy.ts:proxyToBackend:catch",
+        message: "proxy fetch failed",
+        data: { targetUrl: targetUrl.href, apiOrigin: API_ORIGIN, errMsg },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
     return NextResponse.json(
       { message: "Unable to reach the API server" },
       { status: 502 },
