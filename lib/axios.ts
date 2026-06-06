@@ -1,5 +1,5 @@
-import axios from "axios";
 import { clearAuthCookies, getStoredAccessToken } from "@/lib/auth-cookie";
+import axios from "axios";
 
 declare module "axios" {
   export interface AxiosRequestConfig {
@@ -8,9 +8,9 @@ declare module "axios" {
 }
 
 const SERVER_API_URL =
-  // process.env.API_URL?.replace(/\/$/, "") ??
-  // process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:8000/api/v1";
+  process.env.API_URL?.replace(/\/$/, "") ??
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, "") ??
+  "http://localhost:8000";
 
 /** Browser calls same-origin `/api/v1` (rewritten to Django). Server uses backend URL directly. */
 export const API_BASE_URL =
@@ -63,7 +63,7 @@ api.interceptors.response.use(
     const isAuthEndpoint = url.includes("/auth/");
     const hadAuth = Boolean(
       error.config?.headers?.Authorization ??
-        error.config?.headers?.authorization,
+      error.config?.headers?.authorization,
     );
     const isGuestOptionalEndpoint = url.includes("/ordering/cart/");
 

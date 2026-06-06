@@ -4,7 +4,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { category } from "@/utils/category";
+import { Categorys } from "@/utils/Category";
 import { ChevronDownIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -29,25 +29,25 @@ export default async function CategoriesDropdown() {
         className="rounded-none max-h-[300px] bg-[#059473] min-w-(--radix-dropdown-menu-trigger-width)"
         align="center"
         sideOffset={10}>
-        {category.map(category => {
+        {Categorys.map(item => {
           return (
             <DropdownMenuItem
-              key={category._id}
+              key={item.id}
               className="w-full h-full px-0 py-0 focus:bg-transparent">
               <Link
-                href={`/category/${category.name}`}
+                href={`/category/${item.href}`}
                 className="capitalize w-full h-full px-2 py-2 flex items-center gap-x-4">
                 <span className="w-8 h-8">
                   <Image
                     width={"2"}
                     height={"5"}
-                    src={category.image}
-                    alt={category.name}
+                    src={item.image}
+                    alt={item.label}
                     priority
                     className="rounded-full w-full h-full"
                   />
                 </span>
-                {category.name}
+                {item.label}
               </Link>
             </DropdownMenuItem>
           );

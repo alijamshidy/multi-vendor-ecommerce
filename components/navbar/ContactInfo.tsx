@@ -1,6 +1,6 @@
 import { FaMobileAlt } from "react-icons/fa";
 import { IoMdMail } from "react-icons/io";
-import Container from "../global/Container";
+import Container from "../Global/Container";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 

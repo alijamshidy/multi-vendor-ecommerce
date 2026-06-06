@@ -1,9 +1,8 @@
-import { Categorys } from "@/utils/Category";
+import { DEFAULT_LOCALE, routing } from "@/i18n/routing";
 import type { AuthRole } from "@/lib/auth-cookie";
 import { isSafeCallbackUrl } from "@/lib/auth-cookie";
-import { DEFAULT_LOCALE } from "@/i18n/routing";
+import { Categorys } from "@/utils/Category";
 import createIntlMiddleware from "next-intl/middleware";
-import { routing } from "@/i18n/routing";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
@@ -51,10 +50,7 @@ function isPublicPath(pathname: string): boolean {
   if (publicPaths.includes(firstPathPart)) return true;
   if (categoryPaths.includes(firstPathPart)) return true;
 
-  if (
-    pathParts.length === 1 &&
-    !protectedFirstSegments.has(firstPathPart)
-  ) {
+  if (pathParts.length === 1 && !protectedFirstSegments.has(firstPathPart)) {
     return true;
   }
 

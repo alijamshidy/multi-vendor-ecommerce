@@ -1,4 +1,4 @@
-import { category } from "@/utils/category";
+import { Categorys } from "@/utils/Category";
 import {
   Select,
   SelectContent,
@@ -13,12 +13,12 @@ export function SelectCategory() {
         <SelectValue placeholder="Select Category" />
       </SelectTrigger>
       <SelectContent>
-        {category.map(category => {
+        {Categorys.map(item => {
           return (
             <SelectItem
-              key={category._id}
-              value={category.name}>
-              {category.name}
+              key={item.id}
+              value={item.href}>
+              {item.label}
             </SelectItem>
           );
         })}

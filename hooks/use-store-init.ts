@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 export function useStoreInit(
-  init: () => void | Promise<void>,
+  init: () => void | Promise<unknown>,
   deps: unknown[] = [],
 ) {
   useEffect(() => {

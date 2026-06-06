@@ -41,7 +41,9 @@ export default function Header({ open }: { open: boolean }) {
                 </PopoverContent>
               </Popover>
             </Suspense>
-            <HeaderActions mobile />
+            <Suspense>
+              <HeaderActions mobile />
+            </Suspense>
           </div>
         </header>
       </section>
@@ -101,14 +103,18 @@ export default function Header({ open }: { open: boolean }) {
                 "shrink-0 items-center gap-x-2 sm:gap-x-4",
                 open ? "hidden xl:flex" : "flex",
               )}>
-              <HeaderActions />
+              <Suspense>
+                <HeaderActions />
+              </Suspense>
             </div>
             <div
               className={cn(
                 "shrink-0 items-center",
                 open ? "flex xl:hidden" : "hidden",
               )}>
-              <HeaderActions compact />
+              <Suspense>
+                <HeaderActions compact />
+              </Suspense>
             </div>
           </div>
         </header>
