@@ -7,6 +7,7 @@ type ProductGridProps = {
   locale: string;
   className?: string;
   compact?: boolean;
+  hoverActions?: boolean;
 };
 
 export default function ProductGrid({
@@ -14,6 +15,7 @@ export default function ProductGrid({
   locale,
   className,
   compact = false,
+  hoverActions = false,
 }: ProductGridProps) {
   return (
     <section
@@ -27,6 +29,7 @@ export default function ProductGrid({
           product={product}
           href={`/${locale}/products/${product.id}`}
           compact={compact}
+          hoverActions={hoverActions}
         />
       ))}
     </section>

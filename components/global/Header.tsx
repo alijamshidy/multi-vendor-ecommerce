@@ -18,7 +18,9 @@ export default function Header({ open }: { open: boolean }) {
   return (
     <>
       <section className="fixed top-5 z-30 w-full bg-background/95 backdrop-blur md:hidden">
-        <header className="mx-[2%] flex h-16 w-[calc(100%-4%)] min-w-0 items-center justify-between gap-2 rounded-md border px-3 shadow-sm">
+        <header
+          dir="ltr"
+          className="mx-[2%] flex h-16 w-[calc(100%-4%)] min-w-0 items-center justify-between gap-2 rounded-md border px-3 shadow-sm">
           <div className="flex min-w-0 items-center gap-2">
             <SidebarTrigger />
             <Logo />
@@ -49,7 +51,9 @@ export default function Header({ open }: { open: boolean }) {
       </section>
 
       <section className="sticky top-5 z-30 mx-[2%] hidden min-w-0 w-[calc(100%-4%)] md:block">
-        <header className="flex h-20 w-full shrink-0 items-center gap-2 rounded-md border bg-background px-2 shadow-sm transition-all duration-200 ease-linear sm:px-4">
+        <header
+          dir="ltr"
+          className="flex h-20 w-full shrink-0 items-center gap-2 rounded-md border bg-background px-2 shadow-sm transition-all duration-200 ease-linear sm:px-4">
           <SidebarTrigger className="shrink-0" />
           <div
             className={cn(

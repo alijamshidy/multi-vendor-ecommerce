@@ -1,8 +1,14 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import useCartStore from "@/store/cartStore";
 import { formatCurrency } from "@/utils/format";
 import { productType } from "@/utils/products";
-import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Card, CardContent } from "../ui/card";
 import ProductButton from "./ProductButton";
 
@@ -10,15 +16,45 @@ type ProductGridCardProps = {
   product: productType;
   href: string;
   compact?: boolean;
+  hoverActions?: boolean;
 };
 
 export default function ProductGridCard({
   product,
   href,
   compact = false,
+  hoverActions = false,
 }: ProductGridCardProps) {
+  const router = useRouter();
   const { label, price, images, id } = product;
   const dollarsAmount = formatCurrency(price);
+  const tCart = useTranslations("cart");
+  const addItem = useCartStore(state => state.addItem);
+  const isAdding = useCartStore(state => state.loading.addItem);
+
+  const handleAddToCart = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    try {
+      await addItem({ product: id, quantity: 1 });
+      toast.success(tCart("addedToCart"));
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : tCart("addToCartFailed"),
+      );
+    }
+  };
+
+  const addToCartButton = (
+    <ProductButton
+      type="addToCart"
+      onClick={handleAddToCart}
+      disabled={isAdding}
+    />
+  );
 
   return (
     <article
@@ -32,8 +68,10 @@ export default function ProductGridCard({
       <Card
         size={compact ? "sm" : "default"}
         className={cn(
-          "relative transform transition-shadow duration-500 group-hover:shadow-xl",
-          compact && "gap-2 overflow-visible py-0",
+          "relative transform transition-shadow duration-500 group-hover:shadow-xl mx-3",
+          compact && "gap-2 py-0",
+          compact && !hoverActions && "overflow-visible",
+          hoverActions && "overflow-hidden",
         )}>
         <CardContent className={cn(compact ? "p-3" : "p-4")}>
           <div
@@ -54,21 +92,34 @@ export default function ProductGridCard({
             <h2 className={cn("capitalize", compact ? "text-base" : "text-lg")}>
               {label}
             </h2>
-            <p className={cn("text-muted-foreground", compact ? "mt-1" : "mt-2")}>
+            <p
+              className={cn(
+                "text-muted-foreground",
+                compact ? "mt-1" : "mt-2",
+              )}>
               {dollarsAmount}
             </p>
           </div>
 
           <div
             className={cn(
-              "mt-2 flex w-full justify-center gap-x-2",
-              compact ? "mb-0" : "mb-1",
+              hoverActions ? "hidden overflow-hidden md:block" : "block",
             )}>
-            <ProductButton type="wishlist" />
-            <Link href={href}>
-              <ProductButton type="details" />
-            </Link>
-            <ProductButton type="addToCart" />
+            <div
+              className={cn(
+                "mt-2 flex w-full justify-center gap-x-2",
+                compact ? "mb-0" : "mb-1",
+                hoverActions &&
+                  "relative z-20 translate-y-full opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100",
+              )}>
+              <>
+                <ProductButton type="wishlist" />
+                <Link href={href}>
+                  <ProductButton type="details" />
+                </Link>
+                {addToCartButton}
+              </>
+            </div>
           </div>
         </CardContent>
       </Card>

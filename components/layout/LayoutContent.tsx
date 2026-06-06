@@ -20,7 +20,7 @@ export default function LayoutContent({
         <div className="mx-[4%] flex min-w-0 w-[calc(100%-8%)] flex-1 flex-col gap-4 overflow-x-hidden pb-8 pt-[4.5rem]">
           {children}
         </div>
-        <SiteFooter className="mx-[4%] w-[calc(100%-8%)]" />
+        <SiteFooter className="w-full" />
       </SidebarInset>
     </>
   );

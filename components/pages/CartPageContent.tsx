@@ -36,9 +36,10 @@ export default function CartPageContent({ locale }: { locale: string }) {
           ) : items.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t("empty")}</p>
           ) : (
-            items.map(({ product, quantity }) => (
+            items.map(({ id, product, quantity }) => (
               <CartLineItem
-                key={product.id}
+                key={id}
+                id={id}
                 product={product}
                 quantity={quantity}
                 locale={locale}

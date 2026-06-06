@@ -1,13 +1,13 @@
 "use client";
 
+import { useStoreInit } from "@/hooks/use-store-init";
+import useProductStore from "@/store/productStore";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
 import ProductGrid from "../products/ProductGrid";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
-import { useStoreInit } from "@/hooks/use-store-init";
-import useProductStore from "@/store/productStore";
 
 export default function FeaturedProducts() {
   const pathname = usePathname();
@@ -39,11 +39,12 @@ export default function FeaturedProducts() {
           products={featuredProducts}
           locale={locale}
           compact
+          hoverActions
         />
       )}
       <Link
         href={`/${locale}/products`}
-        className="inline-flex text-lg font-bold text-primary transition-transform -translate-x-6 hover:translate-x-7 duration-300 hover:scale-105 sm:text-xl">
+        className=" text-lg font-bold text-primary transition-transform duration-300 sm:text-xl w-fit mx-auto hover:scale-110">
         {t("moreProducts")}
       </Link>
     </section>

@@ -1,13 +1,13 @@
 "use client";
 
+import useReviewStore from "@/store/reviewStore";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { toast } from "sonner";
 import TextAreaInput from "../form/TextAreaInput";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import RatingInput from "./RatingInput";
-import useReviewStore from "@/store/reviewStore";
-import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 
 export default function SubmitReview({ productId }: { productId: string }) {
   const t = useTranslations("reviews");
@@ -32,9 +32,7 @@ export default function SubmitReview({ productId }: { productId: string }) {
       setIsReviewFormVisible(false);
       event.currentTarget.reset();
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t("submitFailed"),
-      );
+      toast.error(error instanceof Error ? error.message : t("submitFailed"));
     }
   };
 
@@ -44,7 +42,7 @@ export default function SubmitReview({ productId }: { productId: string }) {
         size="lg"
         className="capitalize"
         onClick={() => setIsReviewFormVisible(prev => !prev)}>
-        {t("leaveReview")}
+        {isReviewFormVisible ? t("leaveReview") : t("addReview")}
       </Button>
       {isReviewFormVisible ? (
         <Card className="mt-8 p-8">

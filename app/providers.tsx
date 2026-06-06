@@ -1,13 +1,15 @@
 "use client";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
-import React from "react";
-
-if (process.env.NODE_ENV === "development") {
-  require("@/store/registerDevtools");
-}
+import React, { useEffect } from "react";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      void import("@/store/registerDevtools");
+    }
+  }, []);
+
   return (
     <>
       <Toaster />

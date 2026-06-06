@@ -82,7 +82,7 @@ export default function ProductsPagination({
           <PaginationNext
             aria-disabled={currentPage >= totalPages}
             className={cn(
-              currentPage >= totalPages - 1 && "pointer-events-none opacity-50",
+              currentPage >= totalPages - 2 && "pointer-events-none opacity-50",
               "cursor-pointer",
             )}
             onClick={event => {

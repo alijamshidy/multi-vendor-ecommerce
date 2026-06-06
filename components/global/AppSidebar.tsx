@@ -13,15 +13,13 @@ import {
 } from "@/components/ui/sidebar";
 import { GetLocale } from "@/utils/GetUrlParams";
 import { Store } from "lucide-react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { NavUser } from "../sidebar/NavUser";
 
 export function AppSidebar() {
   const t = useTranslations("nav");
   const locale = GetLocale();
-  const isRtl = locale === "fa";
-  const side = isRtl ? "right" : "left";
 
   const user = {
     name: t("guest"),
@@ -32,8 +30,8 @@ export function AppSidebar() {
   return (
     <Sidebar
       collapsible="icon"
-      side={side}
-      dir={isRtl ? "rtl" : "ltr"}>
+      side="left"
+      dir="ltr">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -45,7 +43,9 @@ export function AppSidebar() {
                   <Store className="size-4" />
                 </span>
                 <div className="grid flex-1 text-start text-sm leading-tight">
-                  <span className="truncate font-semibold">{t("storeName")}</span>
+                  <span className="truncate font-semibold">
+                    {t("storeName")}
+                  </span>
                   <span className="truncate text-xs text-muted-foreground">
                     {t("storeTagline")}
                   </span>

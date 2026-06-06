@@ -44,7 +44,7 @@ function CategoryCarousel() {
         className="w-full"
         plugins={[Autoplay({ delay: 2000 })]}
         opts={{ loop: false, align: "start" }}>
-        <CarouselContent>
+        <CarouselContent className="-ml-[4px] w-full">
           {categories.map(category => (
             <CarouselItem
               key={category.id}

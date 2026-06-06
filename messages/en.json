@@ -186,6 +186,8 @@
     "adding": "Adding...",
     "addedToCart": "Added to cart",
     "addToCartFailed": "Failed to add to cart",
+    "updateFailed": "Failed to update quantity",
+    "removeFailed": "Failed to remove item",
     "signIn": "Sign in"
   },
   "checkout": {
@@ -215,11 +217,14 @@
     "deliveryEstimate": "Estimated delivery in 3-5 business days",
     "buyerProtection": "Buyer protection included",
     "qualityChecked": "Quality checked before shipping",
-    "saveItem": "Save item",
+    "saveItem": "Add to whishlist",
+    "shareOnSocialMedia": "Share on social media",
     "moreActions": "More actions",
     "categoryEyebrow": "Category",
     "categoryDescription": "Browse curated products from trusted sellers in this collection.",
-    "productReviews": "Product reviews"
+    "productReviews": "Product reviews",
+    "share": "Share",
+    "relatedProducts": "Related products"
   },
   "dashboard": {
     "customer": "Customer",
@@ -300,11 +305,15 @@
     "ratingDescription": "Filter products by customer rating and review count."
   },
   "reviews": {
+    "addReview": "Add Review",
     "submitSuccess": "Review submitted",
     "submitFailed": "Failed to submit review",
     "leaveReview": "Leave review",
     "feedback": "Feedback",
-    "submitting": "Submitting..."
+    "submitting": "Submitting...",
+    "loadingReviews": "Loading reviews...",
+    "noReviewsYet": "No reviews yet.",
+    "ratingSelected": "You selected {rating} out of 5"
   },
   "categories": {
     "mobile": "Mobile",

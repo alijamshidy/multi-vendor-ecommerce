@@ -186,6 +186,8 @@
     "adding": "در حال افزودن...",
     "addedToCart": "به سبد خرید اضافه شد",
     "addToCartFailed": "افزودن به سبد ناموفق بود",
+    "updateFailed": "به‌روزرسانی تعداد ناموفق بود",
+    "removeFailed": "حذف آیتم ناموفق بود",
     "signIn": "ورود"
   },
   "checkout": {
@@ -215,11 +217,14 @@
     "deliveryEstimate": "تحویل تقریبی در ۳ تا ۵ روز کاری",
     "buyerProtection": "حمایت از خریدار شامل می‌شود",
     "qualityChecked": "کنترل کیفیت قبل از ارسال",
-    "saveItem": "ذخیره محصول",
+    "saveItem": "افزودن به علاقمندی‌ها",
+    "shareOnSocialMedia": "اشتراک‌گذاری در شبکه‌های اجتماعی",
     "moreActions": "اقدامات بیشتر",
     "categoryEyebrow": "دسته‌بندی",
     "categoryDescription": "محصولات منتخب از فروشندگان معتبر در این مجموعه را مرور کنید.",
-    "productReviews": "نظرات محصول"
+    "productReviews": "نظرات محصول",
+    "share": "اشتراک‌گذاری",
+    "relatedProducts": "محصولات مرتبط"
   },
   "dashboard": {
     "customer": "مشتری",
@@ -300,11 +305,15 @@
     "ratingDescription": "محصولات را بر اساس امتیاز و تعداد نظرات مشتریان فیلتر کنید."
   },
   "reviews": {
+    "addReview": "افزودن نظر",
     "submitSuccess": "نظر ثبت شد",
     "submitFailed": "ثبت نظر ناموفق بود",
     "leaveReview": "ثبت نظر",
     "feedback": "بازخورد",
-    "submitting": "در حال ارسال..."
+    "submitting": "در حال ارسال...",
+    "loadingReviews": "در حال بارگذاری نظرات...",
+    "noReviewsYet": "هنوز نظری ثبت نشده.",
+    "ratingSelected": "شما {rating} از ۵ انتخاب کردید"
   },
   "categories": {
     "mobile": "موبایل",

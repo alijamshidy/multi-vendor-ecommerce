@@ -54,7 +54,7 @@ export function getPaginationRange(
 ): Array<number | "ellipsis"> {
   if (totalPages <= 0) return [];
   if (totalPages <= 7) {
-    return Array.from({ length: totalPages - 1 }, (_, index) => index + 1);
+    return Array.from({ length: totalPages - 2 }, (_, index) => index + 1);
   }
 
   const pages: Array<number | "ellipsis"> = [1];

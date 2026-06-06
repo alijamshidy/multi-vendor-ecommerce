@@ -1,11 +1,9 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { FaRegStar, FaStar } from "react-icons/fa";
 import { Label } from "../ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 
 export default function RatingInput({
   name,
@@ -14,36 +12,55 @@ export default function RatingInput({
   name: string;
   labelText: string;
 }) {
-  const numbers = Array.from({ length: 5 }, (_, i) => {
-    const value = i + 1;
-    return value.toString();
-  }).reverse();
+  const [rating, setRating] = useState(0);
+  const t = useTranslations("reviews");
   return (
-    <div className="mb-2 max-w-xs">
-      <Label
-        htmlFor={name}
-        className="capitalize mb-1">
-        {labelText || name}
-      </Label>
-      <Select
-        defaultValue={numbers[0]}
+    <div className="mb-2 max-w-md">
+      {labelText ? (
+        <Label
+          htmlFor={name}
+          className="mb-1 capitalize">
+          {labelText}
+        </Label>
+      ) : null}
+      <input
+        type="hidden"
         name={name}
-        required>
-        <SelectTrigger>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {numbers.map(number => {
-            return (
-              <SelectItem
-                key={number}
-                value={number}>
-                {number}
-              </SelectItem>
-            );
-          })}
-        </SelectContent>
-      </Select>
+        value={rating}
+      />
+      <div
+        className="flex items-center gap-x-1"
+        role="radiogroup"
+        aria-label={labelText || name}>
+        {Array.from({ length: 5 }, (_, i) => i + 1).map(value => {
+          const isFilled = value <= rating;
+          const className = `h-6 w-6 cursor-pointer transition-colors ${
+            isFilled ? "text-primary" : "text-gray-500 hover:text-primary/70"
+          }`;
+
+          return (
+            <button
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={value === rating}
+              aria-label={String(value)}
+              className="inline-flex"
+              onClick={() => setRating(value)}>
+              {isFilled ? (
+                <FaStar className={className} />
+              ) : (
+                <FaRegStar className={className} />
+              )}
+            </button>
+          );
+        })}
+        {rating > 0 ? (
+          <span className="w-full text-center text-xl text-accent-foreground">
+            {t("ratingSelected", { rating })}
+          </span>
+        ) : null}
+      </div>
     </div>
   );
 }
