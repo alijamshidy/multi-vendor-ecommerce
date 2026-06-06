@@ -11,11 +11,11 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/styles/radix-nova/ui-rtl/dialog"
+} from "@/components/ui-rtl/dialog"
 import {
   InputGroup,
   InputGroupAddon,
-} from "@/styles/radix-nova/ui-rtl/input-group"
+} from "@/components/ui-rtl/input-group"
 
 function Command({
   className,

@@ -6,7 +6,7 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/styles/radix-nova/ui-rtl/button"
+import { Button } from "@/components/ui-rtl/button"
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -68,12 +68,13 @@ function PaginationLink({
 function PaginationPrevious({
   className,
   text = "Previous",
+  size = "default",
   ...props
 }: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
   return (
     <PaginationLink
       aria-label="Go to previous page"
-      size="default"
+      size={size}
       className={cn("ps-1.5!", className)}
       {...props}
     >
@@ -86,12 +87,13 @@ function PaginationPrevious({
 function PaginationNext({
   className,
   text = "Next",
+  size = "default",
   ...props
 }: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
   return (
     <PaginationLink
       aria-label="Go to next page"
-      size="default"
+      size={size}
       className={cn("pe-1.5!", className)}
       {...props}
     >

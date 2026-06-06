@@ -7,22 +7,22 @@ import { Slot } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { Button } from "@/styles/radix-nova/ui-rtl/button"
-import { Input } from "@/styles/radix-nova/ui-rtl/input"
-import { Separator } from "@/styles/radix-nova/ui-rtl/separator"
+import { Button } from "@/components/ui-rtl/button"
+import { Input } from "@/components/ui-rtl/input"
+import { Separator } from "@/components/ui-rtl/separator"
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "@/styles/radix-nova/ui-rtl/sheet"
-import { Skeleton } from "@/styles/radix-nova/ui-rtl/skeleton"
+} from "@/components/ui-rtl/sheet"
+import { Skeleton } from "@/components/ui-rtl/skeleton"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/styles/radix-nova/ui-rtl/tooltip"
+} from "@/components/ui-rtl/tooltip"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -264,7 +264,7 @@ function SidebarTrigger({
       variant="ghost"
       size="icon-sm"
       className={cn(className)}
-      onClick={(event) => {
+      onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
         onClick?.(event)
         toggleSidebar()
       }}

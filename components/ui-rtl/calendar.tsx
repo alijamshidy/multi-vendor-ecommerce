@@ -14,7 +14,7 @@ import {
 } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
-import { Button, buttonVariants } from "@/styles/radix-nova/ui-rtl/button"
+import { Button, buttonVariants } from "@/components/ui-rtl/button"
 
 function Calendar({
   className,
