@@ -31,7 +31,8 @@ export function AppSidebar() {
     <Sidebar
       collapsible="icon"
       side="left"
-      dir="ltr">
+      dir="ltr"
+      className="[&_[data-slot=sidebar-inner]]:bg-transparent [&_[data-sidebar=menu-button]]:bg-transparent [&_[data-sidebar=menu-button]:hover]:bg-transparent [&_[data-sidebar=menu-button]:active]:bg-transparent [&_[data-sidebar=menu-button][data-active=true]]:bg-transparent [&_[data-sidebar=menu-button][data-state=open]]:bg-transparent">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -39,16 +40,14 @@ export function AppSidebar() {
               size={"lg"}
               asChild>
               <Link href={`/${locale}`}>
-                <span className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                <span className="flex size-8 items-center justify-center">
                   <Store className="size-4" />
                 </span>
-                <div className="grid flex-1 text-start text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                <div className="grid flex-1 text-start text-sm group-data-[collapsible=icon]:hidden">
                   <span className="truncate font-semibold">
                     {t("storeName")}
                   </span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {t("storeTagline")}
-                  </span>
+                  <span className="truncate text-xs">{t("storeTagline")}</span>
                 </div>
               </Link>
             </SidebarMenuButton>

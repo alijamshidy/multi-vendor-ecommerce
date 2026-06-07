@@ -5,15 +5,15 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
-        NEXT_PUBLIC_WEBSITE_URL: ${NEXT_PUBLIC_WEBSITE_URL:-http://localhost:3001}
+        NEXT_PUBLIC_WEBSITE_URL: ${NEXT_PUBLIC_WEBSITE_URL:-http://localhost:3002}
     restart: unless-stopped
     ports:
-      - "${PORT:-3001}:3000"
+      - "${PORT:-3002}:3000"
     environment:
       # Server-side proxy must reach Django on the host; .env localhost breaks inside Docker.
       API_URL: http://host.docker.internal:8000
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
-      NEXT_PUBLIC_WEBSITE_URL: ${NEXT_PUBLIC_WEBSITE_URL:-http://localhost:3001}
+      NEXT_PUBLIC_WEBSITE_URL: ${NEXT_PUBLIC_WEBSITE_URL:-http://localhost:3002}
       EXTERNAL_API_URL: ${EXTERNAL_API_URL:-}
       EXTERNAL_API_TOKEN: ${EXTERNAL_API_TOKEN:-}
     extra_hosts:
@@ -29,7 +29,8 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-      # Do not mount a persistent .next volume — stale manifests cause 404 on new routes.
+      - /app/.next
+      # Keep .next off the bind mount — stale manifests on OneDrive cause 404 on all routes.
     environment:
       # Server-side proxy must reach Django on the host; .env localhost breaks inside Docker.
       API_URL: http://host.docker.internal:8000
