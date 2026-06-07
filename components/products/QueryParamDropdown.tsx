@@ -1,6 +1,7 @@
 "use client";
 
 import { useQueryParams } from "@/hooks/use-query-params";
+import { ITEMS_PER_PAGE_PARAM } from "@/lib/product-query";
 import { ArrowDownIcon } from "lucide-react";
 import { Fragment, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
@@ -34,7 +35,7 @@ export default function QueryParamDropdown({
   const handleChange = useDebouncedCallback((nextValue: string | number) => {
     setSelectedValue(nextValue);
 
-    if (paramName === "item" || paramName === "sortBy") {
+    if (paramName === ITEMS_PER_PAGE_PARAM || paramName === "sortBy") {
       setQueryParams({
         [paramName]: nextValue,
         page: 1,

@@ -40,7 +40,7 @@ export default function SubmitReview({ productId }: { productId: string }) {
     <div>
       <Button
         size="lg"
-        className="capitalize"
+        className="capitalize cursor-pointer"
         onClick={() => setIsReviewFormVisible(prev => !prev)}>
         {isReviewFormVisible ? t("leaveReview") : t("addReview")}
       </Button>

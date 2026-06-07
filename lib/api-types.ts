@@ -55,6 +55,10 @@ export type ApiCategory = {
   depth?: number;
 };
 
+export type ApiCategoryDetail = ApiCategory & {
+  products?: ApiProduct[];
+};
+
 export type ApiProductImage = {
   id: string;
   image: string;
@@ -89,11 +93,17 @@ export type ApiOrder = {
 };
 
 export type ApiComment = {
-  id: string;
-  comment: string;
+  id: number | string;
+  text?: string;
+  comment?: string;
   rating?: number;
+  reply_to?: number | string | null;
+  replys?: ApiComment[];
+  reactions?: unknown[];
+  product?: number;
   user?: AuthUser;
   created_at?: string;
+  updated_at?: string;
 };
 
 export type UserProfile = {

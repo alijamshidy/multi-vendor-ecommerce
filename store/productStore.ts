@@ -14,7 +14,7 @@ import { withStoreDevtools } from "./devtools";
 
 export type ProductQuery = {
   search?: string;
-  category?: string;
+  categories?: string;
   price_min?: number;
   price_max?: number;
   page?: number;
@@ -70,7 +70,7 @@ const useProductStore = create<ProductState>()(
         try {
           const { data } = await api.get<
             ApiProduct[] | { results: ApiProduct[]; count?: number }
-          >("/products/", { params: query });
+          >("/products/", { params: query, skipAuth: true });
           const list = unwrapList(data);
           set({
             products: list.map((item: unknown) =>
@@ -158,11 +158,14 @@ const useProductStore = create<ProductState>()(
         try {
           const { data } = await api.get<
             ApiProduct[] | { results: ApiProduct[] }
-          >("/products/", { params: { page: 1 } });
+          >("/products/", {
+            params: { page: 1, page_size: limit },
+            skipAuth: true,
+          });
           set({
-            featuredProducts: unwrapList(data)
-              .slice(0, limit)
-              .map((item: unknown) => mapProduct(item as ApiProduct)),
+            featuredProducts: unwrapList(data).map((item: unknown) =>
+              mapProduct(item as ApiProduct),
+            ),
           });
         } catch (error) {
           set({

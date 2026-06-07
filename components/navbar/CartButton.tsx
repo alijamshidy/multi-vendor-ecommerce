@@ -1,6 +1,6 @@
 "use client";
 
-import { useStoreInit } from "@/hooks/use-store-init";
+import { useStoreInitOnce } from "@/hooks/use-store-init";
 import useCartStore from "@/store/cartStore";
 import { GetLocale } from "@/utils/GetUrlParams";
 import Link from "next/link";
@@ -12,7 +12,7 @@ export default function CartButton() {
   const itemCount = useCartStore(state => state.itemCount);
   const fetchItems = useCartStore(state => state.fetchItems);
 
-  useStoreInit(() => fetchItems());
+  useStoreInitOnce(() => fetchItems());
 
   return (
     <Button

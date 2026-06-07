@@ -1,7 +1,7 @@
 "use client";
 
 import SectionTitle from "@/components/Global/SectionTitle";
-import ReviewCard from "@/components/reviews/ReviewCard";
+import ReviewItem from "@/components/reviews/ReviewItem";
 import { useStoreInit } from "@/hooks/use-store-init";
 import useReviewStore from "@/store/reviewStore";
 import { useTranslations } from "next-intl";
@@ -14,7 +14,9 @@ export default function ProductReviewsClient({
   const t = useTranslations("product");
   const tReviews = useTranslations("reviews");
   const reviews = useReviewStore(state => state.reviews);
-  const fetchProductReviews = useReviewStore(state => state.fetchProductReviews);
+  const fetchProductReviews = useReviewStore(
+    state => state.fetchProductReviews,
+  );
   const isLoading = useReviewStore(state => state.loading.fetchReviews);
 
   useStoreInit(() => fetchProductReviews(productId), [productId]);
@@ -33,14 +35,10 @@ export default function ProductReviewsClient({
       ) : (
         <div className="my-8 grid gap-8 md:grid-cols-2">
           {reviews.map(review => (
-            <ReviewCard
+            <ReviewItem
               key={review.id}
-              reviewInfo={{
-                comment: review.comment,
-                rating: review.rating,
-                image: review.authorImageUrl,
-                name: review.authorName,
-              }}
+              review={review}
+              productId={productId}
             />
           ))}
         </div>

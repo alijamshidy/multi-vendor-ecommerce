@@ -1,5 +1,6 @@
 "use client";
 
+import { useIsMobileDevice } from "@/hooks/use-mobile-device";
 import { cn } from "@/lib/utils";
 import useCartStore from "@/store/cartStore";
 import { formatCurrency } from "@/utils/format";
@@ -7,7 +8,6 @@ import { productType } from "@/utils/products";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Card, CardContent } from "../ui/card";
 import ProductButton from "./ProductButton";
@@ -25,7 +25,7 @@ export default function ProductGridCard({
   compact = false,
   hoverActions = false,
 }: ProductGridCardProps) {
-  const router = useRouter();
+  const isMobileDevice = useIsMobileDevice();
   const { label, price, images, id } = product;
   const dollarsAmount = formatCurrency(price);
   const tCart = useTranslations("cart");
@@ -59,16 +59,16 @@ export default function ProductGridCard({
   return (
     <article
       key={id}
-      className="group relative">
+      className="group relative mx-1">
       <Link
         href={href}
-        className="absolute inset-0 z-10 md:hidden"
+        className={cn("absolute inset-0 z-10", !isMobileDevice && "hidden")}
       />
 
       <Card
         size={compact ? "sm" : "default"}
         className={cn(
-          "relative transform transition-shadow duration-500 group-hover:shadow-xl mx-3",
+          "relative transform transition-shadow duration-500 group-hover:shadow-xl",
           compact && "gap-2 py-0",
           compact && !hoverActions && "overflow-visible",
           hoverActions && "overflow-hidden",
@@ -103,7 +103,10 @@ export default function ProductGridCard({
 
           <div
             className={cn(
-              hoverActions ? "hidden overflow-hidden md:block" : "block",
+              hoverActions && isMobileDevice
+                ? "hidden overflow-hidden"
+                : "block",
+              hoverActions && !isMobileDevice && "overflow-hidden",
             )}>
             <div
               className={cn(

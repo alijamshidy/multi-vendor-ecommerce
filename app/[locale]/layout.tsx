@@ -1,4 +1,5 @@
 import LocaleSync from "@/components/Global/LocaleSync";
+import { BreadcrumbProvider } from "@/context/breadcrumb-context";
 import { routing } from "@/i18n/routing";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
@@ -28,12 +29,14 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <div
-        dir={dir}
-        lang={locale}>
-        <LocaleSync locale={locale} />
-        {children}
-      </div>
+      <BreadcrumbProvider>
+        <div
+          dir={dir}
+          lang={locale}>
+          <LocaleSync locale={locale} />
+          {children}
+        </div>
+      </BreadcrumbProvider>
     </NextIntlClientProvider>
   );
 }

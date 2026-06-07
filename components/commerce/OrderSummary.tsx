@@ -2,7 +2,6 @@
 
 import { formatCurrency } from "@/utils/format";
 import Link from "next/link";
-import { useStoreInit } from "@/hooks/use-store-init";
 import useCartStore from "@/store/cartStore";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -23,9 +22,6 @@ export default function OrderSummary({
   const shipping = useCartStore(state => state.shipping);
   const tax = useCartStore(state => state.tax);
   const orderTotal = useCartStore(state => state.orderTotal);
-  const fetchItems = useCartStore(state => state.fetchItems);
-
-  useStoreInit(() => fetchItems());
 
   return (
     <Card className="rounded-md">

@@ -10,6 +10,7 @@ import ShareButton from "@/components/single-product/ShareButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useSetBreadcrumbLabel } from "@/context/breadcrumb-context";
 import { useStoreInit } from "@/hooks/use-store-init";
 import useCartStore from "@/store/cartStore";
 import useProductStore from "@/store/productStore";
@@ -43,6 +44,7 @@ export default function ProductDetailContent({
   const isAdding = useCartStore(state => state.loading.addItem);
 
   useStoreInit(() => fetchProduct(id), [id]);
+  useSetBreadcrumbLabel(product?.label ?? null);
 
   if (isLoading || (!product && !errorMessage)) {
     return (
@@ -108,14 +110,14 @@ export default function ProductDetailContent({
 
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button
-                className="flex-1 sm:min-w-40"
+                className="flex-1 cursor-pointer py-5 shadow-md transition-shadow hover:shadow-lg sm:min-w-40"
                 disabled={isAdding}
                 onClick={handleAddToCart}>
                 {isAdding ? tCart("adding") : tCart("addToCart")}
               </Button>
               <Button
                 variant="outline"
-                className="flex-1 sm:min-w-40"
+                className="flex-1 py-5 shadow-md transition-shadow hover:shadow-lg sm:min-w-40"
                 asChild>
                 <Link href={`/${locale}/wishlist`}>{t("saveItem")}</Link>
               </Button>
@@ -124,7 +126,6 @@ export default function ProductDetailContent({
               productId={product.id}
               name={product.label}
               locale={locale}
-              label={t("share")}
             />
           </div>
         </CardContent>

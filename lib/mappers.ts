@@ -5,7 +5,7 @@ import type { productType } from "@/utils/products";
 
 export function mapCategory(item: ApiCategory): category {
   return {
-    id: item.id,
+    id: String(item.id),
     href: item.slug,
     label: item.name,
     image: resolveMediaUrl(item.image),
@@ -59,12 +59,26 @@ export function mapOrder(item: ApiOrder) {
   };
 }
 
-export function mapComment(item: ApiComment) {
+export type ReviewView = {
+  id: string;
+  comment: string;
+  rating: number;
+  authorName: string;
+  authorImageUrl: string;
+  userId: string | null;
+  replies: ReviewView[];
+  createdAt?: string;
+};
+
+export function mapComment(item: ApiComment): ReviewView {
   return {
-    id: item.id,
-    comment: item.comment,
+    id: String(item.id),
+    comment: item.text ?? item.comment ?? "",
     rating: item.rating ?? 0,
     authorName: "Customer",
     authorImageUrl: "",
+    userId: item.user?.id ?? null,
+    replies: (item.replys ?? []).map(mapComment),
+    createdAt: item.created_at,
   };
 }

@@ -15,7 +15,9 @@ export default function ProductImageGallery({
   const hasMultipleImages = product.images.length > 1;
 
   useEffect(() => {
-    setSelectedIndex(0);
+    setTimeout(() => {
+      setSelectedIndex(0);
+    }, 100);
   }, [product.id]);
 
   return (

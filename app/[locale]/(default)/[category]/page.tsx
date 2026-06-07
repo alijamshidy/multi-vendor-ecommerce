@@ -1,4 +1,11 @@
 import CategoryPageContent from "@/components/pages/CategoryPageContent";
+import { Suspense } from "react";
+
+function CategoryPageFallback() {
+  return (
+    <div className="py-12 text-center text-muted-foreground">Loading...</div>
+  );
+}
 
 export default async function CategoryPage({
   params,
@@ -8,9 +15,11 @@ export default async function CategoryPage({
   const { locale, category } = await params;
 
   return (
-    <CategoryPageContent
-      locale={locale}
-      categorySlug={category}
-    />
+    <Suspense fallback={<CategoryPageFallback />}>
+      <CategoryPageContent
+        locale={locale}
+        categorySlug={category}
+      />
+    </Suspense>
   );
 }

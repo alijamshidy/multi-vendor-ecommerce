@@ -1,13 +1,27 @@
 "use client";
 
+import useAuthStore from "@/store/authStore";
+import useUserStore from "@/store/userStore";
 import Image from "next/image";
+import { useEffect } from "react";
 import { LuUser } from "react-icons/lu";
 
 export default function UserIconClient({
-  imageUrl,
+  imageUrl: initialImageUrl,
 }: {
   imageUrl: string | null;
 }) {
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const profileImage = useUserStore(state => state.profile?.image);
+  const fetchProfile = useUserStore(state => state.fetchProfile);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    void fetchProfile();
+  }, [fetchProfile, isAuthenticated]);
+
+  const imageUrl = profileImage ?? initialImageUrl;
+
   if (imageUrl) {
     return (
       <Image
@@ -21,5 +35,5 @@ export default function UserIconClient({
     );
   }
 
-  return <LuUser className="w-6 h-6 bg-primary rounded-full text-white" />;
+  return <LuUser className="h-6 w-6 rounded-full bg-primary text-white" />;
 }

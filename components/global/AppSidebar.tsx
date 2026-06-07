@@ -36,13 +36,13 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              size="lg"
+              size={"lg"}
               asChild>
               <Link href={`/${locale}`}>
                 <span className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
                   <Store className="size-4" />
                 </span>
-                <div className="grid flex-1 text-start text-sm leading-tight">
+                <div className="grid flex-1 text-start text-sm leading-tight group-data-[collapsible=icon]:hidden">
                   <span className="truncate font-semibold">
                     {t("storeName")}
                   </span>

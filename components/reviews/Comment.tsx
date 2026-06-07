@@ -8,9 +8,9 @@ export default function Comment({ comment }: { comment: string }) {
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
-  const longComment = comment.length > 130;
+  const longComment = comment && comment.length > 130;
   const displayComment =
-    longComment && !isExpanded ? `${comment.slice(0, 130)}...` : comment;
+    longComment && !isExpanded ? `${comment?.slice(0, 130)}...` : comment;
   return (
     <div>
       <p className="text-sm">{displayComment}</p>

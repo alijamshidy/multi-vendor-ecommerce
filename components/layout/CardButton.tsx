@@ -1,7 +1,7 @@
 "use client";
 
 import BadgeIconButton from "@/components/Global/BadgeIconButton";
-import { useStoreInit } from "@/hooks/use-store-init";
+import { useStoreInitOnce } from "@/hooks/use-store-init";
 import useCartStore from "@/store/cartStore";
 import { GetLocale } from "@/utils/GetUrlParams";
 import { useTranslations } from "next-intl";
@@ -13,7 +13,7 @@ export default function CardButton() {
   const itemCount = useCartStore(state => state.itemCount);
   const fetchItems = useCartStore(state => state.fetchItems);
 
-  useStoreInit(() => fetchItems());
+  useStoreInitOnce(() => fetchItems());
 
   return (
     <BadgeIconButton

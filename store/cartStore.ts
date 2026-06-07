@@ -20,8 +20,13 @@ type CartAction =
   | "removeItem"
   | "checkout";
 
+type FetchItemsOptions = {
+  force?: boolean;
+};
+
 type CartState = {
   items: CartItemView[];
+  itemsFetched: boolean;
   errorMessage: string;
   successMessage: string;
   loading: Record<CartAction, boolean>;
@@ -30,7 +35,7 @@ type CartState = {
   tax: number;
   orderTotal: number;
   itemCount: number;
-  fetchItems: () => Promise<void>;
+  fetchItems: (options?: FetchItemsOptions) => Promise<void>;
   addItem: (payload: { product: string; quantity?: number }) => Promise<void>;
   updateItem: (payload: { id: string; product: string; quantity: number }) => Promise<void>;
   removeItem: (id: string) => Promise<void>;
@@ -58,6 +63,7 @@ const useCartStore = create<CartState>()(
   devtools(
     (set, get) => ({
   items: [],
+  itemsFetched: false,
   errorMessage: "",
   successMessage: "",
   loading: createLoadingState([
@@ -75,11 +81,17 @@ const useCartStore = create<CartState>()(
 
   clearMessages: () => set({ errorMessage: "", successMessage: "" }),
 
-  fetchItems: async () => {
-    set(state => ({
+  fetchItems: async (options = {}) => {
+    const state = get();
+    if (!options.force) {
+      if (state.loading.fetchItems) return;
+      if (state.itemsFetched) return;
+    }
+
+    set({
       loading: { ...state.loading, fetchItems: true },
       errorMessage: "",
-    }));
+    });
 
     try {
       const { data } = await api.get<
@@ -88,16 +100,17 @@ const useCartStore = create<CartState>()(
       const items = unwrapList(data).map((item: unknown) =>
         mapCartItem(item as ApiCartItem),
       );
-      set({ items, ...computeTotals(items as CartItemView[]) });
+      set({ items, itemsFetched: true, ...computeTotals(items as CartItemView[]) });
     } catch (error) {
       if (getApiErrorStatus(error) === 401) {
-        set({ items: [], errorMessage: "", ...computeTotals([]) });
+        set({ items: [], itemsFetched: true, errorMessage: "", ...computeTotals([]) });
         return;
       }
 
       set({
         errorMessage: getApiErrorMessage(error, "Failed to load cart"),
         items: [],
+        itemsFetched: true,
         ...computeTotals([]),
       });
     } finally {
@@ -120,7 +133,7 @@ const useCartStore = create<CartState>()(
         quantity: payload.quantity ?? 1,
       });
       set({ successMessage: "Added to cart" });
-      await get().fetchItems();
+      await get().fetchItems({ force: true });
     } catch (error) {
       const message = getApiErrorMessage(error, "Failed to add item");
       set({ errorMessage: message });
@@ -164,7 +177,7 @@ const useCartStore = create<CartState>()(
       // #endregion
       // Django expects product id + quantity delta (e.g. +1 / -1), not absolute quantity.
       await api.patch(`/ordering/cart/items/${payload.id}/`, patchBody);
-      await get().fetchItems();
+      await get().fetchItems({ force: true });
     } catch (error) {
       // #region agent log
       fetch("http://127.0.0.1:7673/ingest/3195856a-0976-4ff2-982f-62bf78f50b86", {
@@ -209,7 +222,7 @@ const useCartStore = create<CartState>()(
 
     try {
       await api.delete(`/ordering/cart/items/${id}/`);
-      await get().fetchItems();
+      await get().fetchItems({ force: true });
     } catch (error) {
       const message = getApiErrorMessage(error, "Failed to remove item");
       set({ errorMessage: message });
@@ -235,7 +248,7 @@ const useCartStore = create<CartState>()(
       );
       const orderId = data?.id ?? data?.data?.id ?? null;
       set({ successMessage: "Order placed successfully" });
-      await get().fetchItems();
+      await get().fetchItems({ force: true });
       return orderId;
     } catch (error) {
       const message = getApiErrorMessage(error, "Checkout failed");

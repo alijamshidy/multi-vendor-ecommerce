@@ -2,14 +2,14 @@
 
 import Container from "@/components/Global/Container";
 import Filter from "@/components/products/Filter";
-import MobileFilterSheet from "@/components/products/MobileFilterSheet";
+import MobileFilterDropdown from "@/components/products/MobileFilterDropdown";
 import ProductsContainer from "@/components/products/ProductsContainer";
 import { useQueryParams } from "@/hooks/use-query-params";
 import { useStoreInit } from "@/hooks/use-store-init";
 import {
   buildProductQueryFromSearchParams,
   getCurrentPage,
-  getPageSize,
+  getItemsPerPage,
   getTotalPages,
 } from "@/lib/product-query";
 import useProductStore from "@/store/productStore";
@@ -35,8 +35,8 @@ export default function ProductsPageContent() {
   }, [queryKey]);
 
   const currentPage = getCurrentPage(searchParams);
-  const pageSize = getPageSize(searchParams);
-  const totalPages = getTotalPages(totalCount, pageSize);
+  const itemsPerPage = getItemsPerPage(searchParams);
+  const totalPages = getTotalPages(totalCount, itemsPerPage);
 
   useEffect(() => {
     if (isLoading || totalCount === 0 || totalPages === 0) return;
@@ -46,9 +46,9 @@ export default function ProductsPageContent() {
   }, [currentPage, isLoading, setQueryParam, totalCount, totalPages]);
 
   return (
-    <Container className="mt-12 flex flex-col gap-6 md:mt-0 md:flex-row md:items-start md:justify-center">
+    <Container className="mt-12 flex flex-col gap-6 md:mt-0 md:flex-row md:items-start md:justify-center xl:w-[95%]">
       <div className="w-full shrink-0 md:w-auto">
-        <MobileFilterSheet />
+        <MobileFilterDropdown />
       </div>
       <Filter />
       {isLoading && products.length === 0 ? (

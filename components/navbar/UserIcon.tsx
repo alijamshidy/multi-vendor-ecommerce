@@ -1,6 +1,7 @@
+import { getUserProfileImage } from "@/lib/auth-server";
 import UserIconClient from "./UserIconClient";
 
 export default async function UserIcon() {
-  // const user = await currentUser();
-  return <UserIconClient imageUrl={null} />;
+  const imageUrl = await getUserProfileImage();
+  return <UserIconClient imageUrl={imageUrl} />;
 }

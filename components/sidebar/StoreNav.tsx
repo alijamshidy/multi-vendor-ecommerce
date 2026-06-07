@@ -7,7 +7,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { GetLocale } from "@/utils/GetUrlParams";
+import { Link, usePathname } from "@/i18n/navigation";
+import { cn } from "@/lib/utils";
 import {
   Heart,
   Home,
@@ -16,51 +17,79 @@ import {
   Star,
   type LucideIcon,
 } from "lucide-react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { usePathname } from "next/navigation";
 
 type NavItem = {
   titleKey: "home" | "products" | "cart" | "wishlist" | "reviews";
-  href: string;
+  href: "/" | "/products" | "/cart" | "/wishlist" | "/reviews";
   icon: LucideIcon;
 };
 
-function NavGroup({
-  label,
-  items,
-  prefix,
-}: {
-  label: string;
-  items: NavItem[];
-  prefix: string;
-}) {
+const shopItems: NavItem[] = [
+  { titleKey: "home", href: "/", icon: Home },
+  { titleKey: "products", href: "/products", icon: Package },
+  { titleKey: "cart", href: "/cart", icon: ShoppingCart },
+  { titleKey: "wishlist", href: "/wishlist", icon: Heart },
+  { titleKey: "reviews", href: "/reviews", icon: Star },
+];
+
+function isNavItemActive(pathname: string, href: NavItem["href"]) {
+  const normalizedPath = pathname.replace(/\/$/, "") || "/";
+  const normalizedHref = href.replace(/\/$/, "") || "/";
+
+  if (normalizedHref === "/") {
+    return normalizedPath === "/";
+  }
+
+  return (
+    normalizedPath === normalizedHref ||
+    normalizedPath.startsWith(`${normalizedHref}/`)
+  );
+}
+
+function StoreNavItems({ items }: { items: NavItem[] }) {
   const t = useTranslations("nav");
   const pathname = usePathname();
 
   return (
+    <>
+      {items.map(item => {
+        const isActive = isNavItemActive(pathname, item.href);
+
+        return (
+          <SidebarMenuItem key={item.href}>
+            <SidebarMenuButton
+              asChild
+              isActive={isActive}
+              tooltip={t(item.titleKey)}
+              className={cn(
+                isActive &&
+                  "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground",
+              )}>
+              <Link href={item.href}>
+                <item.icon />
+                <span>{t(item.titleKey)}</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        );
+      })}
+    </>
+  );
+}
+
+function NavGroup({
+  label,
+  items,
+}: {
+  label: string;
+  items: NavItem[];
+}) {
+  return (
     <SidebarGroup>
       <SidebarGroupLabel>{label}</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map(item => {
-          const isHome = item.href === prefix;
-          const isActive =
-            pathname === item.href ||
-            (isHome && (pathname === `${prefix}/` || pathname === prefix));
-
-          return (
-            <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton
-                asChild
-                isActive={isActive}>
-                <Link href={item.href}>
-                  <item.icon />
-                  <span>{t(item.titleKey)}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          );
-        })}
+        <StoreNavItems items={items} />
       </SidebarMenu>
     </SidebarGroup>
   );
@@ -68,22 +97,15 @@ function NavGroup({
 
 export function StoreNav() {
   const t = useTranslations("nav");
-  const locale = GetLocale();
-  const prefix = `/${locale}`;
-
-  const shopItems: NavItem[] = [
-    { titleKey: "home", href: prefix, icon: Home },
-    { titleKey: "products", href: `${prefix}/products`, icon: Package },
-    { titleKey: "cart", href: `${prefix}/cart`, icon: ShoppingCart },
-    { titleKey: "wishlist", href: `${prefix}/wishlist`, icon: Heart },
-    { titleKey: "reviews", href: `${prefix}/reviews`, icon: Star },
-  ];
 
   return (
     <NavGroup
       label={t("shop")}
       items={shopItems}
-      prefix={prefix}
     />
   );
+}
+
+export function StoreNavMenuItems() {
+  return <StoreNavItems items={shopItems} />;
 }

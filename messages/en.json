@@ -214,6 +214,8 @@
     "checkoutFailed": "Checkout failed"
   },
   "product": {
+    "productDetail": "Product",
+    "category": "Category",
     "notFound": "Product not found.",
     "verifiedSeller": "Verified seller",
     "description": "Reliable marketplace item with protected checkout, fast dispatch, and support from the vendor team.",
@@ -316,7 +318,25 @@
     "submitting": "Submitting...",
     "loadingReviews": "Loading reviews...",
     "noReviewsYet": "No reviews yet.",
-    "ratingSelected": "You selected {rating} out of 5"
+    "ratingSelected": "You selected {rating} out of 5",
+    "reply": "Reply",
+    "cancelReply": "Cancel reply",
+    "replyPlaceholder": "Write your reply...",
+    "submitReply": "Post reply",
+    "replySuccess": "Reply posted",
+    "replyFailed": "Failed to post reply",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "updateSuccess": "Review updated",
+    "updateFailed": "Failed to update review",
+    "deleteSuccess": "Review deleted",
+    "deleteFailed": "Failed to delete review",
+    "deleteConfirmTitle": "Delete this review?",
+    "deleteConfirmDescription": "This action cannot be undone.",
+    "loginToReply": "Please sign in to reply."
   },
   "categories": {
     "mobile": "Mobile",

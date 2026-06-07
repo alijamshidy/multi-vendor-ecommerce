@@ -214,6 +214,8 @@
     "checkoutFailed": "تسویه حساب ناموفق بود"
   },
   "product": {
+    "productDetail": "محصول",
+    "category": "دسته‌بندی",
     "notFound": "محصول یافت نشد.",
     "verifiedSeller": "فروشنده تأییدشده",
     "description": "کالای قابل اعتماد بازارچه با پرداخت امن، ارسال سریع و پشتیبانی تیم فروشنده.",
@@ -316,7 +318,25 @@
     "submitting": "در حال ارسال...",
     "loadingReviews": "در حال بارگذاری نظرات...",
     "noReviewsYet": "هنوز نظری ثبت نشده.",
-    "ratingSelected": "شما {rating} از ۵ انتخاب کردید"
+    "ratingSelected": "شما {rating} از ۵ انتخاب کردید",
+    "reply": "پاسخ",
+    "cancelReply": "لغو پاسخ",
+    "replyPlaceholder": "پاسخ خود را بنویسید...",
+    "submitReply": "ارسال پاسخ",
+    "replySuccess": "پاسخ ثبت شد",
+    "replyFailed": "ارسال پاسخ ناموفق بود",
+    "edit": "ویرایش",
+    "delete": "حذف",
+    "save": "ذخیره",
+    "saving": "در حال ذخیره...",
+    "cancel": "لغو",
+    "updateSuccess": "نظر ویرایش شد",
+    "updateFailed": "ویرایش نظر ناموفق بود",
+    "deleteSuccess": "نظر حذف شد",
+    "deleteFailed": "حذف نظر ناموفق بود",
+    "deleteConfirmTitle": "این نظر حذف شود؟",
+    "deleteConfirmDescription": "این عمل قابل بازگشت نیست.",
+    "loginToReply": "برای پاسخ دادن وارد حساب کاربری شوید."
   },
   "categories": {
     "mobile": "موبایل",

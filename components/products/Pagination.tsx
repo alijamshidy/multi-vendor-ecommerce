@@ -3,7 +3,7 @@
 import { useQueryParams } from "@/hooks/use-query-params";
 import {
   getCurrentPage,
-  getPageSize,
+  getItemsPerPage,
   getPaginationRange,
   getTotalPages,
 } from "@/lib/product-query";
@@ -29,8 +29,8 @@ export default function ProductsPagination({
 }: ProductsPaginationProps) {
   const { searchParams, setQueryParam } = useQueryParams();
   const currentPage = getCurrentPage(searchParams);
-  const pageSize = getPageSize(searchParams);
-  const totalPages = getTotalPages(totalCount, pageSize);
+  const itemsPerPage = getItemsPerPage(searchParams);
+  const totalPages = getTotalPages(totalCount, itemsPerPage);
 
   if (totalPages <= 1) {
     return null;

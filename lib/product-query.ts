@@ -1,11 +1,19 @@
 import type { ProductQuery } from "@/store/productStore";
 
 export const DEFAULT_PAGE_SIZE = 10;
+export const ITEMS_PER_PAGE_PARAM = "item";
+export const PAGE_SIZE_OPTIONS = [10, 15, 20, 50, 100] as const;
 
 export function getPageSize(searchParams: URLSearchParams): number {
-  const pageSize = Number(searchParams.get("item"));
+  const pageSize = Number(searchParams.get(ITEMS_PER_PAGE_PARAM));
   return pageSize > 0 ? pageSize : DEFAULT_PAGE_SIZE;
 }
+
+export function getItemsPerPage(searchParams: URLSearchParams): number {
+  return getPageSize(searchParams);
+}
+
+export const getPerPage = getItemsPerPage;
 
 export function getCurrentPage(searchParams: URLSearchParams): number {
   const page = Number(searchParams.get("page"));
@@ -41,6 +49,28 @@ export function buildProductQueryFromSearchParams(
   }
 
   return query;
+}
+
+export function buildCategoryProductQuery(
+  searchParams: URLSearchParams,
+  categoryId: string,
+): ProductQuery {
+  return {
+    categories: categoryId,
+    page: getCurrentPage(searchParams),
+    page_size: getPageSize(searchParams),
+  };
+}
+
+export function buildCategorySearchQuery(
+  searchParams: URLSearchParams,
+  search: string,
+): ProductQuery {
+  return {
+    search,
+    page: getCurrentPage(searchParams),
+    page_size: getPageSize(searchParams),
+  };
 }
 
 export function getTotalPages(totalCount: number, pageSize: number): number {

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import UserIconClient from "../navbar/UserIconClient";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import Comment from "./Comment";
 import Rating from "./Rating";
@@ -8,34 +9,46 @@ type ReviewCardProps = {
     comment: string;
     rating: number;
     name: string;
-    image: string;
+    image: string | null;
   };
+  headerActions?: React.ReactNode;
   children?: React.ReactNode;
 };
-export default function ReviewCard({ reviewInfo, children }: ReviewCardProps) {
+
+export default function ReviewCard({
+  reviewInfo,
+  headerActions,
+  children,
+}: ReviewCardProps) {
   return (
     <Card className="relative py-4">
       <CardHeader>
-        <div className="flex items-center">
-          <Image
-            src={reviewInfo.image}
-            alt={reviewInfo.name}
-            className="w-12 h-12 rounded-full object-cover "
-            width={48}
-            height={48}
-          />
-          <div className="ms-4">
-            <h3 className="text-sm font-bold capitalize mb-1">
-              {reviewInfo.name}
-            </h3>
-            <Rating rating={reviewInfo.rating} />
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center">
+            {reviewInfo.image ? (
+              <Image
+                src={reviewInfo.image}
+                alt={reviewInfo.name}
+                className="h-12 w-12 rounded-full object-cover"
+                width={48}
+                height={48}
+              />
+            ) : (
+              <UserIconClient imageUrl={null} />
+            )}
+            <div className="ms-4">
+              <h3 className="mb-1 text-sm font-bold capitalize">
+                {reviewInfo.name}
+              </h3>
+              <Rating rating={reviewInfo.rating} />
+            </div>
           </div>
+          {headerActions}
         </div>
       </CardHeader>
       <CardContent>
-        <Comment comment={reviewInfo.comment} />
+        {children ?? <Comment comment={reviewInfo.comment} />}
       </CardContent>
-      <div className="absolute inset-e-3 top-3">{children}</div>
     </Card>
   );
 }

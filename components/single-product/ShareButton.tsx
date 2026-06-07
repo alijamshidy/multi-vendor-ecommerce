@@ -17,12 +17,10 @@ export default function ShareButton({
   productId,
   name,
   locale,
-  label,
 }: {
   productId: string;
   name: string;
   locale: string;
-  label?: string;
 }) {
   const url = process.env.NEXT_PUBLIC_WEBSITE_URL;
   const shareLink = `${url}/${locale}/products/${productId}`;
