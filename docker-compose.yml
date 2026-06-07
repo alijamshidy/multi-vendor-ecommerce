@@ -18,25 +18,3 @@ services:
       EXTERNAL_API_TOKEN: ${EXTERNAL_API_TOKEN:-}
     extra_hosts:
       - "host.docker.internal:host-gateway"
-
-  web-dev:
-    profiles: ["dev"]
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    ports:
-      - "${PORT:-3001}:3000"
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
-      # Keep .next off the bind mount — stale manifests on OneDrive cause 404 on all routes.
-    environment:
-      # Server-side proxy must reach Django on the host; .env localhost breaks inside Docker.
-      API_URL: http://host.docker.internal:8000
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
-      NEXT_PUBLIC_WEBSITE_URL: ${NEXT_PUBLIC_WEBSITE_URL:-http://localhost:3001}
-      EXTERNAL_API_URL: ${EXTERNAL_API_URL:-}
-      EXTERNAL_API_TOKEN: ${EXTERNAL_API_TOKEN:-}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
