@@ -20,6 +20,7 @@ import { NavUser } from "../sidebar/NavUser";
 export function AppSidebar() {
   const t = useTranslations("nav");
   const locale = GetLocale();
+  const isRtl = locale === "fa";
 
   const user = {
     name: t("guest"),
@@ -30,8 +31,9 @@ export function AppSidebar() {
   return (
     <Sidebar
       collapsible="icon"
-      side="left"
-      dir="ltr"
+      side={isRtl ? "right" : "left"}
+      dir={isRtl ? "rtl" : "ltr"}
+      dir={isRtl ? "rtl" : "ltr"}
       className="[&_[data-slot=sidebar-inner]]:bg-transparent [&_[data-sidebar=menu-button]]:bg-transparent [&_[data-sidebar=menu-button]:hover]:bg-transparent [&_[data-sidebar=menu-button]:active]:bg-transparent [&_[data-sidebar=menu-button][data-active=true]]:bg-transparent [&_[data-sidebar=menu-button][data-state=open]]:bg-transparent">
       <SidebarHeader>
         <SidebarMenu>

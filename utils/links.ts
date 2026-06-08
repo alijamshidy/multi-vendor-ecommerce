@@ -13,7 +13,8 @@ type NavLink = {
     | "sales"
     | "myProducts"
     | "createProduct"
-    | "createCategory";
+    | "createCategory"
+    | "shopContent";
 };
 
 export const visitorLinks: NavLink[] = [
@@ -46,6 +47,7 @@ export const adminLinks: NavLink[] = [
   { href: "/admin/products", labelKey: "myProducts" },
   { href: "/admin/products/create", labelKey: "createProduct" },
   { href: "/admin/categories/create", labelKey: "createCategory" },
+  { href: "/admin/content", labelKey: "shopContent" },
 ];
 
 export const sellerLinks: NavLink[] = [

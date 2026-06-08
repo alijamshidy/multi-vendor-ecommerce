@@ -25,7 +25,7 @@ const api = axios.create({
 
 /** Auth endpoints that must not receive a stale Bearer token. */
 const PUBLIC_AUTH_PATH =
-  /^\/auth\/(login-password|register|request-otp|verify-otp|reset-password-request|reset-password-confirm)\/?$/;
+  /^\/auth\/(login-password|register|request-otp|verify-otp|reset-password-request|reset-password-confirm|social\/[\w-]+)\/?$/;
 
 function isPublicAuthRequest(url: string | undefined): boolean {
   if (!url) return false;
@@ -73,24 +73,6 @@ api.interceptors.response.use(
       isGuestOptionalEndpoint &&
       typeof window !== "undefined"
     ) {
-      // #region agent log
-      fetch("http://127.0.0.1:7673/ingest/3195856a-0976-4ff2-982f-62bf78f50b86", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Debug-Session-Id": "e997a5",
-        },
-        body: JSON.stringify({
-          sessionId: "e997a5",
-          runId: "post-fix",
-          hypothesisId: "A",
-          location: "axios.ts:cart-401",
-          message: "cart 401 ignored for session (no clear)",
-          data: { url, hadAuth, pathname: window.location.pathname },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
       return Promise.reject(error);
     }
 
@@ -104,24 +86,6 @@ api.interceptors.response.use(
       !handlingUnauthorized &&
       !window.location.pathname.includes("/login")
     ) {
-      // #region agent log
-      fetch("http://127.0.0.1:7673/ingest/3195856a-0976-4ff2-982f-62bf78f50b86", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Debug-Session-Id": "e997a5",
-        },
-        body: JSON.stringify({
-          sessionId: "e997a5",
-          runId: "token-clear",
-          hypothesisId: "B",
-          location: "axios.ts:global-401",
-          message: "clearing session due to global 401 redirect",
-          data: { url, hadAuth, pathname: window.location.pathname },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
       handlingUnauthorized = true;
       clearAuthCookies();
       localStorage.removeItem("accessToken");

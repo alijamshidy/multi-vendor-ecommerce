@@ -1,6 +1,5 @@
 import type { ApiProduct } from "@/lib/api-types";
 import {
-  createLoadingState,
   extractCreatedResourceId,
   getApiErrorMessage,
   unwrapList,
@@ -11,6 +10,7 @@ import type { productType } from "@/utils/products";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { withStoreDevtools } from "./devtools";
+import { createStoreLoadingState, setStoreLoading } from "./store-utils";
 
 type ManagementAction = "fetchProducts" | "createProduct";
 
@@ -36,15 +36,12 @@ const useManagementStore = create<ManagementState>()(
     products: [],
     errorMessage: "",
     successMessage: "",
-    loading: createLoadingState(["fetchProducts", "createProduct"] as const),
+    loading: createStoreLoadingState(["fetchProducts", "createProduct"] as const),
 
     clearMessages: () => set({ errorMessage: "", successMessage: "" }),
 
     fetchProducts: async () => {
-      set(state => ({
-        loading: { ...state.loading, fetchProducts: true },
-        errorMessage: "",
-      }));
+      setStoreLoading(set, "fetchProducts", true, { errorMessage: "" });
 
       try {
         const { data } = await api.get<
@@ -61,18 +58,15 @@ const useManagementStore = create<ManagementState>()(
           products: [],
         });
       } finally {
-        set(state => ({
-          loading: { ...state.loading, fetchProducts: false },
-        }));
+        setStoreLoading(set, "fetchProducts", false);
       }
     },
 
     createProduct: async payload => {
-      set(state => ({
-        loading: { ...state.loading, createProduct: true },
+      setStoreLoading(set, "createProduct", true, {
         errorMessage: "",
         successMessage: "",
-      }));
+      });
 
       try {
         const formData = new FormData();
@@ -95,7 +89,7 @@ const useManagementStore = create<ManagementState>()(
 
         if (productId && remainingImages.length > 0) {
           await Promise.all(
-            remainingImages.map((file, index) => {
+            remainingImages.map(file => {
               const imageForm = new FormData();
               imageForm.append("product", productId);
               imageForm.append("image", file);
@@ -112,9 +106,7 @@ const useManagementStore = create<ManagementState>()(
         set({ errorMessage: message });
         throw new Error(message);
       } finally {
-        set(state => ({
-          loading: { ...state.loading, createProduct: false },
-        }));
+        setStoreLoading(set, "createProduct", false);
       }
     },
   }), withStoreDevtools("management")),

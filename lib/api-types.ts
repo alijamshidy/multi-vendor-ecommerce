@@ -113,3 +113,49 @@ export type UserProfile = {
   email?: string;
   phone?: string;
 };
+
+export type ApiContentImage = {
+  id?: number | string;
+  image?: string | null;
+  related_link?: string | null;
+  text?: string | null;
+  color?: string | null;
+};
+
+export type ApiShopFaq = {
+  id: number | string;
+  question: string;
+  answer: string;
+};
+
+export type ApiShopHeader = {
+  id: number | string;
+  text?: string | null;
+  color?: string | null;
+  image?: ApiContentImage | null;
+};
+
+export type ApiShopSlider = {
+  id: number | string;
+  text?: string | null;
+  color?: string | null;
+  position?: number | string;
+  position_string?: string;
+  images?: ApiContentImage[];
+};
+
+export type ApiShopContact = {
+  id?: number | string;
+  instagram_channel?: string | null;
+  telegram_channel?: string | null;
+  contact_number?: string | null;
+  contact_number_2?: string | null;
+};
+
+export type ApiShopRecommendation = {
+  id?: number | string;
+  text?: string | null;
+  color?: string | null;
+  related_link?: string | null;
+  image?: ApiContentImage | Record<string, unknown> | string | null;
+};

@@ -20,25 +20,30 @@ import api from "@/lib/axios";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { withStoreDevtools } from "./devtools";
+import { createStoreLoadingState, setStoreLoading } from "./store-utils";
 
 type AuthAction =
   | "login"
   | "register"
+  | "socialLogin"
   | "requestOtp"
   | "verifyOtp"
   | "resetPasswordRequest"
   | "resetPasswordConfirm";
 
+type SocialProvider = "google";
+
 type AuthLoading = Record<AuthAction, boolean>;
 
-const initialLoading: AuthLoading = {
-  login: false,
-  register: false,
-  requestOtp: false,
-  verifyOtp: false,
-  resetPasswordRequest: false,
-  resetPasswordConfirm: false,
-};
+const initialLoading: AuthLoading = createStoreLoadingState([
+  "login",
+  "register",
+  "socialLogin",
+  "requestOtp",
+  "verifyOtp",
+  "resetPasswordRequest",
+  "resetPasswordConfirm",
+] as const);
 
 function setAuthHeader(token: string | null) {
   if (token) {
@@ -60,6 +65,10 @@ type AuthState = {
   setSession: (data: LoginResponse) => void;
   clearSession: () => void;
   login: (payload: { identifier: string; password: string }) => Promise<void>;
+  socialLogin: (payload: {
+    provider: SocialProvider;
+    idToken: string;
+  }) => Promise<void>;
   register: (payload: {
     identifier: string;
     password?: string;
@@ -109,32 +118,6 @@ const useAuthStore = create<AuthState>()(
         },
 
         clearSession: () => {
-          // #region agent log
-          if (typeof window !== "undefined") {
-            fetch(
-              "http://127.0.0.1:7673/ingest/3195856a-0976-4ff2-982f-62bf78f50b86",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-Debug-Session-Id": "e997a5",
-                },
-                body: JSON.stringify({
-                  sessionId: "e997a5",
-                  runId: "token-clear",
-                  hypothesisId: "C",
-                  location: "authStore.ts:clearSession",
-                  message: "clearSession called",
-                  data: {
-                    pathname: window.location.pathname,
-                    hadToken: Boolean(getStoredAccessToken()),
-                  },
-                  timestamp: Date.now(),
-                }),
-              },
-            ).catch(() => {});
-          }
-          // #endregion
           localStorage.removeItem("accessToken");
           clearAuthCookies();
           setAuthHeader(null);
@@ -153,11 +136,10 @@ const useAuthStore = create<AuthState>()(
         },
 
         login: async payload => {
-          set(state => ({
-            loading: { ...state.loading, login: true },
+          setStoreLoading(set, "login", true, {
             errorMessage: "",
             successMessage: "",
-          }));
+          });
           try {
             const { data } = await api.post<ApiSuccessResponse<LoginResponse>>(
               "/auth/login-password/",
@@ -179,18 +161,43 @@ const useAuthStore = create<AuthState>()(
             set({ errorMessage: message });
             throw new AuthRequestError(message, status);
           } finally {
-            set(state => ({
-              loading: { ...state.loading, login: false },
-            }));
+            setStoreLoading(set, "login", false);
+          }
+        },
+
+        socialLogin: async payload => {
+          setStoreLoading(set, "socialLogin", true, {
+            errorMessage: "",
+            successMessage: "",
+          });
+
+          try {
+            const { data } = await api.post<ApiSuccessResponse<LoginResponse>>(
+              `/auth/social/${payload.provider}/`,
+              { id_token: payload.idToken },
+              { skipAuth: true },
+            );
+
+            if (!data?.data) {
+              throw new Error("Invalid social login response from server");
+            }
+
+            get().setSession(data.data);
+          } catch (error) {
+            const message = getApiErrorMessage(error, "Social login failed");
+            const status = getApiErrorStatus(error);
+            set({ errorMessage: message });
+            throw new AuthRequestError(message, status);
+          } finally {
+            setStoreLoading(set, "socialLogin", false);
           }
         },
 
         register: async payload => {
-          set(state => ({
-            loading: { ...state.loading, register: true },
+          setStoreLoading(set, "register", true, {
             errorMessage: "",
             successMessage: "",
-          }));
+          });
 
           try {
             const { data } = await api.post<
@@ -202,18 +209,15 @@ const useAuthStore = create<AuthState>()(
             set({ errorMessage: message });
             throw new Error(message);
           } finally {
-            set(state => ({
-              loading: { ...state.loading, register: false },
-            }));
+            setStoreLoading(set, "register", false);
           }
         },
 
         requestOtp: async payload => {
-          set(state => ({
-            loading: { ...state.loading, requestOtp: true },
+          setStoreLoading(set, "requestOtp", true, {
             errorMessage: "",
             successMessage: "",
-          }));
+          });
 
           try {
             const { data } = await api.post<{ message: string }>(
@@ -227,18 +231,15 @@ const useAuthStore = create<AuthState>()(
             set({ errorMessage: message });
             throw new Error(message);
           } finally {
-            set(state => ({
-              loading: { ...state.loading, requestOtp: false },
-            }));
+            setStoreLoading(set, "requestOtp", false);
           }
         },
 
         verifyOtp: async payload => {
-          set(state => ({
-            loading: { ...state.loading, verifyOtp: true },
+          setStoreLoading(set, "verifyOtp", true, {
             errorMessage: "",
             successMessage: "",
-          }));
+          });
 
           try {
             const { data } = await api.post<ApiSuccessResponse<LoginResponse>>(
@@ -263,18 +264,15 @@ const useAuthStore = create<AuthState>()(
             set({ errorMessage: message });
             throw new Error(message);
           } finally {
-            set(state => ({
-              loading: { ...state.loading, verifyOtp: false },
-            }));
+            setStoreLoading(set, "verifyOtp", false);
           }
         },
 
         resetPasswordRequest: async payload => {
-          set(state => ({
-            loading: { ...state.loading, resetPasswordRequest: true },
+          setStoreLoading(set, "resetPasswordRequest", true, {
             errorMessage: "",
             successMessage: "",
-          }));
+          });
 
           try {
             const { data } = await api.post<{ message: string }>(
@@ -291,18 +289,15 @@ const useAuthStore = create<AuthState>()(
             set({ errorMessage: message });
             throw new Error(message);
           } finally {
-            set(state => ({
-              loading: { ...state.loading, resetPasswordRequest: false },
-            }));
+            setStoreLoading(set, "resetPasswordRequest", false);
           }
         },
 
         resetPasswordConfirm: async payload => {
-          set(state => ({
-            loading: { ...state.loading, resetPasswordConfirm: true },
+          setStoreLoading(set, "resetPasswordConfirm", true, {
             errorMessage: "",
             successMessage: "",
-          }));
+          });
 
           try {
             const { data } = await api.post<{ message: string }>(
@@ -319,9 +314,7 @@ const useAuthStore = create<AuthState>()(
             set({ errorMessage: message });
             throw new Error(message);
           } finally {
-            set(state => ({
-              loading: { ...state.loading, resetPasswordConfirm: false },
-            }));
+            setStoreLoading(set, "resetPasswordConfirm", false);
           }
         },
       }),

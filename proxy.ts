@@ -12,6 +12,7 @@ const publicPaths = [
   "",
   "login",
   "register",
+  "sso-callback",
   "products",
   "reset_password",
   "about",

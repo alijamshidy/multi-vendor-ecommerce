@@ -3,29 +3,19 @@
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { formatCurrency } from "@/utils/format";
-import {
-  GetLocale,
-  GetSearchParams,
-  parseQueryString,
-} from "@/utils/GetUrlParams";
+import { GetLocale } from "@/utils/GetUrlParams";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 
 export default function RangeSlider() {
   const searchParams = useSearchParams();
-  const params = parseQueryString({ str: GetSearchParams() });
   const range = [0, 10000];
-  const rangeParam = params.range || range;
-  // console.log(btoa(rangeParam.toString()));
   const [value, setValue] = useState(range);
   const lowPrice = formatCurrency(value[0]);
   const highPrice = formatCurrency(value[1]);
 
   const { replace } = useRouter();
-  const [search, setSearch] = useState(
-    searchParams.get("range")?.toString() || "",
-  );
   const locale = GetLocale();
   const handleSearch = useDebouncedCallback(value => {
     const params = new URLSearchParams(searchParams);
@@ -37,14 +27,11 @@ export default function RangeSlider() {
     params.set("page", "1");
     replace(`/${locale}/products?${params.toString()}`);
   }, 500);
-  useEffect(() => {
-    if (!searchParams.get("search")) {
-      setTimeout(() => setSearch(""), 0);
-    }
-  }, [value]);
+
   useEffect(() => {
     handleSearch(value);
-  }, [value]);
+  }, [handleSearch, value]);
+
   return (
     <div className="mx-auto flex flex-col items-start w-full max-w-xs gap-3 px-2 py-3">
       <Slider

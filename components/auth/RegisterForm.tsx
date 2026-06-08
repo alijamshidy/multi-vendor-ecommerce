@@ -61,7 +61,7 @@ export default function RegisterForm() {
       (isEmail || isPhone) &&
       isRegistrationPasswordValid(password) &&
       passwordsMatch,
-    [name, identifier, password, passwordsMatch, isEmail, isPhone],
+    [name, password, passwordsMatch, isEmail, isPhone],
   );
 
   const isOtpValid = otp.length === 6;

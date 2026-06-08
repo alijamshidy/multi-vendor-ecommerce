@@ -1,14 +1,11 @@
 import type { ApiComment } from "@/lib/api-types";
-import {
-  createLoadingState,
-  getApiErrorMessage,
-  unwrapList,
-} from "@/lib/api-utils";
+import { getApiErrorMessage, unwrapList } from "@/lib/api-utils";
 import api from "@/lib/axios";
 import { mapComment, type ReviewView } from "@/lib/mappers";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { withStoreDevtools } from "./devtools";
+import { createStoreLoadingState, setStoreLoading } from "./store-utils";
 
 export type { ReviewView };
 
@@ -53,7 +50,7 @@ const useReviewStore = create<ReviewState>()(
       reviews: [],
       errorMessage: "",
       successMessage: "",
-      loading: createLoadingState([
+      loading: createStoreLoadingState([
         "fetchReviews",
         "createReview",
         "replyToReview",
@@ -64,10 +61,7 @@ const useReviewStore = create<ReviewState>()(
       clearMessages: () => set({ errorMessage: "", successMessage: "" }),
 
       fetchProductReviews: async productId => {
-        set(state => ({
-          loading: { ...state.loading, fetchReviews: true },
-          errorMessage: "",
-        }));
+        setStoreLoading(set, "fetchReviews", true, { errorMessage: "" });
 
         try {
           const { data } = await api.get<
@@ -84,18 +78,15 @@ const useReviewStore = create<ReviewState>()(
             reviews: [],
           });
         } finally {
-          set(state => ({
-            loading: { ...state.loading, fetchReviews: false },
-          }));
+          setStoreLoading(set, "fetchReviews", false);
         }
       },
 
       createReview: async payload => {
-        set(state => ({
-          loading: { ...state.loading, createReview: true },
+        setStoreLoading(set, "createReview", true, {
           errorMessage: "",
           successMessage: "",
-        }));
+        });
 
         try {
           await api.post(`/products/${payload.productId}/comments/`, {
@@ -113,17 +104,12 @@ const useReviewStore = create<ReviewState>()(
           set({ errorMessage: message });
           throw new Error(message);
         } finally {
-          set(state => ({
-            loading: { ...state.loading, createReview: false },
-          }));
+          setStoreLoading(set, "createReview", false);
         }
       },
 
       replyToReview: async payload => {
-        set(state => ({
-          loading: { ...state.loading, replyToReview: true },
-          errorMessage: "",
-        }));
+        setStoreLoading(set, "replyToReview", true, { errorMessage: "" });
 
         try {
           await api.post(`/products/${payload.productId}/comments/`, {
@@ -136,17 +122,12 @@ const useReviewStore = create<ReviewState>()(
           set({ errorMessage: message });
           throw new Error(message);
         } finally {
-          set(state => ({
-            loading: { ...state.loading, replyToReview: false },
-          }));
+          setStoreLoading(set, "replyToReview", false);
         }
       },
 
       updateReview: async payload => {
-        set(state => ({
-          loading: { ...state.loading, updateReview: true },
-          errorMessage: "",
-        }));
+        setStoreLoading(set, "updateReview", true, { errorMessage: "" });
 
         try {
           await api.patch(
@@ -159,17 +140,12 @@ const useReviewStore = create<ReviewState>()(
           set({ errorMessage: message });
           throw new Error(message);
         } finally {
-          set(state => ({
-            loading: { ...state.loading, updateReview: false },
-          }));
+          setStoreLoading(set, "updateReview", false);
         }
       },
 
       deleteReview: async payload => {
-        set(state => ({
-          loading: { ...state.loading, deleteReview: true },
-          errorMessage: "",
-        }));
+        setStoreLoading(set, "deleteReview", true, { errorMessage: "" });
 
         try {
           await api.delete(
@@ -181,9 +157,7 @@ const useReviewStore = create<ReviewState>()(
           set({ errorMessage: message });
           throw new Error(message);
         } finally {
-          set(state => ({
-            loading: { ...state.loading, deleteReview: false },
-          }));
+          setStoreLoading(set, "deleteReview", false);
         }
       },
     }),

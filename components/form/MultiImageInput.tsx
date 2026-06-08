@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { ImagePlusIcon, XIcon } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -45,15 +45,16 @@ export default function MultiImageInput({
   const replaceInputRef = useRef<HTMLInputElement>(null);
   const replacingIndexRef = useRef<number | null>(null);
   const [error, setError] = useState("");
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const previewUrls = useMemo(
+    () => files.map(file => URL.createObjectURL(file)),
+    [files],
+  );
 
   useEffect(() => {
-    const urls = files.map(file => URL.createObjectURL(file));
-    setPreviewUrls(urls);
     return () => {
-      urls.forEach(url => URL.revokeObjectURL(url));
+      previewUrls.forEach(url => URL.revokeObjectURL(url));
     };
-  }, [files]);
+  }, [previewUrls]);
 
   const addFiles = (incoming: FileList | null) => {
     if (!incoming?.length) return;

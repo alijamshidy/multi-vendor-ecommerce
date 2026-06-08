@@ -1,3 +1,4 @@
+import { getSiteUrl, SITE_NAME } from "@/lib/seo";
 import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "./providers";
@@ -13,8 +14,19 @@ import Providers from "./providers";
 // });
 
 export const metadata: Metadata = {
-  title: "Next Storefront",
-  description: "A nifty store built with Next.js",
+  metadataBase: new URL(getSiteUrl()),
+  title: {
+    default: `${SITE_NAME} | Multi-Vendor Marketplace`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description:
+    "Discover trusted sellers, compare products, and checkout with a smooth multi-vendor experience.",
+  applicationName: SITE_NAME,
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/logo192.png",
+  },
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({

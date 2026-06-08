@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Suspense } from "react";
 import { LuSearch } from "react-icons/lu";
 import HeaderActions from "../layout/HeaderActions";
@@ -12,37 +12,58 @@ import { Button } from "../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { SidebarTrigger } from "../ui/sidebar";
 
-export default function Header({ open }: { open: boolean }) {
+function SearchPopover({
+  className,
+  contentClassName,
+}: {
+  className?: string;
+  contentClassName?: string;
+}) {
   const t = useTranslations("nav");
+
+  return (
+    <Suspense>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            className={className}
+            aria-label={t("searchProducts")}>
+            <LuSearch className="size-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          align="start"
+          className={cn("w-80", contentClassName)}
+          sideOffset={10}>
+          <NavSearch />
+        </PopoverContent>
+      </Popover>
+    </Suspense>
+  );
+}
+
+export default function Header({ open }: { open: boolean }) {
+  const locale = useLocale();
+  const isRtl = locale === "fa";
+  const sidebarOffset = open
+    ? "var(--sidebar-width)"
+    : "var(--sidebar-width-icon)";
 
   return (
     <>
       <section className="fixed top-5 z-30 w-full bg-background/95 backdrop-blur md:hidden">
         <header
-          dir="ltr"
+          dir={isRtl ? "rtl" : "ltr"}
           className="mx-[2%] flex h-16 w-[calc(100%-4%)] min-w-0 items-center justify-between gap-2 rounded-md border px-3 shadow-sm">
           <div className="flex min-w-0 items-center gap-2">
             <SidebarTrigger />
             <Logo />
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            <Suspense>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    aria-label={t("searchProducts")}>
-                    <LuSearch className="size-4" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  className="mr:10 w-[calc(80vw)] sm:mr-20"
-                  sideOffset={10}>
-                  <NavSearch />
-                </PopoverContent>
-              </Popover>
-            </Suspense>
+            <SearchPopover contentClassName="w-[calc(80vw)] sm:mr-20" />
+            <ThemeSwitcher open />
             <Suspense>
               <HeaderActions mobile />
             </Suspense>
@@ -50,77 +71,71 @@ export default function Header({ open }: { open: boolean }) {
         </header>
       </section>
 
-      <section className="sticky top-5 z-30 mx-[2%] hidden min-w-0 w-[calc(100%-4%)] md:block">
+      <section
+        className="fixed top-5 z-30 hidden min-w-0 transition-[left,right] duration-200 ease-linear md:block"
+        style={
+          isRtl
+            ? { left: 0, right: sidebarOffset }
+            : { left: sidebarOffset, right: 0 }
+        }>
         <header
-          dir="ltr"
-          className="flex h-20 w-full shrink-0 items-center gap-2 rounded-md border bg-background px-2 shadow-sm transition-all duration-200 ease-linear sm:px-4">
+          dir={isRtl ? "rtl" : "ltr"}
+          className={cn(
+            "mx-[2%] flex w-[calc(100%-4%)] min-w-0 items-center gap-1.5 overflow-hidden rounded-md border bg-background/95 px-2 shadow-sm backdrop-blur transition-all duration-200 ease-linear sm:gap-2 sm:px-3",
+            open ? "h-16 lg:h-20" : "h-20",
+          )}>
           <SidebarTrigger className="shrink-0" />
-          <div
-            className={cn(
-              "flex min-w-0 flex-1 items-center gap-2",
-              open ? "justify-around pe-2" : "justify-between px-4",
-            )}>
-            <div className="flex shrink-0 items-center gap-x-4">
-              <Logo />
-              <ThemeSwitcher
-                className="hidden lg:block"
-                open={open}
-              />
-            </div>
 
-            <div
-              className={cn(
-                "min-w-0 flex-1 px-2 max-w-md",
-                open ? "hidden lg:block" : "block ",
-              )}>
-              <Suspense>
-                <NavSearch />
-              </Suspense>
-            </div>
+          {open ? (
+            <div className="flex min-w-0 flex-1 items-center justify-between gap-1.5 sm:gap-2">
+              <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+                <Logo />
+                <ThemeSwitcher open />
+              </div>
 
-            <div
-              className={cn(
-                "shrink-0 items-center justify-center",
-                open ? "flex lg:hidden" : "hidden",
-              )}>
-              <Suspense>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label={t("searchProducts")}>
-                      <LuSearch className="size-4" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    align="start"
-                    className="w-80"
-                    sideOffset={10}>
-                    <NavSearch />
-                  </PopoverContent>
-                </Popover>
-              </Suspense>
+              <div className="hidden min-w-0 flex-1 px-2 lg:block lg:max-w-sm xl:max-w-md">
+                <Suspense>
+                  <NavSearch />
+                </Suspense>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+                <SearchPopover className="lg:hidden" />
+                <div className="hidden items-center gap-x-2 xl:flex">
+                  <Suspense>
+                    <HeaderActions />
+                  </Suspense>
+                </div>
+                <div className="flex items-center xl:hidden">
+                  <Suspense>
+                    <HeaderActions compact />
+                  </Suspense>
+                </div>
+              </div>
             </div>
-            <div
-              className={cn(
-                "shrink-0 items-center gap-x-2 sm:gap-x-4",
-                open ? "hidden xl:flex" : "flex",
-              )}>
-              <Suspense>
-                <HeaderActions />
-              </Suspense>
+          ) : (
+            <div className="flex min-w-0 flex-1 items-center justify-between gap-2 px-2 sm:px-4">
+              <div className="flex shrink-0 items-center gap-x-3 sm:gap-x-4">
+                <Logo />
+                <ThemeSwitcher
+                  className="hidden lg:block"
+                  open={false}
+                />
+              </div>
+
+              <div className="min-w-0 flex-1 px-2 max-w-md">
+                <Suspense>
+                  <NavSearch />
+                </Suspense>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-x-2 sm:gap-x-4">
+                <Suspense>
+                  <HeaderActions />
+                </Suspense>
+              </div>
             </div>
-            <div
-              className={cn(
-                "shrink-0 items-center",
-                open ? "flex xl:hidden" : "hidden",
-              )}>
-              <Suspense>
-                <HeaderActions compact />
-              </Suspense>
-            </div>
-          </div>
+          )}
         </header>
       </section>
     </>

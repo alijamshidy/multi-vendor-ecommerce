@@ -1,6 +1,5 @@
 import type { ApiCategory, ApiCategoryDetail, ApiProduct } from "@/lib/api-types";
 import {
-  createLoadingState,
   getApiErrorMessage,
   unwrapEntity,
   unwrapList,
@@ -12,6 +11,7 @@ import type { productType } from "@/utils/products";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { withStoreDevtools } from "./devtools";
+import { createStoreLoadingState, setStoreLoading } from "./store-utils";
 
 type CategoryAction = "fetchCategories" | "fetchCategory" | "createCategory";
 
@@ -43,7 +43,7 @@ const useCategoryStore = create<CategoryState>()(
       categoryProducts: [],
       errorMessage: "",
       successMessage: "",
-      loading: createLoadingState([
+      loading: createStoreLoadingState([
         "fetchCategories",
         "fetchCategory",
         "createCategory",
@@ -53,10 +53,7 @@ const useCategoryStore = create<CategoryState>()(
       clearMessages: () => set({ errorMessage: "", successMessage: "" }),
 
       fetchCategories: async () => {
-        set(state => ({
-          loading: { ...state.loading, fetchCategories: true },
-          errorMessage: "",
-        }));
+        setStoreLoading(set, "fetchCategories", true, { errorMessage: "" });
 
         try {
           const { data } = await api.get<
@@ -76,19 +73,16 @@ const useCategoryStore = create<CategoryState>()(
             ),
           });
         } finally {
-          set(state => ({
-            loading: { ...state.loading, fetchCategories: false },
-          }));
+          setStoreLoading(set, "fetchCategories", false);
         }
       },
 
       fetchCategoryBySlug: async slug => {
-        set(state => ({
-          loading: { ...state.loading, fetchCategory: true },
+        setStoreLoading(set, "fetchCategory", true, {
           errorMessage: "",
           activeCategory: null,
           categoryProducts: [],
-        }));
+        });
 
         try {
           const { data } = await api.get(`/categories/${slug}/`, {
@@ -111,18 +105,15 @@ const useCategoryStore = create<CategoryState>()(
           });
           return null;
         } finally {
-          set(state => ({
-            loading: { ...state.loading, fetchCategory: false },
-          }));
+          setStoreLoading(set, "fetchCategory", false);
         }
       },
 
       createCategory: async payload => {
-        set(state => ({
-          loading: { ...state.loading, createCategory: true },
+        setStoreLoading(set, "createCategory", true, {
           errorMessage: "",
           successMessage: "",
-        }));
+        });
 
         try {
           const formData = new FormData();
@@ -144,9 +135,7 @@ const useCategoryStore = create<CategoryState>()(
           set({ errorMessage: message });
           throw new Error(message);
         } finally {
-          set(state => ({
-            loading: { ...state.loading, createCategory: false },
-          }));
+          setStoreLoading(set, "createCategory", false);
         }
       },
     }),

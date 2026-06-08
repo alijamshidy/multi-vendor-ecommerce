@@ -145,12 +145,6 @@ export function unwrapEntity<T>(data: unknown): T | null {
   return data as T;
 }
 
-export function createLoadingState<T extends string>(
-  keys: readonly T[],
-): Record<T, boolean> {
-  return Object.fromEntries(keys.map(key => [key, false])) as Record<T, boolean>;
-}
-
 /** Reads a created resource id from common Django API response shapes. */
 export function extractCreatedResourceId(data: unknown): string | null {
   if (!data || typeof data !== "object") return null;

@@ -6,6 +6,7 @@ export default async function ProductRating({
 }: {
   productId: string;
 }) {
+  void productId;
   // const { count, rating } = await fetchProductRating(productId);
   const count = 10;
   const rating = 3.5;

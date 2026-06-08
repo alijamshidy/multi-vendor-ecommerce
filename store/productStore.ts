@@ -1,6 +1,5 @@
 import type { ApiProduct } from "@/lib/api-types";
 import {
-  createLoadingState,
   getApiErrorMessage,
   unwrapEntity,
   unwrapList,
@@ -11,6 +10,7 @@ import type { productType } from "@/utils/products";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { withStoreDevtools } from "./devtools";
+import { createStoreLoadingState, setStoreLoading } from "./store-utils";
 
 export type ProductQuery = {
   search?: string;
@@ -52,7 +52,7 @@ const useProductStore = create<ProductState>()(
       featuredProducts: [],
       totalCount: 0,
       errorMessage: "",
-      loading: createLoadingState([
+      loading: createStoreLoadingState([
         "fetchProducts",
         "fetchProduct",
         "fetchSimilar",
@@ -62,10 +62,7 @@ const useProductStore = create<ProductState>()(
       clearError: () => set({ errorMessage: "" }),
 
       fetchProducts: async (query = {}) => {
-        set(state => ({
-          loading: { ...state.loading, fetchProducts: true },
-          errorMessage: "",
-        }));
+        setStoreLoading(set, "fetchProducts", true, { errorMessage: "" });
 
         try {
           const { data } = await api.get<
@@ -85,18 +82,15 @@ const useProductStore = create<ProductState>()(
             errorMessage: getApiErrorMessage(error, "Failed to load products"),
           });
         } finally {
-          set(state => ({
-            loading: { ...state.loading, fetchProducts: false },
-          }));
+          setStoreLoading(set, "fetchProducts", false);
         }
       },
 
       fetchProduct: async id => {
-        set(state => ({
-          loading: { ...state.loading, fetchProduct: true },
+        setStoreLoading(set, "fetchProduct", true, {
           errorMessage: "",
           product: null,
-        }));
+        });
 
         try {
           const { data } = await api.get(`/products/${id}/`);
@@ -114,17 +108,12 @@ const useProductStore = create<ProductState>()(
           });
           return null;
         } finally {
-          set(state => ({
-            loading: { ...state.loading, fetchProduct: false },
-          }));
+          setStoreLoading(set, "fetchProduct", false);
         }
       },
 
       fetchSimilarProducts: async id => {
-        set(state => ({
-          loading: { ...state.loading, fetchSimilar: true },
-          errorMessage: "",
-        }));
+        setStoreLoading(set, "fetchSimilar", true, { errorMessage: "" });
 
         try {
           const { data } = await api.get<
@@ -143,17 +132,12 @@ const useProductStore = create<ProductState>()(
             ),
           });
         } finally {
-          set(state => ({
-            loading: { ...state.loading, fetchSimilar: false },
-          }));
+          setStoreLoading(set, "fetchSimilar", false);
         }
       },
 
       fetchFeaturedProducts: async (limit = 8) => {
-        set(state => ({
-          loading: { ...state.loading, fetchFeatured: true },
-          errorMessage: "",
-        }));
+        setStoreLoading(set, "fetchFeatured", true, { errorMessage: "" });
 
         try {
           const { data } = await api.get<
@@ -175,9 +159,7 @@ const useProductStore = create<ProductState>()(
             ),
           });
         } finally {
-          set(state => ({
-            loading: { ...state.loading, fetchFeatured: false },
-          }));
+          setStoreLoading(set, "fetchFeatured", false);
         }
       },
     }),

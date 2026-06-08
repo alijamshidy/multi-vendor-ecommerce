@@ -3,22 +3,21 @@
 import { cn } from "@/lib/utils";
 import { productType } from "@/utils/products";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function ProductImageGallery({
   product,
 }: {
   product: productType;
 }) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selection, setSelection] = useState({
+    productId: product.id,
+    index: 0,
+  });
+  const selectedIndex =
+    selection.productId === product.id ? selection.index : 0;
   const selectedImage = product.images[selectedIndex] ?? product.images[0];
   const hasMultipleImages = product.images.length > 1;
-
-  useEffect(() => {
-    setTimeout(() => {
-      setSelectedIndex(0);
-    }, 100);
-  }, [product.id]);
 
   return (
     <div className="space-y-3">
@@ -40,7 +39,7 @@ export default function ProductImageGallery({
             <li key={image.id}>
               <button
                 type="button"
-                onClick={() => setSelectedIndex(index)}
+                onClick={() => setSelection({ productId: product.id, index })}
                 aria-label={`${product.label} ${index + 1}`}
                 aria-current={selectedIndex === index ? "true" : undefined}
                 className={cn(

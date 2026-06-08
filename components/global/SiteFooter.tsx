@@ -1,15 +1,26 @@
 "use client";
 
 import Container from "@/components/Global/Container";
+import { useStoreInitOnce } from "@/hooks/use-store-init";
+import useContentStore from "@/store/contentStore";
 import { cn } from "@/lib/utils";
 import { GetLocale } from "@/utils/GetUrlParams";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
+const FALLBACK_PHONES = ["+98 918 123 4986"];
+
 export default function SiteFooter({ className }: { className?: string }) {
   const t = useTranslations("footer");
   const tNav = useTranslations("nav");
   const locale = GetLocale();
+  const contact = useContentStore(state => state.contact);
+  const fetchContact = useContentStore(state => state.fetchContact);
+
+  useStoreInitOnce(() => fetchContact(), [fetchContact]);
+
+  const phones =
+    contact.phones.length > 0 ? contact.phones : FALLBACK_PHONES;
 
   const shopLinks = [
     { href: "/products", label: tNav("products") },
@@ -71,8 +82,38 @@ export default function SiteFooter({ className }: { className?: string }) {
           <div>
             <h3 className="mb-3 text-sm font-semibold">{t("support")}</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>+98 918 123 4986</li>
-              <li>support@storefront.demo</li>
+              {phones.map(phone => (
+                <li key={phone}>
+                  <a
+                    href={`tel:${phone.replace(/\s/g, "")}`}
+                    dir="ltr"
+                    className="hover:text-primary">
+                    {phone}
+                  </a>
+                </li>
+              ))}
+              {contact.instagram ? (
+                <li>
+                  <a
+                    href={contact.instagram}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-primary">
+                    Instagram
+                  </a>
+                </li>
+              ) : null}
+              {contact.telegram ? (
+                <li>
+                  <a
+                    href={contact.telegram}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-primary">
+                    Telegram
+                  </a>
+                </li>
+              ) : null}
             </ul>
           </div>
         </div>

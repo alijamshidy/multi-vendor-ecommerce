@@ -30,23 +30,29 @@ export default function FeaturedProducts() {
         </Label>
         <Separator className="w-24 bg-primary sm:w-32" />
       </div>
-      {isLoading && featuredProducts.length === 0 ? (
+      {isLoading ? (
         <p className="text-center text-sm text-muted-foreground">
           {tCommon("loadingProducts")}
         </p>
+      ) : featuredProducts.length === 0 ? (
+        <p className="text-center text-sm text-muted-foreground">
+          {tCommon("noProducts")}
+        </p>
       ) : (
-        <ProductGrid
-          products={featuredProducts}
-          locale={locale}
-          compact
-          hoverActions
-        />
+        <>
+          <ProductGrid
+            products={featuredProducts}
+            locale={locale}
+            compact
+            hoverActions
+          />
+          <Link
+            href={`/${locale}/products`}
+            className=" text-lg font-bold text-primary transition-transform duration-300 sm:text-xl w-fit mx-auto hover:scale-110">
+            {t("moreProducts")}
+          </Link>
+        </>
       )}
-      <Link
-        href={`/${locale}/products`}
-        className=" text-lg font-bold text-primary transition-transform duration-300 sm:text-xl w-fit mx-auto hover:scale-110">
-        {t("moreProducts")}
-      </Link>
     </section>
   );
 }
