@@ -50,7 +50,7 @@ function CategoryCarousel() {
               key={category.id}
               className="basis-1/2 py-1 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6">
               <Link
-                href={`/${locale}/${category.href}`}
+                href={`/${locale}/categories/${category.href}`}
                 className="block">
                 <Card
                   size="sm"

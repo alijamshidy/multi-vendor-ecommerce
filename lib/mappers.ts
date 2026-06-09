@@ -1,6 +1,7 @@
 import type {
   ApiCartItem,
   ApiCategory,
+  ApiCollection,
   ApiComment,
   ApiContentImage,
   ApiOrder,
@@ -13,6 +14,7 @@ import type {
 } from "@/lib/api-types";
 import { resolveMediaUrl, unwrapEntity } from "@/lib/api-utils";
 import type { category } from "@/utils/Category";
+import type { collection } from "@/utils/Collection";
 import type { productType } from "@/utils/products";
 
 export function mapCategory(item: ApiCategory): category {
@@ -21,6 +23,16 @@ export function mapCategory(item: ApiCategory): category {
     href: item.slug,
     label: item.name,
     image: resolveMediaUrl(item.image),
+  };
+}
+
+export function mapCollection(item: ApiCollection): collection {
+  return {
+    id: String(item.id),
+    href: item.slug,
+    label: item.name,
+    image: resolveMediaUrl(item.image),
+    description: item.description,
   };
 }
 

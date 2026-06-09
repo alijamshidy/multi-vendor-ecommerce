@@ -73,6 +73,28 @@ export function buildCategorySearchQuery(
   };
 }
 
+export function buildCollectionProductQuery(
+  searchParams: URLSearchParams,
+  collectionId: string,
+): ProductQuery {
+  return {
+    collections: collectionId,
+    page: getCurrentPage(searchParams),
+    page_size: getPageSize(searchParams),
+  };
+}
+
+export function buildCollectionSearchQuery(
+  searchParams: URLSearchParams,
+  search: string,
+): ProductQuery {
+  return {
+    search,
+    page: getCurrentPage(searchParams),
+    page_size: getPageSize(searchParams),
+  };
+}
+
 export function getTotalPages(totalCount: number, pageSize: number): number {
   if (totalCount <= 0) return 0;
   return Math.ceil(totalCount / pageSize);

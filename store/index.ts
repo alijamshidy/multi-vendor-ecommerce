@@ -1,6 +1,7 @@
 export { default as useAuthStore } from "./authStore";
 export { default as useCartStore } from "./cartStore";
 export { default as useCategoryStore } from "./categoryStore";
+export { default as useCollectionStore } from "./collectionStore";
 export { default as useContentStore } from "./contentStore";
 export { default as useContentManagementStore } from "./contentManagementStore";
 export { default as useManagementStore } from "./managementStore";

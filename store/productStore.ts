@@ -15,6 +15,7 @@ import { createStoreLoadingState, setStoreLoading } from "./store-utils";
 export type ProductQuery = {
   search?: string;
   categories?: string;
+  collections?: string;
   price_min?: number;
   price_max?: number;
   page?: number;

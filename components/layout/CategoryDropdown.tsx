@@ -81,7 +81,7 @@ function RenderCategories({
       jsx.push(
         <DropdownMenuItem key={categorys[i].href}>
           <Link
-            href={`/${locale}/${categorys[i].href}`}
+            href={`/${locale}/categories/${categorys[i].href}`}
             className="capitalize w-full flex justify-between items-center">
             <span>{label}</span>
             <Image
@@ -98,7 +98,7 @@ function RenderCategories({
       jsx.push(
         <DropdownMenuItem key={categorys[i].label}>
           <Link
-            href={`/${locale}/${categorys[i].href}`}
+            href={`/${locale}/categories/${categorys[i].href}`}
             className="capitalize w-full flex justify-between items-center">
             <span>{label}</span>
             <Image

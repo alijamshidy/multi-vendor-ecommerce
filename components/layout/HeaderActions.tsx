@@ -10,8 +10,8 @@ import {
 import { GetAfterUrl, GetLocale } from "@/utils/GetUrlParams";
 import { IR, US } from "country-flag-icons/react/3x2";
 import { Ellipsis, Heart, ShoppingCart } from "lucide-react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { Button } from "../ui/button";
 import CardButton from "./CardButton";
 import LanguageSwitcher from "./LanguageSwitcher";

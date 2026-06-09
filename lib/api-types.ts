@@ -59,6 +59,18 @@ export type ApiCategoryDetail = ApiCategory & {
   products?: ApiProduct[];
 };
 
+export type ApiCollection = {
+  id: string;
+  name: string;
+  slug: string;
+  image?: string | null;
+  description?: string;
+};
+
+export type ApiCollectionDetail = ApiCollection & {
+  products?: ApiProduct[];
+};
+
 export type ApiProductImage = {
   id: string;
   image: string;

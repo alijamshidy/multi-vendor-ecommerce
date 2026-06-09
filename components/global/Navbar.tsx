@@ -16,11 +16,10 @@ export default function Navbar() {
 
   useStoreInitOnce(() => fetchContact(), [fetchContact]);
 
-  const phones =
-    contact.phones.length > 0 ? contact.phones : FALLBACK_PHONES;
+  const phones = contact.phones.length > 0 ? contact.phones : FALLBACK_PHONES;
 
   return (
-    <div className="grid w-full min-w-0 grid-cols-1 gap-3 rounded-md border p-4 sm:flex sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+    <div className="grid w-full min-w-0 grid-cols-1 gap-3 rounded-md border p-4 sm:flex sm:flex-row sm:items-center sm:justify-between sm:gap-4 mt-0 lg:mt-5">
       <Label className="order-1 flex flex-row justify-between gap-2 sm:order-2 sm:items-center sm:justify-start">
         <div className="flex items-center gap-x-1 sm:me-3">
           <span>{t("phone")}</span>

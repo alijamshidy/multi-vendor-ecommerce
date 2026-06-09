@@ -9,6 +9,8 @@ import type { MetadataRoute } from "next";
 const STATIC_PATHS = [
   "",
   "/products",
+  "/categories",
+  "/collections",
   "/contact",
   "/reviews",
   "/login",
@@ -49,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
       for (const category of categories) {
         entries.push({
-          url: `${siteUrl}${localePath(locale, `/${category.slug}`)}`,
+          url: `${siteUrl}${localePath(locale, `/categories/${category.slug}`)}`,
           lastModified: now,
           changeFrequency: "weekly",
           priority: 0.6,

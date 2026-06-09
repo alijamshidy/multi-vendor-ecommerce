@@ -4,6 +4,8 @@ type NavLink = {
     | "home"
     | "about"
     | "products"
+    | "categories"
+    | "collections"
     | "wishlist"
     | "reviews"
     | "cart"
@@ -21,6 +23,8 @@ export const visitorLinks: NavLink[] = [
   { href: "/", labelKey: "home" },
   { href: "/about", labelKey: "about" },
   { href: "/products", labelKey: "products" },
+  { href: "/categories", labelKey: "categories" },
+  { href: "/collections", labelKey: "collections" },
   { href: "/wishlist", labelKey: "wishlist" },
   { href: "/reviews", labelKey: "reviews" },
   { href: "/cart", labelKey: "cart" },
@@ -33,6 +37,8 @@ export const customerLinks: NavLink[] = [
   { href: "/", labelKey: "home" },
   { href: "/about", labelKey: "about" },
   { href: "/products", labelKey: "products" },
+  { href: "/customer/categories", labelKey: "categories" },
+  { href: "/customer/collections", labelKey: "collections" },
   { href: "/wishlist", labelKey: "wishlist" },
   { href: "/reviews", labelKey: "reviews" },
   { href: "/cart", labelKey: "cart" },
@@ -46,7 +52,9 @@ export const adminLinks: NavLink[] = [
   { href: "/admin/sales", labelKey: "sales" },
   { href: "/admin/products", labelKey: "myProducts" },
   { href: "/admin/products/create", labelKey: "createProduct" },
+  { href: "/admin/categories", labelKey: "categories" },
   { href: "/admin/categories/create", labelKey: "createCategory" },
+  { href: "/admin/collections", labelKey: "collections" },
   { href: "/admin/content", labelKey: "shopContent" },
 ];
 

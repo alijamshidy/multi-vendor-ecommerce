@@ -10,8 +10,9 @@ import {
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import {
-  Heart,
+  FolderOpen,
   Home,
+  Layers,
   Package,
   ShoppingCart,
   Star,
@@ -20,16 +21,31 @@ import {
 import { useTranslations } from "next-intl";
 
 type NavItem = {
-  titleKey: "home" | "products" | "cart" | "wishlist" | "reviews";
-  href: "/" | "/products" | "/cart" | "/wishlist" | "/reviews";
+  titleKey:
+    | "home"
+    | "products"
+    | "categories"
+    | "collections"
+    | "cart"
+    | "wishlist"
+    | "reviews";
+  href:
+    | "/"
+    | "/products"
+    | "/categories"
+    | "/collections"
+    | "/cart"
+    | "/wishlist"
+    | "/reviews";
   icon: LucideIcon;
 };
 
 const shopItems: NavItem[] = [
   { titleKey: "home", href: "/", icon: Home },
   { titleKey: "products", href: "/products", icon: Package },
+  { titleKey: "categories", href: "/categories", icon: FolderOpen },
+  { titleKey: "collections", href: "/collections", icon: Layers },
   { titleKey: "cart", href: "/cart", icon: ShoppingCart },
-  { titleKey: "wishlist", href: "/wishlist", icon: Heart },
   { titleKey: "reviews", href: "/reviews", icon: Star },
 ];
 
@@ -78,13 +94,7 @@ function StoreNavItems({ items }: { items: NavItem[] }) {
   );
 }
 
-function NavGroup({
-  label,
-  items,
-}: {
-  label: string;
-  items: NavItem[];
-}) {
+function NavGroup({ label, items }: { label: string; items: NavItem[] }) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{label}</SidebarGroupLabel>

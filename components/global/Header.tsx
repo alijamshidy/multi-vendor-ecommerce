@@ -34,7 +34,7 @@ function SearchPopover({
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          align="start"
+          align="center"
           className={cn("w-80", contentClassName)}
           sideOffset={10}>
           <NavSearch />

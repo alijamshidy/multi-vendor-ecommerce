@@ -21,11 +21,14 @@ type PageBreadcrumbProps = {
   className?: string;
 };
 
-export default function PageBreadcrumb({ items, className }: PageBreadcrumbProps) {
+export default function PageBreadcrumb({
+  items,
+  className,
+}: PageBreadcrumbProps) {
   if (items.length <= 1) return null;
 
   return (
-    <Breadcrumb className={cn("mb-2", className)}>
+    <Breadcrumb className={cn(" mt-8", className)}>
       <BreadcrumbList>
         {items.map((item, index) => {
           const isLast = index === items.length - 1;

@@ -22,6 +22,7 @@ function createLabelTranslator(
   tCart: ReturnType<typeof useTranslations<"cart">>,
   tAuth: ReturnType<typeof useTranslations<"auth">>,
   tProduct: ReturnType<typeof useTranslations<"product">>,
+  tCatalog: ReturnType<typeof useTranslations<"catalog">>,
 ): LabelTranslator {
   return (labelKey: string) => {
     const [namespace, key] = labelKey.split(".") as [string, string];
@@ -35,6 +36,8 @@ function createLabelTranslator(
         return tAuth(key as Parameters<typeof tAuth>[0]);
       case "product":
         return tProduct(key as Parameters<typeof tProduct>[0]);
+      case "catalog":
+        return tCatalog(key as Parameters<typeof tCatalog>[0]);
       default:
         return labelKey;
     }
@@ -48,9 +51,13 @@ function resolveLabel(
 ): string {
   if (item.type === "dynamic") {
     if (dynamicLabel) return dynamicLabel;
-    return item.dynamicType === "product"
-      ? translate("product.productDetail")
-      : translate("product.category");
+    if (item.dynamicType === "product") {
+      return translate("product.productDetail");
+    }
+    if (item.dynamicType === "collection") {
+      return translate("catalog.collection");
+    }
+    return translate("product.category");
   }
 
   return translate(item.labelKey);
@@ -63,9 +70,16 @@ export default function AppBreadcrumb() {
   const tCart = useTranslations("cart");
   const tAuth = useTranslations("auth");
   const tProduct = useTranslations("product");
+  const tCatalog = useTranslations("catalog");
 
   const items = useMemo(() => {
-    const translate = createLabelTranslator(tNav, tCart, tAuth, tProduct);
+    const translate = createLabelTranslator(
+      tNav,
+      tCart,
+      tAuth,
+      tProduct,
+      tCatalog,
+    );
     const path = stripLocaleFromPathname(pathname, routing.locales);
     const segments = getPathSegments(path);
     const config = getBreadcrumbConfig(segments);
@@ -84,7 +98,7 @@ export default function AppBreadcrumb() {
 
       return data;
     });
-  }, [pathname, dynamicLabel, tNav, tCart, tAuth, tProduct]);
+  }, [pathname, dynamicLabel, tNav, tCart, tAuth, tProduct, tCatalog]);
 
   return <PageBreadcrumb items={items} />;
 }

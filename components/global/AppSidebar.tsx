@@ -9,7 +9,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
 } from "@/components/ui/sidebar";
 import { GetLocale } from "@/utils/GetUrlParams";
 import { Store } from "lucide-react";
@@ -32,7 +31,6 @@ export function AppSidebar() {
     <Sidebar
       collapsible="icon"
       side={isRtl ? "right" : "left"}
-      dir={isRtl ? "rtl" : "ltr"}
       dir={isRtl ? "rtl" : "ltr"}
       className="[&_[data-slot=sidebar-inner]]:bg-transparent [&_[data-sidebar=menu-button]]:bg-transparent [&_[data-sidebar=menu-button]:hover]:bg-transparent [&_[data-sidebar=menu-button]:active]:bg-transparent [&_[data-sidebar=menu-button][data-active=true]]:bg-transparent [&_[data-sidebar=menu-button][data-state=open]]:bg-transparent">
       <SidebarHeader>
@@ -62,7 +60,7 @@ export function AppSidebar() {
       <SidebarFooter>
         <NavUser user={user} />
       </SidebarFooter>
-      <SidebarRail />
+      {/* <SidebarRail /> */}
     </Sidebar>
   );
 }

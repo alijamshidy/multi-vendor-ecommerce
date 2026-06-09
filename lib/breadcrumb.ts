@@ -1,12 +1,17 @@
 export type BreadcrumbConfigItem =
   | { type: "link"; href: string; labelKey: string }
   | { type: "page"; labelKey: string }
-  | { type: "dynamic"; dynamicType: "product" | "category" };
+  | {
+      type: "dynamic";
+      dynamicType: "product" | "category" | "collection";
+    };
 
 const ROLE_PREFIXES = new Set(["admin", "seller", "customer"]);
 
 const SEGMENT_LABEL_KEYS: Record<string, string> = {
   products: "nav.products",
+  categories: "nav.categories",
+  collections: "nav.collections",
   cart: "nav.cart",
   checkout: "cart.checkout",
   wishlist: "nav.wishlist",
@@ -23,7 +28,6 @@ const SEGMENT_LABEL_KEYS: Record<string, string> = {
 const STATIC_ROOT_SEGMENTS = new Set([
   ...Object.keys(SEGMENT_LABEL_KEYS),
   ...ROLE_PREFIXES,
-  "categories",
   "create",
 ]);
 
@@ -67,6 +71,44 @@ export function getBreadcrumbConfig(segments: string[]): BreadcrumbConfigItem[] 
     ];
   }
 
+  if (rest[0] === "categories" && rest.length === 2) {
+    return [
+      home,
+      {
+        type: "link",
+        href: role ? `${roleBase}/categories` : "/categories",
+        labelKey: "nav.categories",
+      },
+      { type: "dynamic", dynamicType: "category" },
+    ];
+  }
+
+  if (rest[0] === "collections" && rest.length === 2) {
+    return [
+      home,
+      {
+        type: "link",
+        href: role ? `${roleBase}/collections` : "/collections",
+        labelKey: "nav.collections",
+      },
+      { type: "dynamic", dynamicType: "collection" },
+    ];
+  }
+
+  if (rest[0] === "categories" && rest.length === 1) {
+    return [
+      home,
+      { type: "page", labelKey: "nav.categories" },
+    ];
+  }
+
+  if (rest[0] === "collections" && rest.length === 1) {
+    return [
+      home,
+      { type: "page", labelKey: "nav.collections" },
+    ];
+  }
+
   if (rest[0] === "checkout" && rest.length === 1) {
     return [
       home,
@@ -99,6 +141,11 @@ export function getBreadcrumbConfig(segments: string[]): BreadcrumbConfigItem[] 
         type: "link",
         href: `${roleBase}/dashboard`,
         labelKey: "nav.dashboard",
+      },
+      {
+        type: "link",
+        href: `${roleBase}/categories`,
+        labelKey: "nav.categories",
       },
       { type: "page", labelKey: "nav.createCategory" },
     ];

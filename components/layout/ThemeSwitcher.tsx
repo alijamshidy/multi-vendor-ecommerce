@@ -85,11 +85,12 @@ export const ThemeSwitcher = ({
               </Button>
             </PopoverTrigger>
             <PopoverContent
-              align="start"
+              className="w-auto"
+              align="center"
               sideOffset={10}>
               <div
                 className={cn(
-                  "relative isolate flex h-8 rounded-full bg-background p-1",
+                  "relative isolate flex h-9 rounded-full bg-background p-1 w-full justify-center items-center",
                   className,
                 )}>
                 {themes.map(({ key, icon: Icon, label }) => {
@@ -98,7 +99,7 @@ export const ThemeSwitcher = ({
                   return (
                     <button
                       aria-label={label}
-                      className="relative h-6 w-6 rounded-full"
+                      className="relative h-7 w-7 rounded-full"
                       key={key}
                       onClick={() =>
                         handleThemeClick(key as "light" | "dark" | "system")
