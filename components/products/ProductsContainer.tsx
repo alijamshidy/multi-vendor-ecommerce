@@ -14,11 +14,13 @@ export default function ProductsContainer({
   totalProducts,
   products,
   isLoading = false,
+  errorMessage = "",
 }: {
   layout: string;
   totalProducts: number;
   products: productType[];
   isLoading?: boolean;
+  errorMessage?: string;
 }) {
   const { open } = useSidebar();
   return (
@@ -40,6 +42,9 @@ export default function ProductsContainer({
         </div>
         <Separator className="mt-4" />
       </section>
+      {errorMessage ? (
+        <p className="mt-4 text-sm text-destructive">{errorMessage}</p>
+      ) : null}
       {/* PRODUCTS */}
       <div className={isLoading ? "opacity-60 transition-opacity" : undefined}>
         {totalProducts === 0 ? (

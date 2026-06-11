@@ -3,22 +3,30 @@
 import PageHeader from "@/components/commerce/PageHeader";
 import PageShell from "@/components/commerce/PageShell";
 import SummaryCard from "@/components/commerce/SummaryCard";
+import OrderFilterPanel from "@/components/orders/OrderFilterPanel";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useStoreInit } from "@/hooks/use-store-init";
+import { buildOrderQueryFromSearchParams } from "@/lib/order-query";
 import useOrderStore from "@/store/orderStore";
 import { formatCurrency } from "@/utils/format";
 import { Clock3, PackageCheck, ReceiptText } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 
 export default function OrdersPageContent() {
   const t = useTranslations("orders");
   const tCommon = useTranslations("common");
+  const searchParams = useSearchParams();
+  const queryKey = searchParams.toString();
   const orders = useOrderStore(state => state.orders);
   const fetchOrders = useOrderStore(state => state.fetchOrders);
   const isLoading = useOrderStore(state => state.loading.fetchOrders);
 
-  useStoreInit(() => fetchOrders());
+  useStoreInit(
+    () => fetchOrders(buildOrderQueryFromSearchParams(searchParams)),
+    [queryKey],
+  );
 
   const openOrders = orders.filter(order => order.status !== "Delivered").length;
   const deliveredOrders = orders.filter(
@@ -33,6 +41,7 @@ export default function OrdersPageContent() {
         title={t("title")}
         description={t("description")}
       />
+      <OrderFilterPanel />
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <SummaryCard
           label={t("openOrders")}

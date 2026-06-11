@@ -23,6 +23,8 @@ export function mapCategory(item: ApiCategory): category {
     href: item.slug,
     label: item.name,
     image: resolveMediaUrl(item.image),
+    parent: item.parent != null ? String(item.parent) : null,
+    depth: item.depth,
   };
 }
 
@@ -54,12 +56,16 @@ export function mapProduct(item: ApiProduct): productType {
             .join(" · ")
         : "";
 
+  const originalPrice = Number(item.price);
+  const salePrice = Number(item.discount_price ?? item.price);
+
   return {
     id: String(item.id),
     href: item.slug,
     label: item.name,
     images,
-    price: Number(item.discount_price ?? item.price),
+    price: salePrice,
+    originalPrice,
     category: item.categories?.[0]?.name ?? "",
     description,
     isOutOfStock: Boolean(item.is_out_of_stock),

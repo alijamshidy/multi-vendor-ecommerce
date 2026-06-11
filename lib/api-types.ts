@@ -46,12 +46,12 @@ export type ApiSuccessResponse<T> = {
 };
 
 export type ApiCategory = {
-  id: string;
+  id: string | number;
   name: string;
   slug: string;
   image?: string | null;
   description?: string;
-  parent?: string | null;
+  parent?: string | number | null;
   depth?: number;
 };
 
@@ -83,8 +83,9 @@ export type ApiProduct = {
   slug: string;
   price: string;
   discount_price?: string;
+  discounts?: Array<{ id: string; percentage?: string }>;
   images?: ApiProductImage[];
-  categories?: ApiCategory[];
+  categories?: Array<Pick<ApiCategory, "id"> & Partial<ApiCategory>>;
   is_out_of_stock?: boolean;
   attribute?: string | Record<string, string>;
 };

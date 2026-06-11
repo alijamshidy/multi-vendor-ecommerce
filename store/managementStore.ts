@@ -6,6 +6,7 @@ import {
 } from "@/lib/api-utils";
 import api from "@/lib/axios";
 import { mapProduct } from "@/lib/mappers";
+import type { ProductQuery } from "@/store/productStore";
 import type { productType } from "@/utils/products";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
@@ -19,7 +20,7 @@ type ManagementState = {
   errorMessage: string;
   successMessage: string;
   loading: Record<ManagementAction, boolean>;
-  fetchProducts: () => Promise<void>;
+  fetchProducts: (query?: ProductQuery) => Promise<void>;
   createProduct: (payload: {
     name: string;
     price: string;
@@ -40,13 +41,13 @@ const useManagementStore = create<ManagementState>()(
 
     clearMessages: () => set({ errorMessage: "", successMessage: "" }),
 
-    fetchProducts: async () => {
+    fetchProducts: async (query = {}) => {
       setStoreLoading(set, "fetchProducts", true, { errorMessage: "" });
 
       try {
         const { data } = await api.get<
           ApiProduct[] | { results: ApiProduct[] }
-        >("/managements/products/");
+        >("/managements/products/", { params: query });
         set({
           products: unwrapList(data).map((item: unknown) =>
             mapProduct(item as ApiProduct),

@@ -1,15 +1,14 @@
 "use client";
-import { formatCurrency } from "@/utils/format";
 import { GetLocale } from "@/utils/GetUrlParams";
 import { productType } from "@/utils/products";
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent } from "../ui/card";
+import ProductPrice from "./ProductPrice";
 
 export default function ProductList({ product }: { product: productType }) {
   const locale = GetLocale();
-  const { label, price, images, category, id } = product;
-  const dollarsAmount = formatCurrency(price);
+  const { label, images, category, id } = product;
   return (
     <Link href={`/${locale}/products/${id}`}>
       <Card className="transform group-hover:shadow-xl transition-shadow duration-500">
@@ -28,9 +27,10 @@ export default function ProductList({ product }: { product: productType }) {
             <h2 className="text-xl capitalize">{label}</h2>
             <p className="text-muted-foreground">{category}</p>
           </div>
-          <p className="text-lg text-muted-foreground md:ms-auto">
-            {dollarsAmount}
-          </p>
+          <ProductPrice
+            product={product}
+            className="text-lg md:ms-auto md:justify-end"
+          />
         </CardContent>
       </Card>
     </Link>

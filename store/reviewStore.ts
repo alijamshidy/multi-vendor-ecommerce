@@ -21,7 +21,7 @@ type ReviewState = {
   errorMessage: string;
   successMessage: string;
   loading: Record<ReviewAction, boolean>;
-  fetchProductReviews: (productId: string) => Promise<void>;
+  fetchProductReviews: (productId: string, page?: number) => Promise<void>;
   createReview: (payload: {
     productId: string;
     comment: string;
@@ -60,13 +60,14 @@ const useReviewStore = create<ReviewState>()(
 
       clearMessages: () => set({ errorMessage: "", successMessage: "" }),
 
-      fetchProductReviews: async productId => {
+      fetchProductReviews: async (productId, page) => {
         setStoreLoading(set, "fetchReviews", true, { errorMessage: "" });
 
         try {
+          const params = page && page > 0 ? { page } : undefined;
           const { data } = await api.get<
             ApiComment[] | { data: ApiComment[]; results?: ApiComment[] }
-          >(`/products/${productId}/comments/`);
+          >(`/products/${productId}/comments/`, { params });
           set({
             reviews: unwrapList(data).map((item: unknown) =>
               mapComment(item as ApiComment),

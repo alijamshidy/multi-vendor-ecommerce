@@ -3,6 +3,8 @@ export type category = {
   href: string;
   label: string;
   image: string;
+  parent?: string | null;
+  depth?: number;
 };
 export const Categorys: category[] = [
   {

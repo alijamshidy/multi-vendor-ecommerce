@@ -12,7 +12,9 @@ export default function Recommendations() {
   const locale = useLocale();
   const t = useTranslations("home");
   const recommendations = useContentStore(state => state.recommendations);
-  const isLoading = useContentStore(state => state.loading.fetchRecommendations);
+  const isLoading = useContentStore(
+    state => state.loading.fetchRecommendations,
+  );
 
   if (!isLoading && recommendations.length === 0) return null;
 
@@ -36,7 +38,7 @@ export default function Recommendations() {
             const isExternal = href.startsWith("http");
             const card = (
               <>
-                <div className="relative aspect-[16/10] w-full">
+                <div className="relative aspect-16/10 w-full">
                   <Image
                     src={item.imageUrl}
                     alt={item.text ?? t("recommendationAlt")}

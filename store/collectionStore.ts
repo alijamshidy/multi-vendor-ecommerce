@@ -1,3 +1,4 @@
+import type { ListQuery } from "@/lib/list-query";
 import type {
   ApiCollection,
   ApiCollectionDetail,
@@ -29,7 +30,7 @@ type CollectionState = {
   errorMessage: string;
   successMessage: string;
   loading: Record<CollectionAction, boolean>;
-  fetchCollections: () => Promise<void>;
+  fetchCollections: (query?: ListQuery) => Promise<void>;
   fetchCollectionBySlug: (slug: string) => Promise<collection | null>;
   clearError: () => void;
   clearMessages: () => void;
@@ -52,13 +53,13 @@ const useCollectionStore = create<CollectionState>()(
       clearError: () => set({ errorMessage: "" }),
       clearMessages: () => set({ errorMessage: "", successMessage: "" }),
 
-      fetchCollections: async () => {
+      fetchCollections: async (query = {}) => {
         setStoreLoading(set, "fetchCollections", true, { errorMessage: "" });
 
         try {
           const { data } = await api.get<
             ApiCollection[] | { results: ApiCollection[] }
-          >("/collections/", { skipAuth: true });
+          >("/collections/", { params: query, skipAuth: true });
           set({
             collections: unwrapList(data).map((item: unknown) =>
               mapCollection(item as ApiCollection),
@@ -85,7 +86,10 @@ const useCollectionStore = create<CollectionState>()(
         });
 
         try {
-          const { data } = await api.get(`/collections/${slug}/`, {
+          const encodedSlug = encodeURIComponent(
+            decodeURIComponent(slug),
+          );
+          const { data } = await api.get(`/collections/${encodedSlug}/`, {
             skipAuth: true,
           });
           const item = unwrapEntity<ApiCollectionDetail>(data);

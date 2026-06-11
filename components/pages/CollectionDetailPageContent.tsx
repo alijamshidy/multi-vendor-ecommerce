@@ -8,19 +8,16 @@ import ProductsPagination from "@/components/products/Pagination";
 import ProductGrid from "@/components/products/ProductGrid";
 import { useQueryParams } from "@/hooks/use-query-params";
 import { useStoreInit } from "@/hooks/use-store-init";
-import type { CatalogScope } from "@/lib/catalog-paths";
+import { catalogSlugsMatch, type CatalogScope } from "@/lib/catalog-paths";
 import {
-  buildCollectionProductQuery,
-  buildCollectionSearchQuery,
   getCurrentPage,
   getItemsPerPage,
   getTotalPages,
 } from "@/lib/product-query";
 import useCollectionStore from "@/store/collectionStore";
-import useProductStore from "@/store/productStore";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 export default function CollectionDetailPageContent({
   locale,
@@ -35,9 +32,9 @@ export default function CollectionDetailPageContent({
   const tCommon = useTranslations("common");
   const searchParams = useSearchParams();
   const { setQueryParam } = useQueryParams();
-  const queryKey = searchParams.toString();
 
   const activeCollection = useCollectionStore(state => state.activeCollection);
+  const collectionProducts = useCollectionStore(state => state.collectionProducts);
   const collectionError = useCollectionStore(state => state.errorMessage);
   const fetchCollectionBySlug = useCollectionStore(
     state => state.fetchCollectionBySlug,
@@ -46,53 +43,34 @@ export default function CollectionDetailPageContent({
     state => state.loading.fetchCollection,
   );
 
-  const products = useProductStore(state => state.products);
-  const totalCount = useProductStore(state => state.totalCount);
-  const productError = useProductStore(state => state.errorMessage);
-  const fetchProducts = useProductStore(state => state.fetchProducts);
-  const isLoadingProducts = useProductStore(
-    state => state.loading.fetchProducts,
-  );
-
   useStoreInit(async () => {
-    useCollectionStore.setState({ errorMessage: "" });
+    useCollectionStore.setState({
+      errorMessage: "",
+      activeCollection: null,
+      collectionProducts: [],
+    });
     await fetchCollectionBySlug(collectionSlug);
-  }, [collectionSlug]);
+  }, [collectionSlug, fetchCollectionBySlug]);
 
   const collectionMatchesSlug =
-    activeCollection?.href === decodeURIComponent(collectionSlug);
-
-  useStoreInit(async () => {
-    if (isLoadingCollection) return;
-
-    if (collectionMatchesSlug && activeCollection) {
-      await fetchProducts(
-        buildCollectionProductQuery(searchParams, activeCollection.id),
-      );
-      return;
-    }
-
-    if (!activeCollection) {
-      await fetchProducts(
-        buildCollectionSearchQuery(searchParams, collectionSlug),
-      );
-    }
-  }, [
-    collectionSlug,
-    collectionMatchesSlug,
-    activeCollection,
-    queryKey,
-    isLoadingCollection,
-  ]);
+    activeCollection != null &&
+    catalogSlugsMatch(activeCollection.href, collectionSlug);
 
   const currentPage = getCurrentPage(searchParams);
   const itemsPerPage = getItemsPerPage(searchParams);
+  const totalCount = collectionMatchesSlug ? collectionProducts.length : 0;
   const totalPages = getTotalPages(totalCount, itemsPerPage);
+
+  const paginatedProducts = useMemo(() => {
+    if (!collectionMatchesSlug) return [];
+    const start = (currentPage - 1) * itemsPerPage;
+    return collectionProducts.slice(start, start + itemsPerPage);
+  }, [collectionMatchesSlug, collectionProducts, currentPage, itemsPerPage]);
+
   const title = activeCollection?.label || collectionSlug;
   useSetBreadcrumbLabel(title);
-  const errorMessage = collectionError || productError;
-  const isInitialLoading =
-    (isLoadingCollection || isLoadingProducts) && products.length === 0;
+
+  const isInitialLoading = isLoadingCollection && collectionProducts.length === 0;
 
   const eyebrow =
     scope === "admin"
@@ -102,11 +80,11 @@ export default function CollectionDetailPageContent({
         : t("publicEyebrow");
 
   useEffect(() => {
-    if (isLoadingProducts || totalCount === 0 || totalPages === 0) return;
+    if (isLoadingCollection || totalCount === 0 || totalPages === 0) return;
     if (currentPage > totalPages) {
       setQueryParam("page", totalPages);
     }
-  }, [currentPage, isLoadingProducts, setQueryParam, totalCount, totalPages]);
+  }, [currentPage, isLoadingCollection, setQueryParam, totalCount, totalPages]);
 
   return (
     <PageShell>
@@ -126,24 +104,22 @@ export default function CollectionDetailPageContent({
         <p className="text-sm text-muted-foreground">
           {tCommon("loadingProducts")}
         </p>
-      ) : errorMessage && products.length === 0 ? (
-        <p className="text-sm text-destructive">{errorMessage}</p>
-      ) : products.length === 0 ? (
+      ) : collectionError && collectionProducts.length === 0 ? (
+        <p className="text-sm text-destructive">{collectionError}</p>
+      ) : paginatedProducts.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           {tCommon("noItemsFound")}
         </p>
       ) : (
-        <div
-          className={
-            isLoadingProducts ? "opacity-60 transition-opacity" : undefined
-          }>
-          <ProductGrid
-            products={products}
-            locale={locale}
-          />
-          <ProductsPagination totalCount={totalCount} />
-        </div>
+        <ProductGrid
+          products={paginatedProducts}
+          locale={locale}
+        />
       )}
+
+      {paginatedProducts.length > 0 ? (
+        <ProductsPagination totalCount={totalCount} />
+      ) : null}
     </PageShell>
   );
 }

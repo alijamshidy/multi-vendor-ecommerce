@@ -1,3 +1,4 @@
+import type { ListQuery } from "@/lib/list-query";
 import type { ApiCategory, ApiCategoryDetail, ApiProduct } from "@/lib/api-types";
 import {
   getApiErrorMessage,
@@ -22,7 +23,7 @@ type CategoryState = {
   errorMessage: string;
   successMessage: string;
   loading: Record<CategoryAction, boolean>;
-  fetchCategories: () => Promise<void>;
+  fetchCategories: (query?: ListQuery) => Promise<void>;
   fetchCategoryBySlug: (slug: string) => Promise<category | null>;
   createCategory: (payload: {
     name: string;
@@ -52,13 +53,13 @@ const useCategoryStore = create<CategoryState>()(
       clearError: () => set({ errorMessage: "" }),
       clearMessages: () => set({ errorMessage: "", successMessage: "" }),
 
-      fetchCategories: async () => {
+      fetchCategories: async (query = {}) => {
         setStoreLoading(set, "fetchCategories", true, { errorMessage: "" });
 
         try {
           const { data } = await api.get<
             ApiCategory[] | { results: ApiCategory[] }
-          >("/categories/", { skipAuth: true });
+          >("/categories/", { params: query, skipAuth: true });
           set({
             categories: unwrapList(data).map((item: unknown) =>
               mapCategory(item as ApiCategory),
@@ -85,7 +86,10 @@ const useCategoryStore = create<CategoryState>()(
         });
 
         try {
-          const { data } = await api.get(`/categories/${slug}/`, {
+          const encodedSlug = encodeURIComponent(
+            decodeURIComponent(slug),
+          );
+          const { data } = await api.get(`/categories/${encodedSlug}/`, {
             skipAuth: true,
           });
           const item = unwrapEntity<ApiCategoryDetail>(data);

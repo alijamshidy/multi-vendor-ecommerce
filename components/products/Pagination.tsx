@@ -6,6 +6,7 @@ import {
   getItemsPerPage,
   getPaginationRange,
   getTotalPages,
+  PAGE_PARAM,
 } from "@/lib/product-query";
 import { cn } from "@/lib/utils";
 import {
@@ -41,7 +42,7 @@ export default function ProductsPagination({
   const goToPage = (page: number) => {
     if (page < 1 || page > totalPages || page === currentPage) return;
 
-    setQueryParam("page", page);
+    setQueryParam(PAGE_PARAM, page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -50,6 +51,7 @@ export default function ProductsPagination({
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
+            href="#"
             aria-disabled={currentPage <= 1}
             className={cn(
               currentPage <= 1 && "pointer-events-none opacity-50",
@@ -70,8 +72,12 @@ export default function ProductsPagination({
           ) : (
             <PaginationItem key={page}>
               <PaginationLink
-                href={`?page=${page}`}
-                isActive={page === currentPage}>
+                href="#"
+                isActive={page === currentPage}
+                onClick={event => {
+                  event.preventDefault();
+                  goToPage(page);
+                }}>
                 {page}
               </PaginationLink>
             </PaginationItem>
@@ -80,9 +86,10 @@ export default function ProductsPagination({
 
         <PaginationItem>
           <PaginationNext
+            href="#"
             aria-disabled={currentPage >= totalPages}
             className={cn(
-              currentPage >= totalPages - 2 && "pointer-events-none opacity-50",
+              currentPage >= totalPages && "pointer-events-none opacity-50",
               "cursor-pointer",
             )}
             onClick={event => {

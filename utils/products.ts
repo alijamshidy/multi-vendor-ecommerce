@@ -8,7 +8,10 @@ export type productType = {
   href: string;
   label: string;
   images: image[];
+  /** Current selling price (discounted when applicable). */
   price: number;
+  /** Original price before discount. */
+  originalPrice: number;
   category: string;
   description: string;
   isOutOfStock?: boolean;
@@ -84,6 +87,7 @@ export const Products: productType[] = catalog.map((item, index) => ({
   label: item.label,
   images: [{ id: "0", url: heroImages[index % heroImages.length] }],
   price: item.price,
+  originalPrice: item.price,
   category: item.category,
   description: item.description,
 }));

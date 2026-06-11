@@ -5,7 +5,7 @@ import Filter from "@/components/products/Filter";
 import MobileFilterDropdown from "@/components/products/MobileFilterDropdown";
 import ProductsContainer from "@/components/products/ProductsContainer";
 import { useQueryParams } from "@/hooks/use-query-params";
-import { useStoreInit } from "@/hooks/use-store-init";
+import { useStoreInit, useStoreInitOnce } from "@/hooks/use-store-init";
 import {
   buildProductQueryFromSearchParams,
   getCurrentPage,
@@ -13,6 +13,7 @@ import {
   getTotalPages,
 } from "@/lib/product-query";
 import useProductStore from "@/store/productStore";
+import useCategoryStore from "@/store/categoryStore";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -28,11 +29,23 @@ export default function ProductsPageContent() {
   const totalCount = useProductStore(state => state.totalCount);
   const errorMessage = useProductStore(state => state.errorMessage);
   const fetchProducts = useProductStore(state => state.fetchProducts);
+  const fetchPriceBounds = useProductStore(state => state.fetchPriceBounds);
+  const fetchCategories = useCategoryStore(state => state.fetchCategories);
+  const priceBounds = useProductStore(state => state.priceBounds);
+  const priceBoundsLoaded = useProductStore(state => state.priceBoundsLoaded);
   const isLoading = useProductStore(state => state.loading.fetchProducts);
 
+  useStoreInitOnce(() => {
+    void fetchPriceBounds();
+    void fetchCategories();
+  }, [fetchPriceBounds, fetchCategories]);
+
   useStoreInit(async () => {
-    await fetchProducts(buildProductQueryFromSearchParams(searchParams));
-  }, [queryKey]);
+    if (!priceBoundsLoaded) return;
+    await fetchProducts(
+      buildProductQueryFromSearchParams(searchParams, priceBounds),
+    );
+  }, [queryKey, priceBounds.min, priceBounds.max, priceBoundsLoaded]);
 
   const currentPage = getCurrentPage(searchParams);
   const itemsPerPage = getItemsPerPage(searchParams);
@@ -47,7 +60,7 @@ export default function ProductsPageContent() {
 
   return (
     <Container className="mt-12 flex flex-col gap-6 md:mt-0 md:flex-row md:items-start md:justify-center xl:w-[95%]">
-      <div className="w-full shrink-0 md:w-auto">
+      <div className="w-full shrink-0 md:hidden">
         <MobileFilterDropdown />
       </div>
       <Filter />
@@ -63,6 +76,7 @@ export default function ProductsPageContent() {
           totalProducts={totalCount}
           products={products}
           isLoading={isLoading}
+          errorMessage={errorMessage}
         />
       )}
     </Container>

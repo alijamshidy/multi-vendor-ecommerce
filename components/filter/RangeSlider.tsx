@@ -2,51 +2,103 @@
 
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { useQueryParams } from "@/hooks/use-query-params";
+import { useStoreInitOnce } from "@/hooks/use-store-init";
+import {
+  clampPriceRange,
+} from "@/lib/product-price-bounds";
+import {
+  isFullPriceRange,
+  PAGE_PARAM,
+  PRICE_STEP,
+  RANGE_PARAM,
+  parsePriceRange,
+} from "@/lib/product-query";
+import useProductStore from "@/store/productStore";
 import { formatCurrency } from "@/utils/format";
-import { GetLocale } from "@/utils/GetUrlParams";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 
 export default function RangeSlider() {
+  const t = useTranslations("filters");
   const searchParams = useSearchParams();
-  const range = [0, 10000];
-  const [value, setValue] = useState(range);
-  const lowPrice = formatCurrency(value[0]);
-  const highPrice = formatCurrency(value[1]);
+  const { setQueryParams } = useQueryParams();
+  const rangeParam = searchParams.get(RANGE_PARAM);
 
-  const { replace } = useRouter();
-  const locale = GetLocale();
-  const handleSearch = useDebouncedCallback(value => {
-    const params = new URLSearchParams(searchParams);
-    if (value) {
-      params.set("range", value);
-    } else {
-      params.delete("range");
+  const priceBounds = useProductStore(state => state.priceBounds);
+  const fetchPriceBounds = useProductStore(state => state.fetchPriceBounds);
+  const priceBoundsLoaded = useProductStore(state => state.priceBoundsLoaded);
+  const isLoadingBounds = useProductStore(
+    state => state.loading.fetchPriceBounds,
+  );
+
+  useStoreInitOnce(() => {
+    void fetchPriceBounds();
+  }, [fetchPriceBounds]);
+
+  const bounds = priceBounds;
+
+  const urlRange = useMemo(() => {
+    const parsed = parsePriceRange(rangeParam);
+    if (!parsed) {
+      return [bounds.min, bounds.max] as [number, number];
     }
-    params.set("page", "1");
-    replace(`/${locale}/products?${params.toString()}`);
-  }, 500);
+    return clampPriceRange(parsed, bounds);
+  }, [bounds, rangeParam]);
+
+  const [value, setValue] = useState<[number, number]>(urlRange);
 
   useEffect(() => {
-    handleSearch(value);
-  }, [handleSearch, value]);
+    setValue(urlRange);
+  }, [urlRange]);
+
+  const syncRangeToQuery = useDebouncedCallback((next: [number, number]) => {
+    const clamped = clampPriceRange(next, bounds);
+    setQueryParams({
+      [RANGE_PARAM]: isFullPriceRange(clamped[0], clamped[1], bounds)
+        ? null
+        : `${clamped[0]},${clamped[1]}`,
+      [PAGE_PARAM]: 1,
+    });
+  }, 400);
+
+  const handleValueChange = (next: number[]) => {
+    const range = clampPriceRange(
+      [next[0] ?? bounds.min, next[1] ?? bounds.max],
+      bounds,
+    );
+    setValue(range);
+    syncRangeToQuery(range);
+  };
+
+  if (!priceBoundsLoaded && isLoadingBounds) {
+    return (
+      <p className="px-2 py-3 text-sm text-muted-foreground">
+        {t("loadingPriceRange")}
+      </p>
+    );
+  }
 
   return (
-    <div className="mx-auto flex flex-col items-start w-full max-w-xs gap-3 px-2 py-3">
+    <div className="mx-auto flex w-full max-w-xs flex-col items-start gap-3 px-2 py-3">
       <Slider
         className="h-[3px] rounded-sm bg-black"
-        id="slider-demo-temperature"
         value={value}
-        onValueChange={setValue}
-        min={0}
-        max={100}
-        step={0.00001}
+        onValueChange={handleValueChange}
+        min={bounds.min}
+        max={bounds.max}
+        step={PRICE_STEP}
       />
 
-      <Label className="w-full flex justify-between">
-        <span className="text-sm text-muted-foreground">{`${lowPrice}`}</span>
-        <span className="text-sm text-muted-foreground">{`${highPrice}`}</span>
+      <Label className="flex w-full justify-between">
+        <span className="text-sm text-muted-foreground">
+          {formatCurrency(value[0])}
+        </span>
+        <span className="text-sm text-muted-foreground">
+          {formatCurrency(value[1])}
+        </span>
       </Label>
     </div>
   );

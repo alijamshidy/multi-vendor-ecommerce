@@ -3,7 +3,6 @@
 import { useIsMobileDevice } from "@/hooks/use-mobile-device";
 import { cn } from "@/lib/utils";
 import useCartStore from "@/store/cartStore";
-import { formatCurrency } from "@/utils/format";
 import { productType } from "@/utils/products";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -11,6 +10,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Card, CardContent } from "../ui/card";
 import ProductButton from "./ProductButton";
+import ProductPrice from "./ProductPrice";
 
 type ProductGridCardProps = {
   product: productType;
@@ -26,8 +26,7 @@ export default function ProductGridCard({
   hoverActions = false,
 }: ProductGridCardProps) {
   const isMobileDevice = useIsMobileDevice();
-  const { label, price, images, id } = product;
-  const dollarsAmount = formatCurrency(price);
+  const { label, images, id } = product;
   const tCart = useTranslations("cart");
   const addItem = useCartStore(state => state.addItem);
   const isAdding = useCartStore(state => state.loading.addItem);
@@ -92,13 +91,10 @@ export default function ProductGridCard({
             <h2 className={cn("capitalize", compact ? "text-base" : "text-lg")}>
               {label}
             </h2>
-            <p
-              className={cn(
-                "text-muted-foreground",
-                compact ? "mt-1" : "mt-2",
-              )}>
-              {dollarsAmount}
-            </p>
+            <ProductPrice
+              product={product}
+              className={compact ? "mt-1" : "mt-2"}
+            />
           </div>
 
           <div

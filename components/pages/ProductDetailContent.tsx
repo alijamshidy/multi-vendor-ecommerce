@@ -3,6 +3,7 @@
 import PageShell from "@/components/commerce/PageShell";
 import ProductFeatureList from "@/components/commerce/ProductFeatureList";
 import RelatedProducts from "@/components/products/RelatedProducts";
+import ProductPrice from "@/components/products/ProductPrice";
 import ProductReviewsClient from "@/components/reviews/ProductReviewsClient";
 import SubmitReview from "@/components/reviews/SubmitReview";
 import ProductImageGallery from "@/components/single-product/ProductImageGallery";
@@ -14,7 +15,6 @@ import { useSetBreadcrumbLabel } from "@/context/breadcrumb-context";
 import { useStoreInit } from "@/hooks/use-store-init";
 import useCartStore from "@/store/cartStore";
 import useProductStore from "@/store/productStore";
-import { formatCurrency } from "@/utils/format";
 import { CheckCircle2, ShieldCheck, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -95,9 +95,12 @@ export default function ProductDetailContent({
                   {product.label}
                 </h1>
               </div>
-              <p className="text-3xl font-semibold">
-                {formatCurrency(product.price)}
-              </p>
+              <ProductPrice
+                product={product}
+                className="text-3xl justify-start"
+                originalClassName="text-xl"
+                discountedClassName="text-3xl font-semibold"
+              />
               {product.description ? (
                 <p className="leading-7 text-muted-foreground">
                   {product.description}

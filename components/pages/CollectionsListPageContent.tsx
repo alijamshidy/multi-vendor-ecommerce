@@ -1,12 +1,15 @@
 "use client";
 
 import CatalogGrid from "@/components/catalog/CatalogGrid";
+import CatalogSearchBar from "@/components/catalog/CatalogSearchBar";
 import PageHeader from "@/components/commerce/PageHeader";
 import PageShell from "@/components/commerce/PageShell";
 import { useStoreInit } from "@/hooks/use-store-init";
 import type { CatalogScope } from "@/lib/catalog-paths";
+import { buildListQueryFromSearchParams } from "@/lib/list-query";
 import useCollectionStore from "@/store/collectionStore";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 
 export default function CollectionsListPageContent({
   scope,
@@ -15,6 +18,8 @@ export default function CollectionsListPageContent({
 }) {
   const t = useTranslations("catalog");
   const tCommon = useTranslations("common");
+  const searchParams = useSearchParams();
+  const queryKey = searchParams.toString();
   const collections = useCollectionStore(state => state.collections);
   const errorMessage = useCollectionStore(state => state.errorMessage);
   const fetchCollections = useCollectionStore(state => state.fetchCollections);
@@ -23,7 +28,10 @@ export default function CollectionsListPageContent({
   );
   const isAdmin = scope === "admin";
 
-  useStoreInit(() => fetchCollections());
+  useStoreInit(
+    () => fetchCollections(buildListQueryFromSearchParams(searchParams)),
+    [queryKey],
+  );
 
   const eyebrow =
     scope === "admin"
@@ -39,6 +47,8 @@ export default function CollectionsListPageContent({
         title={t("collectionsTitle")}
         description={t("collectionsListDescription")}
       />
+
+      <CatalogSearchBar />
 
       {isLoading ? (
         <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>

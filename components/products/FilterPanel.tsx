@@ -1,5 +1,9 @@
 "use client";
 
+import AvailabilityFilter from "../filter/AvailabilityFilter";
+import CategoryFilter from "../filter/CategoryFilter";
+import CreatedDateFilter from "../filter/CreatedDateFilter";
+import DiscountFilter from "../filter/DiscountFilter";
 import RangeSlider from "../filter/RangeSlider";
 import {
   Accordion,
@@ -23,12 +27,22 @@ export default function FilterPanel() {
     {
       value: "category",
       trigger: t("category"),
-      content: t("categoriesDescription"),
+      content: <CategoryFilter />,
     },
     {
-      value: "rating",
-      trigger: t("rating"),
-      content: t("ratingDescription"),
+      value: "availability",
+      trigger: t("availability"),
+      content: <AvailabilityFilter />,
+    },
+    {
+      value: "discount",
+      trigger: t("discount"),
+      content: <DiscountFilter />,
+    },
+    {
+      value: "createdDate",
+      trigger: t("createdDate"),
+      content: <CreatedDateFilter />,
     },
   ];
 

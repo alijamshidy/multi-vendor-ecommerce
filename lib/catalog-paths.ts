@@ -16,3 +16,16 @@ export function getCatalogDetailPath(
 ): string {
   return `${getCatalogBasePath(scope, type)}/${slug}`;
 }
+
+/** Compare route slugs safely (encoded/decoded, Unicode normalization). */
+export function normalizeCatalogSlug(value: string): string {
+  try {
+    return decodeURIComponent(value).normalize("NFC");
+  } catch {
+    return value.normalize("NFC");
+  }
+}
+
+export function catalogSlugsMatch(a: string, b: string): boolean {
+  return normalizeCatalogSlug(a) === normalizeCatalogSlug(b);
+}
