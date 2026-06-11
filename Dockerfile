@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 
 FROM node:20-alpine AS base
+ENV NPM_CONFIG_REGISTRY=https://package-mirror.liara.ir/repository/npm/
 RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
 
 FROM base AS deps
