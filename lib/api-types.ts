@@ -86,8 +86,44 @@ export type ApiProduct = {
   discounts?: Array<{ id: string; percentage?: string }>;
   images?: ApiProductImage[];
   categories?: Array<Pick<ApiCategory, "id"> & Partial<ApiCategory>>;
+  collections?: Array<{ id: string | number; name?: string }>;
   is_out_of_stock?: boolean;
+  is_available?: boolean;
+  stuck?: number;
+  max_no_of_orders?: number;
+  description?: string;
   attribute?: string | Record<string, string>;
+};
+
+export type ApiCheckpointItem = {
+  checkpoint_index: number;
+  checkpoint_name: string;
+  total: number;
+};
+
+export type ApiSaleReview = {
+  id: number;
+  name: string;
+  description?: string;
+  sku?: string;
+  price: string;
+  num_orders: number;
+  total_sale: number;
+  stuck?: number;
+  images?: ApiProductImage[];
+  categories?: ApiCategory[];
+};
+
+export type ApiManagementOrder = {
+  id: string;
+  status: number;
+  total_price: string;
+  total_discount_price?: string;
+  created_at?: string;
+  paid_at?: string | null;
+  delivered_at?: string | null;
+  items?: Array<{ id: string; quantity: number; product?: ApiProduct }>;
+  user?: AuthUser;
 };
 
 export type ApiCartItem = {

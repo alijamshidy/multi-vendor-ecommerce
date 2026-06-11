@@ -1,6 +1,7 @@
 "use client";
 
 import FilterPanel from "@/components/products/FilterPanel";
+import BorderedListSkeleton from "@/components/commerce/BorderedListSkeleton";
 import PageHeader from "@/components/commerce/PageHeader";
 import PageShell from "@/components/commerce/PageShell";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +14,6 @@ import { useSearchParams } from "next/navigation";
 
 export default function SellerProductsContent() {
   const t = useTranslations("admin");
-  const tCommon = useTranslations("common");
   const searchParams = useSearchParams();
   const queryKey = searchParams.toString();
   const products = useManagementStore(state => state.products);
@@ -38,9 +38,10 @@ export default function SellerProductsContent() {
         </div>
         <section className="space-y-4">
           {isLoading && products.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {tCommon("loadingProducts")}
-            </p>
+            <BorderedListSkeleton
+              count={5}
+              columns={3}
+            />
           ) : products.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t("noProducts")}</p>
           ) : (

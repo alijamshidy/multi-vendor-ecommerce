@@ -2,6 +2,7 @@
 
 import SectionTitle from "@/components/Global/SectionTitle";
 import ProductGrid from "@/components/products/ProductGrid";
+import ProductGridSkeleton from "@/components/products/ProductGridSkeleton";
 import { useStoreInit } from "@/hooks/use-store-init";
 import useProductStore from "@/store/productStore";
 import { useTranslations } from "next-intl";
@@ -14,7 +15,6 @@ export default function RelatedProducts({
   locale: string;
 }) {
   const t = useTranslations("product");
-  const tCommon = useTranslations("common");
   const similarProducts = useProductStore(state => state.similarProducts);
   const fetchSimilarProducts = useProductStore(
     state => state.fetchSimilarProducts,
@@ -31,15 +31,11 @@ export default function RelatedProducts({
     <section className="space-y-6">
       <SectionTitle text={t("relatedProducts")} />
       {isLoading && similarProducts.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          {tCommon("loadingProducts")}
-        </p>
+        <ProductGridSkeleton count={4} />
       ) : (
         <ProductGrid
           products={similarProducts}
           locale={locale}
-          compact
-          hoverActions
         />
       )}
     </section>

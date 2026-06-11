@@ -1,5 +1,5 @@
-export const formatCurrency = (amount: number | null) => {
-  const value = amount || 0;
+export const formatCurrency = (amount: number | null | undefined) => {
+  const value = typeof amount === "number" && Number.isFinite(amount) ? amount : 0;
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",

@@ -5,6 +5,7 @@ import PageShell from "@/components/commerce/PageShell";
 import CheckoutField from "@/components/commerce/CheckoutField";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useStoreInitOnce } from "@/hooks/use-store-init";
@@ -74,7 +75,16 @@ export default function ContactPageContent() {
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-muted-foreground">
             {isLoading ? (
-              <p>{t("loading")}</p>
+              <div className="space-y-4">
+                {Array.from({ length: 4 }, (_, index) => (
+                  <div
+                    key={index}
+                    className="flex items-start gap-3">
+                    <Skeleton className="size-4 shrink-0 rounded-full" />
+                    <Skeleton className="h-4 w-40" />
+                  </div>
+                ))}
+              </div>
             ) : (
               <>
                 {phones.map(phone => (

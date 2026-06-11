@@ -1,6 +1,5 @@
 "use client";
 
-import { useIsMobileDevice } from "@/hooks/use-mobile-device";
 import { cn } from "@/lib/utils";
 import useCartStore from "@/store/cartStore";
 import { productType } from "@/utils/products";
@@ -22,10 +21,9 @@ type ProductGridCardProps = {
 export default function ProductGridCard({
   product,
   href,
-  compact = false,
-  hoverActions = false,
+  compact = true,
+  hoverActions = true,
 }: ProductGridCardProps) {
-  const isMobileDevice = useIsMobileDevice();
   const { label, images, id } = product;
   const tCart = useTranslations("cart");
   const addItem = useCartStore(state => state.addItem);
@@ -58,68 +56,62 @@ export default function ProductGridCard({
   return (
     <article
       key={id}
-      className="group relative mx-1">
-      <Link
-        href={href}
-        className={cn("absolute inset-0 z-10", !isMobileDevice && "hidden")}
-      />
-
+      className="group relative mx-1 h-full">
       <Card
         size={compact ? "sm" : "default"}
         className={cn(
-          "relative transform transition-shadow duration-500 group-hover:shadow-xl",
+          "relative flex h-full flex-col overflow-hidden transition-shadow duration-500 group-hover:shadow-xl",
           compact && "gap-2 py-0",
-          compact && !hoverActions && "overflow-visible",
-          hoverActions && "overflow-hidden",
         )}>
-        <CardContent className={cn(compact ? "p-3" : "p-4")}>
+        <CardContent
+          className={cn(
+            "flex flex-1 flex-col",
+            compact ? "p-3" : "p-4",
+          )}>
+          <Link href={href} className="block shrink-0">
+            <div className="group/image relative h-48 overflow-hidden rounded">
+              <Image
+                src={images[0].url}
+                alt={label}
+                fill
+                sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
+                className="w-full rounded object-cover transition-transform duration-500 group-hover/image:scale-110"
+              />
+            </div>
+          </Link>
+
           <div
             className={cn(
-              "group/image relative overflow-hidden rounded",
-              compact ? "h-44 sm:h-48" : "h-56 sm:h-48",
+              "flex flex-1 flex-col text-center",
+              compact ? "mt-2" : "mt-4",
             )}>
-            <Image
-              src={images[0].url}
-              alt={label}
-              fill
-              sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
-              className="w-full rounded object-cover transition-transform duration-500 group-hover/image:scale-110"
-            />
-          </div>
+            <Link href={href} className="block">
+              <h2
+                title={label}
+                className={cn(
+                  "line-clamp-2 capitalize leading-snug transition-colors hover:text-primary",
+                  compact ? "min-h-10 text-base" : "min-h-12 text-lg",
+                )}>
+                {label}
+              </h2>
+            </Link>
 
-          <div className={cn("text-center", compact ? "mt-2" : "mt-4")}>
-            <h2 className={cn("capitalize", compact ? "text-base" : "text-lg")}>
-              {label}
-            </h2>
             <ProductPrice
               product={product}
-              className={compact ? "mt-1" : "mt-2"}
+              emphasis
+              className={cn("mt-2 min-h-7 shrink-0", compact ? "" : "mt-3")}
             />
           </div>
 
-          <div
-            className={cn(
-              hoverActions && isMobileDevice
-                ? "hidden overflow-hidden"
-                : "block",
-              hoverActions && !isMobileDevice && "overflow-hidden",
-            )}>
-            <div
-              className={cn(
-                "mt-2 flex w-full justify-center gap-x-2",
-                compact ? "mb-0" : "mb-1",
-                hoverActions &&
-                  "relative z-20 translate-y-full opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100",
-              )}>
-              <>
-                <ProductButton type="wishlist" />
-                <Link href={href}>
-                  <ProductButton type="details" />
-                </Link>
-                {addToCartButton}
-              </>
+          {hoverActions ? (
+            <div className="relative z-10 mt-3 flex min-h-10 shrink-0 justify-center gap-x-2">
+              <ProductButton type="wishlist" />
+              <Link href={href}>
+                <ProductButton type="details" />
+              </Link>
+              {addToCartButton}
             </div>
-          </div>
+          ) : null}
         </CardContent>
       </Card>
     </article>

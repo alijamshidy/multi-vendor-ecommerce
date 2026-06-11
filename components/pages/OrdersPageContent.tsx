@@ -4,6 +4,7 @@ import PageHeader from "@/components/commerce/PageHeader";
 import PageShell from "@/components/commerce/PageShell";
 import SummaryCard from "@/components/commerce/SummaryCard";
 import OrderFilterPanel from "@/components/orders/OrderFilterPanel";
+import BorderedListSkeleton from "@/components/commerce/BorderedListSkeleton";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useStoreInit } from "@/hooks/use-store-init";
@@ -16,7 +17,6 @@ import { useSearchParams } from "next/navigation";
 
 export default function OrdersPageContent() {
   const t = useTranslations("orders");
-  const tCommon = useTranslations("common");
   const searchParams = useSearchParams();
   const queryKey = searchParams.toString();
   const orders = useOrderStore(state => state.orders);
@@ -61,9 +61,10 @@ export default function OrdersPageContent() {
       </section>
       <section className="space-y-4">
         {isLoading && orders.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {tCommon("loadingOrders")}
-          </p>
+          <BorderedListSkeleton
+            count={5}
+            columns={4}
+          />
         ) : orders.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("empty")}</p>
         ) : (

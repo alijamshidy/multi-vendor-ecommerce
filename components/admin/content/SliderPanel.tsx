@@ -1,8 +1,9 @@
 "use client";
 
+import ContentFormActions from "@/components/admin/content/ContentFormActions";
+import ContentListItem from "@/components/admin/content/ContentListItem";
+import ContentPanelLayout from "@/components/admin/content/ContentPanelLayout";
 import MultiImageInput from "@/components/form/MultiImageInput";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -12,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useStoreInit } from "@/hooks/use-store-init";
 import { resolveMediaUrl } from "@/lib/api-utils";
 import useContentManagementStore from "@/store/contentManagementStore";
 import Image from "next/image";
@@ -31,7 +31,6 @@ const POSITIONS = [
 export default function SliderPanel() {
   const t = useTranslations("adminContent");
   const sliders = useContentManagementStore(state => state.sliders);
-  const fetchSliders = useContentManagementStore(state => state.fetchSliders);
   const createSlider = useContentManagementStore(state => state.createSlider);
   const updateSlider = useContentManagementStore(state => state.updateSlider);
   const deleteSlider = useContentManagementStore(state => state.deleteSlider);
@@ -47,17 +46,15 @@ export default function SliderPanel() {
   );
 
   const [text, setText] = useState("");
-  const [color, setColor] = useState("");
+  const [color, setColor] = useState("#ffffff");
   const [position, setPosition] = useState("5");
   const [relatedLink, setRelatedLink] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  useStoreInit(() => fetchSliders());
-
   const resetForm = () => {
     setText("");
-    setColor("");
+    setColor("#ffffff");
     setPosition("5");
     setRelatedLink("");
     setImages([]);
@@ -101,21 +98,9 @@ export default function SliderPanel() {
     }
   };
 
-  const handleEdit = (
-    id: string,
-    itemText?: string | null,
-    itemColor?: string | null,
-    itemPosition?: number | string,
-  ) => {
-    setEditingId(id);
-    setText(itemText ?? "");
-    setColor(itemColor ?? "");
-    setPosition(String(itemPosition ?? 5));
-    setRelatedLink("");
-    setImages([]);
-  };
+  const handleDelete = async (id: string, name: string) => {
+    if (!window.confirm(t("deleteConfirm", { name }))) return;
 
-  const handleDelete = async (id: string) => {
     try {
       await deleteSlider(id);
       toast.success(t("sliderDeleted"));
@@ -128,151 +113,153 @@ export default function SliderPanel() {
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="rounded-md">
-        <CardContent className="grid gap-4 p-5">
-          <form
-            onSubmit={handleSubmit}
-            className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="slider-text">{t("slideText")}</Label>
+    <ContentPanelLayout
+      title={t("sliderSectionTitle")}
+      description={t("sliderSectionDesc")}
+      storeLocation={t("sliderStoreLocation")}
+      isEditing={Boolean(editingId)}
+      itemCount={sliders.length}
+      isLoading={isLoading}
+      emptyMessage={t("noSliders")}
+      form={
+        <form
+          onSubmit={handleSubmit}
+          className="grid gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="slider-text">{t("slideText")}</Label>
+            <Input
+              id="slider-text"
+              value={text}
+              onChange={event => setText(event.target.value)}
+              placeholder={t("slideTextPlaceholder")}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="slider-color">{t("textColor")}</Label>
+            <div className="flex gap-2">
               <Input
-                id="slider-text"
-                value={text}
-                onChange={event => setText(event.target.value)}
+                type="color"
+                value={color.startsWith("#") ? color : "#ffffff"}
+                onChange={event => setColor(event.target.value)}
+                className="h-10 w-14 shrink-0 cursor-pointer p-1"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="slider-color">{t("textColor")}</Label>
               <Input
                 id="slider-color"
                 value={color}
                 onChange={event => setColor(event.target.value)}
+                dir="ltr"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="slider-position">{t("textPosition")}</Label>
-              <Select
-                value={position}
-                onValueChange={setPosition}>
-                <SelectTrigger id="slider-position">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {POSITIONS.map(item => (
-                    <SelectItem
-                      key={item.value}
-                      value={item.value}>
-                      {t(item.labelKey)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="slider-link">{t("relatedLink")}</Label>
-              <Input
-                id="slider-link"
-                value={relatedLink}
-                onChange={event => setRelatedLink(event.target.value)}
-                placeholder="/products"
-              />
-            </div>
-            <MultiImageInput
-              className="sm:col-span-2"
-              label={t("slideImages")}
-              files={images}
-              onChange={setImages}
-              maxFiles={5}
-              helperText={t("slideImagesHelper")}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="slider-position">{t("textPosition")}</Label>
+            <Select
+              value={position}
+              onValueChange={setPosition}>
+              <SelectTrigger id="slider-position">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {POSITIONS.map(item => (
+                  <SelectItem
+                    key={item.value}
+                    value={item.value}>
+                    {t(item.labelKey)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="slider-link">{t("relatedLink")}</Label>
+            <Input
+              id="slider-link"
+              value={relatedLink}
+              onChange={event => setRelatedLink(event.target.value)}
+              placeholder="/products"
+              dir="ltr"
             />
-            <div className="flex flex-wrap gap-2 sm:col-span-2">
-              <Button
-                type="submit"
-                disabled={isSaving || isUploading}>
-                {isSaving || isUploading
-                  ? t("saving")
-                  : editingId
-                    ? t("updateItem")
-                    : t("addSlider")}
-              </Button>
-              {editingId ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={resetForm}>
-                  {t("cancelEdit")}
-                </Button>
-              ) : null}
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+          </div>
+          <MultiImageInput
+            label={t("slideImages")}
+            files={images}
+            onChange={setImages}
+            maxFiles={5}
+            helperText={t("slideImagesHelper")}
+          />
+          <ContentFormActions
+            isSaving={isSaving || isUploading}
+            isEditing={Boolean(editingId)}
+            createLabel={t("addSlider")}
+            onCancel={resetForm}
+          />
+        </form>
+      }>
+      {sliders.map(slider => {
+        const firstImage = slider.images?.[0];
+        const extraImages = slider.images?.slice(1) ?? [];
 
-      {isLoading ? (
-        <p className="text-sm text-muted-foreground">{t("loading")}</p>
-      ) : sliders.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("noSliders")}</p>
-      ) : (
-        <div className="space-y-3">
-          {sliders.map(slider => (
-            <Card
-              key={slider.id}
-              className="rounded-md">
-              <CardContent className="space-y-3 p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="font-medium">{slider.text || t("untitled")}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {slider.position_string ?? t("positionCenter")}
-                    </p>
+        return (
+          <div
+            key={slider.id}
+            className="space-y-2">
+            <ContentListItem
+              title={slider.text || t("untitled")}
+              meta={[
+                {
+                  label: t("textPosition"),
+                  value: slider.position_string ?? t("positionCenter"),
+                },
+                ...(slider.color
+                  ? [{ label: t("textColor"), value: slider.color }]
+                  : []),
+                {
+                  label: t("imageCount"),
+                  value: String(slider.images?.length ?? 0),
+                },
+              ]}
+              imageUrl={
+                firstImage?.image
+                  ? resolveMediaUrl(firstImage.image)
+                  : null
+              }
+              imageAlt={slider.text ?? "Slide"}
+              isActive={editingId === String(slider.id)}
+              onEdit={() => {
+                setEditingId(String(slider.id));
+                setText(slider.text ?? "");
+                setColor(slider.color ?? "#ffffff");
+                setPosition(String(slider.position ?? 5));
+                setRelatedLink("");
+                setImages([]);
+              }}
+              onDelete={() =>
+                void handleDelete(
+                  String(slider.id),
+                  slider.text ?? t("untitled"),
+                )
+              }
+            />
+            {extraImages.length > 0 ? (
+              <div className="flex flex-wrap gap-2 ps-2">
+                {extraImages.map(image => (
+                  <div
+                    key={image.id}
+                    className="relative size-16 overflow-hidden rounded-md border">
+                    <Image
+                      src={resolveMediaUrl(image.image)}
+                      alt={image.text ?? "Slide"}
+                      fill
+                      className="object-cover"
+                      sizes="64px"
+                    />
                   </div>
-                  <div className="flex shrink-0 gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() =>
-                        handleEdit(
-                          String(slider.id),
-                          slider.text,
-                          slider.color,
-                          slider.position,
-                        )
-                      }>
-                      {t("edit")}
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleDelete(String(slider.id))}>
-                      {t("delete")}
-                    </Button>
-                  </div>
-                </div>
-                {slider.images?.length ? (
-                  <div className="flex flex-wrap gap-2">
-                    {slider.images.map(image => (
-                      <div
-                        key={image.id}
-                        className="relative size-20 overflow-hidden rounded-md">
-                        <Image
-                          src={resolveMediaUrl(image.image)}
-                          alt={image.text ?? "Slide"}
-                          fill
-                          className="object-cover"
-                          sizes="80px"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
+    </ContentPanelLayout>
   );
 }

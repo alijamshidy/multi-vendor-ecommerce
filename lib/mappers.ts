@@ -4,8 +4,10 @@ import type {
   ApiCollection,
   ApiComment,
   ApiContentImage,
+  ApiManagementOrder,
   ApiOrder,
   ApiProduct,
+  ApiSaleReview,
   ApiShopContact,
   ApiShopFaq,
   ApiShopHeader,
@@ -48,13 +50,14 @@ export function mapProduct(item: ApiProduct): productType {
 
   const attribute = item.attribute;
   const description =
-    typeof attribute === "string"
+    item.description?.trim() ||
+    (typeof attribute === "string"
       ? attribute
       : attribute && typeof attribute === "object"
         ? Object.entries(attribute)
             .map(([key, value]) => `${key}: ${value}`)
             .join(" · ")
-        : "";
+        : "");
 
   const originalPrice = Number(item.price);
   const salePrice = Number(item.discount_price ?? item.price);
@@ -69,6 +72,65 @@ export function mapProduct(item: ApiProduct): productType {
     category: item.categories?.[0]?.name ?? "",
     description,
     isOutOfStock: Boolean(item.is_out_of_stock),
+    stock: item.stuck,
+  };
+}
+
+export const ORDER_STATUS_LABELS: Record<number, string> = {
+  1: "Pending for Payment",
+  2: "Paid",
+  3: "Processing",
+  4: "Delivered",
+  5: "Refunded",
+  6: "Canceled",
+  7: "Preparing",
+};
+
+export type SaleReviewView = {
+  id: string;
+  name: string;
+  price: number;
+  numOrders: number;
+  totalSale: number;
+  imageUrl: string;
+};
+
+export function mapSaleReview(item: ApiSaleReview): SaleReviewView {
+  const imageUrl = item.images?.[0]?.image
+    ? resolveMediaUrl(item.images[0].image)
+    : "/images/hero1.jpg";
+
+  return {
+    id: String(item.id),
+    name: item.name ?? "",
+    price: Number(item.price ?? 0),
+    numOrders: Number(item.num_orders ?? 0),
+    totalSale: Number(item.total_sale ?? 0),
+    imageUrl,
+  };
+}
+
+export type ManagementOrderView = {
+  id: string;
+  fullId: string;
+  status: number;
+  statusLabel: string;
+  total: number;
+  itemsCount: number;
+  createdAt?: string;
+};
+
+export function mapManagementOrder(item: ApiManagementOrder): ManagementOrderView {
+  const status = Number(item.status ?? 0);
+
+  return {
+    id: String(item.id).slice(0, 8).toUpperCase(),
+    fullId: String(item.id),
+    status,
+    statusLabel: ORDER_STATUS_LABELS[status] ?? `Status ${status}`,
+    total: Number(item.total_discount_price ?? item.total_price ?? 0),
+    itemsCount: item.items?.length ?? 0,
+    createdAt: item.created_at,
   };
 }
 

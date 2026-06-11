@@ -24,7 +24,11 @@ export default function ProductList({ product }: { product: productType }) {
             />
           </div>
           <div>
-            <h2 className="text-xl capitalize">{label}</h2>
+            <h2
+              title={label}
+              className="line-clamp-2 text-xl capitalize leading-snug">
+              {label}
+            </h2>
             <p className="text-muted-foreground">{category}</p>
           </div>
           <ProductPrice

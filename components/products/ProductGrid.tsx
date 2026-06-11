@@ -14,13 +14,13 @@ export default function ProductGrid({
   products,
   locale,
   className,
-  compact = false,
-  hoverActions = false,
+  compact = true,
+  hoverActions = true,
 }: ProductGridProps) {
   return (
     <section
       className={cn(
-        "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4",
+        "grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4",
         className,
       )}>
       {products.map(product => (

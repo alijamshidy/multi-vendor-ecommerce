@@ -14,7 +14,12 @@ import { devtools } from "zustand/middleware";
 import { withStoreDevtools } from "./devtools";
 import { createStoreLoadingState, setStoreLoading } from "./store-utils";
 
-type CategoryAction = "fetchCategories" | "fetchCategory" | "createCategory";
+type CategoryAction =
+  | "fetchCategories"
+  | "fetchCategory"
+  | "createCategory"
+  | "updateCategory"
+  | "deleteCategory";
 
 type CategoryState = {
   categories: category[];
@@ -32,6 +37,16 @@ type CategoryState = {
     parent?: string;
     image?: File;
   }) => Promise<void>;
+  updateCategory: (
+    slug: string,
+    payload: {
+      name?: string;
+      description?: string;
+      parent?: string;
+      image?: File;
+    },
+  ) => Promise<void>;
+  deleteCategory: (slug: string) => Promise<void>;
   clearError: () => void;
   clearMessages: () => void;
 };
@@ -48,6 +63,8 @@ const useCategoryStore = create<CategoryState>()(
         "fetchCategories",
         "fetchCategory",
         "createCategory",
+        "updateCategory",
+        "deleteCategory",
       ] as const),
 
       clearError: () => set({ errorMessage: "" }),
@@ -140,6 +157,60 @@ const useCategoryStore = create<CategoryState>()(
           throw new Error(message);
         } finally {
           setStoreLoading(set, "createCategory", false);
+        }
+      },
+
+      updateCategory: async (slug, payload) => {
+        setStoreLoading(set, "updateCategory", true, {
+          errorMessage: "",
+          successMessage: "",
+        });
+
+        try {
+          const encodedSlug = encodeURIComponent(decodeURIComponent(slug));
+          const formData = new FormData();
+          if (payload.name) formData.append("name", payload.name);
+          if (payload.description) {
+            formData.append("description", payload.description);
+          }
+          if (payload.parent) formData.append("parent", payload.parent);
+          if (payload.image) formData.append("image", payload.image);
+
+          await api.patch(`/managements/categories/${encodedSlug}/`, formData);
+          set({ successMessage: "Category updated" });
+          await get().fetchCategories();
+        } catch (error) {
+          const message = getApiErrorMessage(
+            error,
+            "Failed to update category",
+          );
+          set({ errorMessage: message });
+          throw new Error(message);
+        } finally {
+          setStoreLoading(set, "updateCategory", false);
+        }
+      },
+
+      deleteCategory: async slug => {
+        setStoreLoading(set, "deleteCategory", true, {
+          errorMessage: "",
+          successMessage: "",
+        });
+
+        try {
+          const encodedSlug = encodeURIComponent(decodeURIComponent(slug));
+          await api.delete(`/managements/categories/${encodedSlug}/`);
+          set({ successMessage: "Category deleted" });
+          await get().fetchCategories();
+        } catch (error) {
+          const message = getApiErrorMessage(
+            error,
+            "Failed to delete category",
+          );
+          set({ errorMessage: message });
+          throw new Error(message);
+        } finally {
+          setStoreLoading(set, "deleteCategory", false);
         }
       },
     }),

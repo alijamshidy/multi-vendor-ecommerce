@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ProductGrid from "../products/ProductGrid";
+import ProductGridSkeleton from "../products/ProductGridSkeleton";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 
@@ -31,9 +32,7 @@ export default function FeaturedProducts() {
         <Separator className="w-24 bg-primary sm:w-32" />
       </div>
       {isLoading ? (
-        <p className="text-center text-sm text-muted-foreground">
-          {tCommon("loadingProducts")}
-        </p>
+        <ProductGridSkeleton count={8} />
       ) : featuredProducts.length === 0 ? (
         <p className="text-center text-sm text-muted-foreground">
           {tCommon("noProducts")}
@@ -43,8 +42,6 @@ export default function FeaturedProducts() {
           <ProductGrid
             products={featuredProducts}
             locale={locale}
-            compact
-            hoverActions
           />
           <Link
             href={`/${locale}/products`}

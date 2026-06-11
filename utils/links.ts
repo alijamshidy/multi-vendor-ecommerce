@@ -54,8 +54,9 @@ export const adminLinks: NavLink[] = [
   { href: "/admin/products/create", labelKey: "createProduct" },
   { href: "/admin/categories", labelKey: "categories" },
   { href: "/admin/categories/create", labelKey: "createCategory" },
-  { href: "/admin/collections", labelKey: "collections" },
-  { href: "/admin/content", labelKey: "shopContent" },
+    { href: "/admin/collections", labelKey: "collections" },
+    { href: "/admin/collections/create", labelKey: "createCollection" },
+    { href: "/admin/content", labelKey: "shopContent" },
 ];
 
 export const sellerLinks: NavLink[] = [

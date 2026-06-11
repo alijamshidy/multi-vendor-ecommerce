@@ -7,6 +7,7 @@ import ProductPrice from "@/components/products/ProductPrice";
 import ProductReviewsClient from "@/components/reviews/ProductReviewsClient";
 import SubmitReview from "@/components/reviews/SubmitReview";
 import ProductImageGallery from "@/components/single-product/ProductImageGallery";
+import ProductDetailSkeleton from "@/components/single-product/ProductDetailSkeleton";
 import ShareButton from "@/components/single-product/ShareButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,7 +30,6 @@ export default function ProductDetailContent({
 }) {
   const t = useTranslations("product");
   const tCart = useTranslations("cart");
-  const tCommon = useTranslations("common");
   const features = [
     { icon: Truck, text: t("deliveryEstimate") },
     { icon: ShieldCheck, text: t("buyerProtection") },
@@ -49,9 +49,7 @@ export default function ProductDetailContent({
   if (isLoading || (!product && !errorMessage)) {
     return (
       <PageShell>
-        <div className="py-16 text-center text-muted-foreground">
-          {tCommon("loadingProduct")}
-        </div>
+        <ProductDetailSkeleton />
       </PageShell>
     );
   }

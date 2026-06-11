@@ -4,6 +4,7 @@ import Container from "@/components/Global/Container";
 import Filter from "@/components/products/Filter";
 import MobileFilterDropdown from "@/components/products/MobileFilterDropdown";
 import ProductsContainer from "@/components/products/ProductsContainer";
+import ProductGridSkeleton from "@/components/products/ProductGridSkeleton";
 import { useQueryParams } from "@/hooks/use-query-params";
 import { useStoreInit, useStoreInitOnce } from "@/hooks/use-store-init";
 import {
@@ -14,12 +15,10 @@ import {
 } from "@/lib/product-query";
 import useProductStore from "@/store/productStore";
 import useCategoryStore from "@/store/categoryStore";
-import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 export default function ProductsPageContent() {
-  const t = useTranslations("common");
   const searchParams = useSearchParams();
   const { setQueryParam } = useQueryParams();
   const layout = searchParams.get("layout") || "grid";
@@ -65,9 +64,10 @@ export default function ProductsPageContent() {
       </div>
       <Filter />
       {isLoading && products.length === 0 ? (
-        <div className="py-12 text-center text-muted-foreground">
-          {t("loadingProducts")}
-        </div>
+        <ProductGridSkeleton
+          count={itemsPerPage}
+          className="w-full min-w-0 md:w-[90%]"
+        />
       ) : errorMessage && products.length === 0 ? (
         <div className="py-12 text-center text-destructive">{errorMessage}</div>
       ) : (

@@ -1,6 +1,7 @@
 "use client";
 
 import CatalogGrid from "@/components/catalog/CatalogGrid";
+import CatalogGridSkeleton from "@/components/catalog/CatalogGridSkeleton";
 import CatalogSearchBar from "@/components/catalog/CatalogSearchBar";
 import PageHeader from "@/components/commerce/PageHeader";
 import PageShell from "@/components/commerce/PageShell";
@@ -13,6 +14,7 @@ import useCategoryStore from "@/store/categoryStore";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 export default function CategoriesListPageContent({
   scope,
@@ -27,6 +29,7 @@ export default function CategoriesListPageContent({
   const errorMessage = useCategoryStore(state => state.errorMessage);
   const fetchCategories = useCategoryStore(state => state.fetchCategories);
   const isLoading = useCategoryStore(state => state.loading.fetchCategories);
+  const deleteCategory = useCategoryStore(state => state.deleteCategory);
   const isAdmin = scope === "admin";
 
   useStoreInit(
@@ -40,6 +43,21 @@ export default function CategoriesListPageContent({
       : scope === "customer"
         ? t("customerEyebrow")
         : t("publicEyebrow");
+
+  const handleDeleteCategory = async (item: { href: string; label: string }) => {
+    if (!window.confirm(t("deleteCategoryConfirm", { name: item.label }))) {
+      return;
+    }
+
+    try {
+      await deleteCategory(item.href);
+      toast.success(t("categoryDeleted"));
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : t("categoryDeleteFailed"),
+      );
+    }
+  };
 
   return (
     <PageShell>
@@ -64,7 +82,7 @@ export default function CategoriesListPageContent({
       <CatalogSearchBar />
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>
+        <CatalogGridSkeleton />
       ) : errorMessage && categories.length === 0 ? (
         <p className="text-sm text-destructive">{errorMessage}</p>
       ) : categories.length === 0 ? (
@@ -75,6 +93,7 @@ export default function CategoriesListPageContent({
           scope={scope}
           type="categories"
           showMeta={isAdmin}
+          onDelete={isAdmin ? handleDeleteCategory : undefined}
         />
       )}
     </PageShell>

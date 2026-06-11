@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Carousel,
   CarouselContent,
@@ -27,9 +28,18 @@ function CategoryCarousel() {
   useStoreInit(() => fetchCategories());
   if (isLoading) {
     return (
-      <p className="text-center text-sm text-muted-foreground">
-        {tCommon("loading")}
-      </p>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        {Array.from({ length: 6 }, (_, index) => (
+          <Card
+            key={index}
+            size="sm"
+            className="gap-0 overflow-hidden py-0">
+            <CardContent className="p-0">
+              <Skeleton className="h-24 w-full rounded-none sm:h-28" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     );
   }
   if (categories.length === 0) {

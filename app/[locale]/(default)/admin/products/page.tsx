@@ -1,5 +1,14 @@
-import SellerProductsContent from "@/components/pages/SellerProductsContent";
+import AdminProductsContent from "@/components/pages/AdminProductsContent";
+import { Suspense } from "react";
+
+function AdminProductsFallback() {
+  return <p className="p-8 text-sm text-muted-foreground">Loading products...</p>;
+}
 
 export default function AdminProductsPage() {
-  return <SellerProductsContent />;
+  return (
+    <Suspense fallback={<AdminProductsFallback />}>
+      <AdminProductsContent />
+    </Suspense>
+  );
 }

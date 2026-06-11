@@ -21,7 +21,9 @@ import { createStoreLoadingState, setStoreLoading } from "./store-utils";
 type CollectionAction =
   | "fetchCollections"
   | "fetchCollection"
-  | "createCollection";
+  | "createCollection"
+  | "updateCollection"
+  | "deleteCollection";
 
 type CollectionState = {
   collections: collection[];
@@ -32,13 +34,29 @@ type CollectionState = {
   loading: Record<CollectionAction, boolean>;
   fetchCollections: (query?: ListQuery) => Promise<void>;
   fetchCollectionBySlug: (slug: string) => Promise<collection | null>;
+  createCollection: (payload: {
+    name: string;
+    description?: string;
+    image?: File;
+    product?: string[];
+  }) => Promise<void>;
+  updateCollection: (
+    slug: string,
+    payload: {
+      name?: string;
+      description?: string;
+      image?: File;
+      product?: string[];
+    },
+  ) => Promise<void>;
+  deleteCollection: (slug: string) => Promise<void>;
   clearError: () => void;
   clearMessages: () => void;
 };
 
 const useCollectionStore = create<CollectionState>()(
   devtools(
-    set => ({
+    (set, get) => ({
       collections: [],
       activeCollection: null,
       collectionProducts: [],
@@ -48,6 +66,8 @@ const useCollectionStore = create<CollectionState>()(
         "fetchCollections",
         "fetchCollection",
         "createCollection",
+        "updateCollection",
+        "deleteCollection",
       ] as const),
 
       clearError: () => set({ errorMessage: "" }),
@@ -110,6 +130,97 @@ const useCollectionStore = create<CollectionState>()(
           return null;
         } finally {
           setStoreLoading(set, "fetchCollection", false);
+        }
+      },
+
+      createCollection: async payload => {
+        setStoreLoading(set, "createCollection", true, {
+          errorMessage: "",
+          successMessage: "",
+        });
+
+        try {
+          const formData = new FormData();
+          formData.append("name", payload.name);
+          if (payload.description) {
+            formData.append("description", payload.description);
+          }
+          if (payload.image) formData.append("image", payload.image);
+          for (const productId of payload.product ?? []) {
+            formData.append("product", productId);
+          }
+
+          await api.post("/managements/collections/", formData);
+          set({ successMessage: "Collection created" });
+          await get().fetchCollections();
+        } catch (error) {
+          const message = getApiErrorMessage(
+            error,
+            "Failed to create collection",
+          );
+          set({ errorMessage: message });
+          throw new Error(message);
+        } finally {
+          setStoreLoading(set, "createCollection", false);
+        }
+      },
+
+      updateCollection: async (slug, payload) => {
+        setStoreLoading(set, "updateCollection", true, {
+          errorMessage: "",
+          successMessage: "",
+        });
+
+        try {
+          const encodedSlug = encodeURIComponent(decodeURIComponent(slug));
+          const formData = new FormData();
+          if (payload.name) formData.append("name", payload.name);
+          if (payload.description) {
+            formData.append("description", payload.description);
+          }
+          if (payload.image) formData.append("image", payload.image);
+          for (const productId of payload.product ?? []) {
+            formData.append("product", productId);
+          }
+
+          await api.patch(
+            `/managements/collections/${encodedSlug}/`,
+            formData,
+          );
+          set({ successMessage: "Collection updated" });
+          await get().fetchCollections();
+        } catch (error) {
+          const message = getApiErrorMessage(
+            error,
+            "Failed to update collection",
+          );
+          set({ errorMessage: message });
+          throw new Error(message);
+        } finally {
+          setStoreLoading(set, "updateCollection", false);
+        }
+      },
+
+      deleteCollection: async slug => {
+        setStoreLoading(set, "deleteCollection", true, {
+          errorMessage: "",
+          successMessage: "",
+        });
+
+        try {
+          const encodedSlug = encodeURIComponent(decodeURIComponent(slug));
+          await api.delete(`/managements/collections/${encodedSlug}/`);
+          set({ successMessage: "Collection deleted" });
+          await get().fetchCollections();
+        } catch (error) {
+          const message = getApiErrorMessage(
+            error,
+            "Failed to delete collection",
+          );
+          set({ errorMessage: message });
+          throw new Error(message);
+        } finally {
+          setStoreLoading(set, "deleteCollection", false);
         }
       },
     }),

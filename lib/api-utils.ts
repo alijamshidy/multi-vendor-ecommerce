@@ -122,12 +122,38 @@ export function unwrapList<T>(data: unknown): T[] {
   if (Array.isArray(data)) return data;
 
   if (typeof data === "object" && data !== null) {
-    const record = data as PaginatedResponse<T> & { data?: T[] };
+    const record = data as PaginatedResponse<T> & {
+      data?: T[] | PaginatedResponse<T> | { data?: T[]; results?: T[] };
+    };
+
     if (Array.isArray(record.data)) return record.data;
     if (Array.isArray(record.results)) return record.results;
+
+    if (record.data && typeof record.data === "object" && !Array.isArray(record.data)) {
+      const inner = record.data as PaginatedResponse<T> & { data?: T[] };
+      if (Array.isArray(inner.results)) return inner.results;
+      if (Array.isArray(inner.data)) return inner.data;
+    }
   }
 
   return [];
+}
+
+export function unwrapListCount(data: unknown, fallback: number): number {
+  if (!data || typeof data !== "object") return fallback;
+
+  const record = data as PaginatedResponse<unknown> & {
+    data?: PaginatedResponse<unknown> | unknown[];
+  };
+
+  if (typeof record.count === "number") return record.count;
+
+  if (record.data && typeof record.data === "object" && !Array.isArray(record.data)) {
+    const inner = record.data as PaginatedResponse<unknown>;
+    if (typeof inner.count === "number") return inner.count;
+  }
+
+  return fallback;
 }
 
 export function unwrapEntity<T>(data: unknown): T | null {

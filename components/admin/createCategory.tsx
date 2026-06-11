@@ -80,7 +80,7 @@ export default function CreateCategoryForm() {
         ...(images[0] ? { image: images[0] } : {}),
       });
       toast.success(t("categoryCreated"));
-      router.push(`/${locale}/admin/dashboard`);
+      router.push(`/${locale}/admin/categories`);
       router.refresh();
     } catch (error) {
       const message =

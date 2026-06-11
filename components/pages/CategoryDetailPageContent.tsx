@@ -6,6 +6,7 @@ import { useSetBreadcrumbLabel } from "@/context/breadcrumb-context";
 import ChangeItemPerPage from "@/components/products/ChangeItemPerPage";
 import ProductsPagination from "@/components/products/Pagination";
 import ProductGrid from "@/components/products/ProductGrid";
+import ProductGridSkeleton from "@/components/products/ProductGridSkeleton";
 import { useQueryParams } from "@/hooks/use-query-params";
 import { useStoreInit } from "@/hooks/use-store-init";
 import type { CatalogScope } from "@/lib/catalog-paths";
@@ -120,9 +121,7 @@ export default function CategoryDetailPageContent({
       </div>
 
       {isInitialLoading ? (
-        <p className="text-sm text-muted-foreground">
-          {tCommon("loadingProducts")}
-        </p>
+        <ProductGridSkeleton count={itemsPerPage} />
       ) : errorMessage && products.length === 0 ? (
         <p className="text-sm text-destructive">{errorMessage}</p>
       ) : products.length === 0 ? (

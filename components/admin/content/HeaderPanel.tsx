@@ -1,14 +1,13 @@
 "use client";
 
+import ContentFormActions from "@/components/admin/content/ContentFormActions";
+import ContentListItem from "@/components/admin/content/ContentListItem";
+import ContentPanelLayout from "@/components/admin/content/ContentPanelLayout";
 import MultiImageInput from "@/components/form/MultiImageInput";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useStoreInit } from "@/hooks/use-store-init";
 import { resolveMediaUrl } from "@/lib/api-utils";
 import useContentManagementStore from "@/store/contentManagementStore";
-import Image from "next/image";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -16,7 +15,6 @@ import { useTranslations } from "next-intl";
 export default function HeaderPanel() {
   const t = useTranslations("adminContent");
   const headers = useContentManagementStore(state => state.headers);
-  const fetchHeaders = useContentManagementStore(state => state.fetchHeaders);
   const createHeader = useContentManagementStore(state => state.createHeader);
   const updateHeader = useContentManagementStore(state => state.updateHeader);
   const deleteHeader = useContentManagementStore(state => state.deleteHeader);
@@ -32,16 +30,14 @@ export default function HeaderPanel() {
   );
 
   const [text, setText] = useState("");
-  const [color, setColor] = useState("");
+  const [color, setColor] = useState("#ffffff");
   const [relatedLink, setRelatedLink] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  useStoreInit(() => fetchHeaders());
-
   const resetForm = () => {
     setText("");
-    setColor("");
+    setColor("#ffffff");
     setRelatedLink("");
     setImages([]);
     setEditingId(null);
@@ -83,15 +79,9 @@ export default function HeaderPanel() {
     }
   };
 
-  const handleEdit = (id: string, itemText?: string | null, itemColor?: string | null) => {
-    setEditingId(id);
-    setText(itemText ?? "");
-    setColor(itemColor ?? "");
-    setRelatedLink("");
-    setImages([]);
-  };
+  const handleDelete = async (id: string, name: string) => {
+    if (!window.confirm(t("deleteConfirm", { name }))) return;
 
-  const handleDelete = async (id: string) => {
     try {
       await deleteHeader(id);
       toast.success(t("headerDeleted"));
@@ -104,124 +94,107 @@ export default function HeaderPanel() {
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="rounded-md">
-        <CardContent className="grid gap-4 p-5">
-          <form
-            onSubmit={handleSubmit}
-            className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="header-text">{t("promoText")}</Label>
+    <ContentPanelLayout
+      title={t("headerSectionTitle")}
+      description={t("headerSectionDesc")}
+      storeLocation={t("headerStoreLocation")}
+      isEditing={Boolean(editingId)}
+      itemCount={headers.length}
+      isLoading={isLoading}
+      emptyMessage={t("noHeaders")}
+      form={
+        <form
+          onSubmit={handleSubmit}
+          className="grid gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="header-text">{t("promoText")}</Label>
+            <Input
+              id="header-text"
+              value={text}
+              onChange={event => setText(event.target.value)}
+              placeholder={t("promoTextPlaceholder")}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="header-color">{t("textColor")}</Label>
+            <div className="flex gap-2">
               <Input
-                id="header-text"
-                value={text}
-                onChange={event => setText(event.target.value)}
+                id="header-color-picker"
+                type="color"
+                value={color.startsWith("#") ? color : "#ffffff"}
+                onChange={event => setColor(event.target.value)}
+                className="h-10 w-14 shrink-0 cursor-pointer p-1"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="header-color">{t("textColor")}</Label>
               <Input
                 id="header-color"
                 value={color}
                 onChange={event => setColor(event.target.value)}
                 placeholder="#ffffff"
+                dir="ltr"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="header-link">{t("relatedLink")}</Label>
-              <Input
-                id="header-link"
-                value={relatedLink}
-                onChange={event => setRelatedLink(event.target.value)}
-                placeholder="/products"
-              />
-            </div>
-            <MultiImageInput
-              className="sm:col-span-2"
-              label={t("promoImage")}
-              files={images}
-              onChange={setImages}
-              maxFiles={1}
-              helperText={t("promoImageHelper")}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="header-link">{t("relatedLink")}</Label>
+            <Input
+              id="header-link"
+              value={relatedLink}
+              onChange={event => setRelatedLink(event.target.value)}
+              placeholder="/products"
+              dir="ltr"
             />
-            <div className="flex flex-wrap gap-2 sm:col-span-2">
-              <Button
-                type="submit"
-                disabled={isSaving || isUploading}>
-                {isSaving || isUploading
-                  ? t("saving")
-                  : editingId
-                    ? t("updateItem")
-                    : t("addHeader")}
-              </Button>
-              {editingId ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={resetForm}>
-                  {t("cancelEdit")}
-                </Button>
-              ) : null}
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-
-      {isLoading ? (
-        <p className="text-sm text-muted-foreground">{t("loading")}</p>
-      ) : headers.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("noHeaders")}</p>
-      ) : (
-        <div className="space-y-3">
-          {headers.map(header => (
-            <Card
-              key={header.id}
-              className="rounded-md">
-              <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-4">
-                  {header.image?.image ? (
-                    <div className="relative size-16 overflow-hidden rounded-md">
-                      <Image
-                        src={resolveMediaUrl(header.image.image)}
-                        alt={header.text ?? "Header"}
-                        fill
-                        className="object-cover"
-                        sizes="64px"
-                      />
-                    </div>
-                  ) : null}
-                  <div>
-                    <p className="font-medium">{header.text || t("untitled")}</p>
-                    {header.color ? (
-                      <p className="text-sm text-muted-foreground">
-                        {t("textColor")}: {header.color}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-                <div className="flex shrink-0 gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() =>
-                      handleEdit(String(header.id), header.text, header.color)
-                    }>
-                    {t("edit")}
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDelete(String(header.id))}>
-                    {t("delete")}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
+          </div>
+          <MultiImageInput
+            label={t("promoImage")}
+            files={images}
+            onChange={setImages}
+            maxFiles={1}
+            helperText={t("promoImageHelper")}
+          />
+          <ContentFormActions
+            isSaving={isSaving || isUploading}
+            isEditing={Boolean(editingId)}
+            createLabel={t("addHeader")}
+            onCancel={resetForm}
+          />
+        </form>
+      }>
+      {headers.map(header => (
+        <ContentListItem
+          key={header.id}
+          title={header.text || t("untitled")}
+          imageUrl={
+            header.image?.image
+              ? resolveMediaUrl(header.image.image)
+              : null
+          }
+          imageAlt={header.text ?? "Header promo"}
+          meta={[
+            ...(header.color
+              ? [{ label: t("textColor"), value: header.color }]
+              : []),
+            ...(header.image?.related_link
+              ? [
+                  {
+                    label: t("relatedLink"),
+                    value: header.image.related_link,
+                  },
+                ]
+              : []),
+          ]}
+          isActive={editingId === String(header.id)}
+          onEdit={() => {
+            setEditingId(String(header.id));
+            setText(header.text ?? "");
+            setColor(header.color ?? "#ffffff");
+            setRelatedLink(header.image?.related_link ?? "");
+            setImages([]);
+          }}
+          onDelete={() =>
+            void handleDelete(String(header.id), header.text ?? t("untitled"))
+          }
+        />
+      ))}
+    </ContentPanelLayout>
   );
 }
