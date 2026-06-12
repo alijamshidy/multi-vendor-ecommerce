@@ -55,9 +55,21 @@ const ORDER_FILTER_PARAMS = [
   ORDER_ORDERING_PARAM,
 ] as const;
 
+type OrderDateQueryKey =
+  | "created_after"
+  | "created_before"
+  | "paid_after"
+  | "paid_before"
+  | "delivered_after"
+  | "delivered_before"
+  | "canceled_after"
+  | "canceled_before"
+  | "refunded_after"
+  | "refunded_before";
+
 const ORDER_DATE_PARAM_MAP: Array<{
   urlParam: string;
-  apiParam: keyof OrderQuery;
+  apiParam: OrderDateQueryKey;
 }> = [
   { urlParam: ORDER_CREATED_AFTER_PARAM, apiParam: "created_after" },
   { urlParam: ORDER_CREATED_BEFORE_PARAM, apiParam: "created_before" },

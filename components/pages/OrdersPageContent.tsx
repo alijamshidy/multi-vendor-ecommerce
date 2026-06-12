@@ -17,6 +17,7 @@ import { useSearchParams } from "next/navigation";
 
 export default function OrdersPageContent() {
   const t = useTranslations("orders");
+  const tCommon = useTranslations("common");
   const searchParams = useSearchParams();
   const queryKey = searchParams.toString();
   const orders = useOrderStore(state => state.orders);

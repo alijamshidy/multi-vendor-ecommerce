@@ -1,7 +1,7 @@
 "use client";
 
 import FilterPanel from "@/components/products/FilterPanel";
-import LoadingTable from "@/components/global/LoadingTable";
+import LoadingTable from "@/components/Global/LoadingTable";
 import PageHeader from "@/components/commerce/PageHeader";
 import PageShell from "@/components/commerce/PageShell";
 import ProductPrice from "@/components/products/ProductPrice";

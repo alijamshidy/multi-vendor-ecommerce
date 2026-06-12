@@ -16,6 +16,7 @@ type NavLink = {
     | "myProducts"
     | "createProduct"
     | "createCategory"
+    | "createCollection"
     | "shopContent";
 };
 
