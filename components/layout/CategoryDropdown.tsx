@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useStoreInit } from "@/hooks/use-store-init";
 import useCategoryStore from "@/store/categoryStore";
-import { Categorys, category } from "@/utils/Category";
+import { Categorys, category } from "@/utils/category";
 import { GetLocale } from "@/utils/GetUrlParams";
 import { ArrowDownIcon } from "lucide-react";
 import { useTranslations } from "next-intl";

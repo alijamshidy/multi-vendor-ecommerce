@@ -1,12 +1,12 @@
 "use client";
 
-import Container from "@/components/Global/Container";
+import Container from "@/components/global/Container";
 import { useStoreInitOnce } from "@/hooks/use-store-init";
-import useContentStore from "@/store/contentStore";
 import { cn } from "@/lib/utils";
+import useContentStore from "@/store/contentStore";
 import { GetLocale } from "@/utils/GetUrlParams";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 
 const FALLBACK_PHONES = ["+98 918 123 4986"];
 
@@ -19,8 +19,7 @@ export default function SiteFooter({ className }: { className?: string }) {
 
   useStoreInitOnce(() => fetchContact(), [fetchContact]);
 
-  const phones =
-    contact.phones.length > 0 ? contact.phones : FALLBACK_PHONES;
+  const phones = contact.phones.length > 0 ? contact.phones : FALLBACK_PHONES;
 
   const shopLinks = [
     { href: "/products", label: tNav("products") },

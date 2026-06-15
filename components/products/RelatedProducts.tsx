@@ -1,6 +1,6 @@
 "use client";
 
-import SectionTitle from "@/components/Global/SectionTitle";
+import SectionTitle from "@/components/global/SectionTitle";
 import ProductGrid from "@/components/products/ProductGrid";
 import ProductGridSkeleton from "@/components/products/ProductGridSkeleton";
 import { useStoreInit } from "@/hooks/use-store-init";

@@ -1,6 +1,6 @@
 "use client";
 
-import SectionTitle from "@/components/Global/SectionTitle";
+import SectionTitle from "@/components/global/SectionTitle";
 import ReviewItem from "@/components/reviews/ReviewItem";
 import { useStoreInit } from "@/hooks/use-store-init";
 import useReviewStore from "@/store/reviewStore";

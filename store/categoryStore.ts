@@ -1,13 +1,13 @@
-import type { ListQuery } from "@/lib/list-query";
-import type { ApiCategory, ApiCategoryDetail, ApiProduct } from "@/lib/api-types";
-import {
-  getApiErrorMessage,
-  unwrapEntity,
-  unwrapList,
-} from "@/lib/api-utils";
+import type {
+  ApiCategory,
+  ApiCategoryDetail,
+  ApiProduct,
+} from "@/lib/api-types";
+import { getApiErrorMessage, unwrapEntity, unwrapList } from "@/lib/api-utils";
 import api from "@/lib/axios";
+import type { ListQuery } from "@/lib/list-query";
 import { mapCategory, mapProduct } from "@/lib/mappers";
-import type { category } from "@/utils/Category";
+import type { category } from "@/utils/category";
 import type { productType } from "@/utils/products";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
@@ -103,9 +103,7 @@ const useCategoryStore = create<CategoryState>()(
         });
 
         try {
-          const encodedSlug = encodeURIComponent(
-            decodeURIComponent(slug),
-          );
+          const encodedSlug = encodeURIComponent(decodeURIComponent(slug));
           const { data } = await api.get(`/categories/${encodedSlug}/`, {
             skipAuth: true,
           });

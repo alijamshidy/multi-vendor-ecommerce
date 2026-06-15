@@ -1,7 +1,7 @@
 import { DEFAULT_LOCALE, routing } from "@/i18n/routing";
 import type { AuthRole } from "@/lib/auth-cookie";
 import { isSafeCallbackUrl } from "@/lib/auth-cookie";
-import { Categorys } from "@/utils/Category";
+import { Categorys } from "@/utils/category";
 import createIntlMiddleware from "next-intl/middleware";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";

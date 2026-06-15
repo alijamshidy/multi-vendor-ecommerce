@@ -1,7 +1,6 @@
 "use client";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
-import { SessionProvider } from "next-auth/react";
 import React, { useEffect } from "react";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -12,13 +11,15 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <SessionProvider>
+    <>
+      {/* <SessionProvider> */}
       <Toaster />
       <ThemeProvider
         attribute={"class"}
         themes={["light", "dark", "system"]}>
         {children}
       </ThemeProvider>
-    </SessionProvider>
+      {/* </SessionProvider> */}
+    </>
   );
 }

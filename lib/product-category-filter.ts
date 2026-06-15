@@ -1,9 +1,12 @@
 import type { ApiProduct } from "@/lib/api-types";
-import type { category } from "@/utils/Category";
+import type { category } from "@/utils/category";
 
 export function parseCategoryFilterIds(raw: string | undefined): string[] {
   if (!raw) return [];
-  return raw.split(",").map(id => id.trim()).filter(Boolean);
+  return raw
+    .split(",")
+    .map(id => id.trim())
+    .filter(Boolean);
 }
 
 /** Includes selected categories and all of their descendants. */

@@ -1,4 +1,4 @@
-import Container from "@/components/Global/Container";
+import Container from "@/components/global/Container";
 import { cn } from "@/lib/utils";
 
 type PageShellProps = {

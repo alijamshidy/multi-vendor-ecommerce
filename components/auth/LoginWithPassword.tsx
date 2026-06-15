@@ -2,7 +2,6 @@
 
 import AuthFooterNote from "@/components/auth/AuthFooterNote";
 import AuthShell from "@/components/auth/AuthShell";
-import SocialLoginButtons from "@/components/auth/SocialLoginButtons";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,7 +15,6 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useAuthPaths } from "@/hooks/use-auth-paths";
@@ -28,8 +26,8 @@ import { isSafeCallbackUrl, redirectAfterAuth } from "@/lib/auth-cookie";
 import useAuthStore from "@/store/authStore";
 import { isLoginPasswordValid } from "@/utils/password";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -106,8 +104,7 @@ export default function LoginWithPassword({
         : paths.dashboard;
       redirectAfterAuth(destination);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : t("loginFailed");
+      const message = error instanceof Error ? error.message : t("loginFailed");
 
       if (error instanceof AuthRequestError && error.status === 429) {
         const parsedSeconds = parseThrottleCooldownSeconds(message);
@@ -129,18 +126,16 @@ export default function LoginWithPassword({
         <Card className="rounded-md">
           <CardHeader className="text-center">
             <CardTitle className="text-xl">{t("welcomeBack")}</CardTitle>
-            <CardDescription>
-              {t("signInDescription")}
-            </CardDescription>
+            <CardDescription>{t("signInDescription")}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit}>
               <FieldGroup>
-                <Field>
+                {/* <Field>
                   <SocialLoginButtons />
                 </Field>
 
-                <FieldSeparator>{t("orContinueWith")}</FieldSeparator>
+                <FieldSeparator>{t("orContinueWith")}</FieldSeparator> */}
 
                 <Field>
                   <FieldLabel htmlFor="identifier">
@@ -210,7 +205,9 @@ export default function LoginWithPassword({
                         : t("signIn")}
                   </Button>
                   {errorMessage ? (
-                    <p className="text-center text-sm text-destructive" role="alert">
+                    <p
+                      className="text-center text-sm text-destructive"
+                      role="alert">
                       {errorMessage}
                     </p>
                   ) : null}

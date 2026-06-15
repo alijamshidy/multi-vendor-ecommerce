@@ -1,5 +1,5 @@
 import JsonLd from "@/components/seo/JsonLd";
-import LocaleSync from "@/components/Global/LocaleSync";
+import LocaleSync from "@/components/global/LocaleSync";
 import { BreadcrumbProvider } from "@/context/breadcrumb-context";
 import { routing } from "@/i18n/routing";
 import {

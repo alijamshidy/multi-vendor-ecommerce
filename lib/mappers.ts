@@ -15,7 +15,7 @@ import type {
   ApiShopSlider,
 } from "@/lib/api-types";
 import { resolveMediaUrl, unwrapEntity } from "@/lib/api-utils";
-import type { category } from "@/utils/Category";
+import type { category } from "@/utils/category";
 import type { collection } from "@/utils/Collection";
 import type { productType } from "@/utils/products";
 
@@ -120,7 +120,9 @@ export type ManagementOrderView = {
   createdAt?: string;
 };
 
-export function mapManagementOrder(item: ApiManagementOrder): ManagementOrderView {
+export function mapManagementOrder(
+  item: ApiManagementOrder,
+): ManagementOrderView {
   const status = Number(item.status ?? 0);
 
   return {
@@ -212,14 +214,19 @@ export type RecommendationView = {
   color?: string;
 };
 
-function mapContentImageUrl(image?: ApiContentImage | Record<string, unknown> | string | null) {
+function mapContentImageUrl(
+  image?: ApiContentImage | Record<string, unknown> | string | null,
+) {
   if (!image) return "/images/hero1.jpg";
   if (typeof image === "string") return resolveMediaUrl(image);
   if (typeof image.image === "string") return resolveMediaUrl(image.image);
   return "/images/hero1.jpg";
 }
 
-export function resolveShopLink(link: string | null | undefined, locale: string) {
+export function resolveShopLink(
+  link: string | null | undefined,
+  locale: string,
+) {
   if (!link) return `/${locale}`;
   if (link.startsWith("http")) return link;
   const normalized = link.startsWith("/") ? link : `/${link}`;
@@ -247,7 +254,10 @@ export function mapFaq(item: ApiShopFaq): FaqView {
   };
 }
 
-export function mapSliderSlides(items: ApiShopSlider[], locale: string): SlideView[] {
+export function mapSliderSlides(
+  items: ApiShopSlider[],
+  locale: string,
+): SlideView[] {
   const slides: SlideView[] = [];
 
   for (const slider of items) {

@@ -1,4 +1,4 @@
-import { Categorys } from "@/utils/Category";
+import { Categorys } from "@/utils/category";
 import {
   Select,
   SelectContent,

@@ -1,6 +1,6 @@
 import EditProductForm from "@/components/admin/EditProductForm";
 import PageHeader from "@/components/commerce/PageHeader";
-import Container from "@/components/Global/Container";
+import Container from "@/components/global/Container";
 
 export default async function EditProductPage({
   params,

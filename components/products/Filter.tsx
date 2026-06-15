@@ -1,5 +1,5 @@
 import FilterPanel from "@/components/products/FilterPanel";
-import Container from "../Global/Container";
+import Container from "../global/Container";
 
 export default function Filter() {
   return (

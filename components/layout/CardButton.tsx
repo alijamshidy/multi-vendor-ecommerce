@@ -1,6 +1,6 @@
 "use client";
 
-import BadgeIconButton from "@/components/Global/BadgeIconButton";
+import BadgeIconButton from "@/components/global/BadgeIconButton";
 import { useStoreInitOnce } from "@/hooks/use-store-init";
 import useCartStore from "@/store/cartStore";
 import { GetLocale } from "@/utils/GetUrlParams";

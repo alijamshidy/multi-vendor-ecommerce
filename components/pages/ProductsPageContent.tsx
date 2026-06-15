@@ -1,10 +1,10 @@
 "use client";
 
-import Container from "@/components/Global/Container";
+import Container from "@/components/global/Container";
 import Filter from "@/components/products/Filter";
 import MobileFilterDropdown from "@/components/products/MobileFilterDropdown";
-import ProductsContainer from "@/components/products/ProductsContainer";
 import ProductGridSkeleton from "@/components/products/ProductGridSkeleton";
+import ProductsContainer from "@/components/products/ProductsContainer";
 import { useQueryParams } from "@/hooks/use-query-params";
 import { useStoreInit, useStoreInitOnce } from "@/hooks/use-store-init";
 import {
@@ -13,8 +13,8 @@ import {
   getItemsPerPage,
   getTotalPages,
 } from "@/lib/product-query";
-import useProductStore from "@/store/productStore";
 import useCategoryStore from "@/store/categoryStore";
+import useProductStore from "@/store/productStore";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 

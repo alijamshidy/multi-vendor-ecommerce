@@ -1,9 +1,9 @@
 "use client";
 
-import FilterPanel from "@/components/products/FilterPanel";
-import LoadingTable from "@/components/Global/LoadingTable";
 import PageHeader from "@/components/commerce/PageHeader";
 import PageShell from "@/components/commerce/PageShell";
+import LoadingTable from "@/components/global/LoadingTable";
+import FilterPanel from "@/components/products/FilterPanel";
 import ProductPrice from "@/components/products/ProductPrice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,8 +20,8 @@ import { Link } from "@/i18n/navigation";
 import { buildProductQueryFromSearchParams } from "@/lib/product-query";
 import useManagementStore from "@/store/managementStore";
 import { Pencil, Plus, Trash2 } from "lucide-react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
@@ -101,7 +101,9 @@ export default function AdminProductsContent() {
                         <div className="flex items-center gap-3">
                           <div className="relative size-12 shrink-0 overflow-hidden rounded">
                             <Image
-                              src={product.images[0]?.url ?? "/images/hero1.jpg"}
+                              src={
+                                product.images[0]?.url ?? "/images/hero1.jpg"
+                              }
                               alt={product.label}
                               fill
                               className="object-cover"

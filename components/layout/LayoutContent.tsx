@@ -1,10 +1,10 @@
 "use client";
 
-import SiteFooter from "@/components/Global/SiteFooter";
+import SiteFooter from "@/components/global/SiteFooter";
 import AppBreadcrumb from "@/components/layout/AppBreadcrumb";
 import { cn } from "@/lib/utils";
-import { AppSidebar } from "../Global/AppSidebar";
-import Header from "../Global/Header";
+import { AppSidebar } from "../global/AppSidebar";
+import Header from "../global/Header";
 import { SidebarInset, useSidebar } from "../ui/sidebar";
 
 export default function LayoutContent({

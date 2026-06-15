@@ -1,8 +1,8 @@
 "use client";
 import { GetLocale } from "@/utils/GetUrlParams";
-import { LuHeart } from "react-icons/lu";
 import { useTranslations } from "next-intl";
-import BadgeIconButton from "../Global/BadgeIconButton";
+import { LuHeart } from "react-icons/lu";
+import BadgeIconButton from "../global/BadgeIconButton";
 
 export default function WishlistButton() {
   // const numItemsInCart = await fetchCartItems();

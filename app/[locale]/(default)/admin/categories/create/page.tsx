@@ -1,6 +1,6 @@
 import CreateCategoryForm from "@/components/admin/createCategory";
 import PageHeader from "@/components/commerce/PageHeader";
-import Container from "@/components/Global/Container";
+import Container from "@/components/global/Container";
 
 export default function CreateCategoryPage() {
   return (

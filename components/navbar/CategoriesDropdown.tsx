@@ -4,7 +4,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Categorys } from "@/utils/Category";
+import { Categorys } from "@/utils/category";
 import { ChevronDownIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

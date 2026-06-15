@@ -1,6 +1,6 @@
 import CreateProductForm from "@/components/admin/createProduct";
 import PageHeader from "@/components/commerce/PageHeader";
-import Container from "@/components/Global/Container";
+import Container from "@/components/global/Container";
 
 export default function CreateProductPage() {
   return (
