@@ -1,4 +1,5 @@
 import type { AuthRole } from "@/lib/api-types";
+import type { ChatConversationKind } from "@/lib/chat-constants";
 import type { ChatMessageView } from "@/store/chatStore";
 import { io, type Socket } from "socket.io-client";
 
@@ -68,12 +69,12 @@ export function registerChatSocketUser(
 export function emitSocketChatMessage(
   socket: Socket,
   role: AuthRole,
+  conversation: ChatConversationKind,
   payload: {
     senderId: string;
     receiverId: string;
     message: string;
     senderName?: string;
-    isAdminInbox?: boolean;
   },
 ): void {
   const base = {
@@ -85,21 +86,30 @@ export function emitSocketChatMessage(
     senderName: payload.senderName,
   };
 
-  if (role === "customer") {
-    socket.emit("send_customer_message", base);
-    return;
+  switch (conversation) {
+    case "seller-customer":
+      socket.emit(
+        role === "customer" ? "send_customer_message" : "send_seller_message",
+        base,
+      );
+      break;
+    case "admin-seller":
+      socket.emit(
+        role === "admin"
+          ? "send_message_admin_to_seller"
+          : "send_message_seller_to_admin",
+        base,
+      );
+      break;
+    case "admin-customer":
+      socket.emit(
+        role === "admin"
+          ? "send_message_admin_to_customer"
+          : "send_message_customer_to_admin",
+        base,
+      );
+      break;
   }
-
-  if (role === "seller") {
-    if (payload.isAdminInbox) {
-      socket.emit("send_message_seller_to_admin", base);
-      return;
-    }
-    socket.emit("send_seller_message", base);
-    return;
-  }
-
-  socket.emit("send_message_admin_to_seller", base);
 }
 
 export function subscribeChatSocket(
@@ -120,11 +130,13 @@ export function subscribeChatSocket(
 
   if (role === "customer") {
     bind("seller_message");
+    bind("admin_support_message");
   } else if (role === "seller") {
     bind("customer_message");
     bind("receved_admin_message");
   } else {
     bind("receved_seller_message");
+    bind("receved_customer_message");
   }
 
   return () => {

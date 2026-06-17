@@ -83,9 +83,14 @@ export const apiEndpoints = {
       `/chat/seller/get-customer-message/${customerId}`,
     sellerSendMessage: "/chat/seller/send-message-to-customer",
     adminSellers: "/chat/admin/get-sellers",
+    adminCustomers: "/chat/admin/get-customers",
     sellerAdminMessage: "/chat/message-send-seller-admin",
+    adminCustomerMessage: "/chat/message-send-admin-customer",
     adminMessages: (receiverId: string) => `/chat/get-admin-message/${receiverId}`,
+    adminCustomerMessages: (receiverId: string) =>
+      `/chat/get-admin-customer-message/${receiverId}`,
     sellerAdminInbox: "/chat/get-seller-message",
+    customerAdminInbox: "/chat/get-customer-admin-message",
   },
   payments: {
     stripeConnect: "/payment/create-stripe-connect-account",

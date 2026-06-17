@@ -2,6 +2,7 @@ import type { ApiChatMessage, ApiChatContact } from "@/lib/api-types";
 import { getApiErrorMessage } from "@/lib/api-utils";
 import api from "@/lib/axios";
 import { apiEndpoints } from "@/lib/endpoints";
+import { ADMIN_CHAT_PEER_ID } from "@/lib/chat-constants";
 import useAuthStore from "@/store/authStore";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
@@ -143,15 +144,22 @@ type ChatState = {
   errorMessage: string;
   loading: Record<ChatAction, boolean>;
   fetchAdminContacts: () => Promise<void>;
+  fetchAdminCustomerContacts: () => Promise<void>;
   fetchSellerCustomers: (sellerId?: string) => Promise<void>;
   fetchCustomerContacts: () => Promise<void>;
   fetchAdminMessages: (receiverId: string) => Promise<void>;
+  fetchAdminCustomerMessages: (receiverId: string) => Promise<void>;
   fetchSellerCustomerMessages: (customerId: string) => Promise<void>;
   fetchSellerAdminMessages: () => Promise<void>;
+  fetchCustomerAdminMessages: () => Promise<void>;
   sendAdminMessage: (payload: {
     receiverId: string;
     message: string;
     productId?: string;
+  }) => Promise<void>;
+  sendAdminCustomerMessage: (payload: {
+    receiverId: string;
+    message: string;
   }) => Promise<void>;
   sendSellerCustomerMessage: (payload: {
     receiverId: string;
@@ -172,6 +180,10 @@ type ChatState = {
     receiverId: string;
     message: string;
     productId?: string;
+  }) => Promise<void>;
+  sendCustomerAdminMessage: (payload: {
+    senderId: string;
+    message: string;
   }) => Promise<void>;
   appendIncomingMessage: (message: ChatMessageView) => void;
   setActiveContact: (contactId: string | null) => void;
@@ -220,6 +232,23 @@ const useChatStore = create<ChatState>()(
         } catch (error) {
           set({
             errorMessage: getApiErrorMessage(error, "Failed to load sellers"),
+            contacts: [],
+          });
+        } finally {
+          setStoreLoading(set, "fetchContacts", false);
+        }
+      },
+
+      fetchAdminCustomerContacts: async () => {
+        setStoreLoading(set, "fetchContacts", true, { errorMessage: "" });
+
+        try {
+          const { data } = await api.get(apiEndpoints.chat.adminCustomers);
+          const contacts = mapContacts(unwrapContacts(data));
+          set({ contacts, errorMessage: "" });
+        } catch (error) {
+          set({
+            errorMessage: getApiErrorMessage(error, "Failed to load customers"),
             contacts: [],
           });
         } finally {
@@ -307,6 +336,28 @@ const useChatStore = create<ChatState>()(
         }
       },
 
+      fetchAdminCustomerMessages: async receiverId => {
+        setStoreLoading(set, "fetchMessages", true, { errorMessage: "" });
+
+        try {
+          const { data } = await api.get(
+            apiEndpoints.chat.adminCustomerMessages(receiverId),
+          );
+          set({
+            messages: mapMessages(unwrapMessages(data)),
+            activeContactId: receiverId,
+            errorMessage: "",
+          });
+        } catch (error) {
+          set({
+            errorMessage: getApiErrorMessage(error, "Failed to load messages"),
+            messages: [],
+          });
+        } finally {
+          setStoreLoading(set, "fetchMessages", false);
+        }
+      },
+
       fetchSellerCustomerMessages: async customerId => {
         setStoreLoading(set, "fetchMessages", true, { errorMessage: "" });
 
@@ -348,23 +399,70 @@ const useChatStore = create<ChatState>()(
         }
       },
 
+      fetchCustomerAdminMessages: async () => {
+        setStoreLoading(set, "fetchMessages", true, { errorMessage: "" });
+
+        try {
+          const { data } = await api.get(apiEndpoints.chat.customerAdminInbox);
+          set({
+            messages: mapMessages(unwrapMessages(data)),
+            errorMessage: "",
+          });
+        } catch (error) {
+          set({
+            errorMessage: getApiErrorMessage(error, "Failed to load messages"),
+            messages: [],
+          });
+        } finally {
+          setStoreLoading(set, "fetchMessages", false);
+        }
+      },
+
       sendAdminMessage: async payload => {
         setStoreLoading(set, "sendMessage", true, { errorMessage: "" });
 
-        const senderId = useAuthStore.getState().user?.id;
-        if (!senderId) {
-          setStoreLoading(set, "sendMessage", false);
-          throw new Error("Not signed in");
-        }
-
         try {
           await api.post(apiEndpoints.chat.sellerAdminMessage, {
-            senderId,
+            senderId: ADMIN_CHAT_PEER_ID,
             receverId: payload.receiverId,
             message: payload.message,
             senderName: getSenderName(),
           });
-          await get().fetchAdminMessages(payload.receiverId);
+          appendLocalMessage(set, {
+            senderId: ADMIN_CHAT_PEER_ID,
+            receiverId: payload.receiverId,
+            message: payload.message,
+          });
+          void get()
+            .fetchAdminMessages(payload.receiverId)
+            .catch(() => undefined);
+        } catch (error) {
+          const message = getApiErrorMessage(error, "Failed to send message");
+          set({ errorMessage: message });
+          throw new Error(message);
+        } finally {
+          setStoreLoading(set, "sendMessage", false);
+        }
+      },
+
+      sendAdminCustomerMessage: async payload => {
+        setStoreLoading(set, "sendMessage", true, { errorMessage: "" });
+
+        try {
+          await api.post(apiEndpoints.chat.adminCustomerMessage, {
+            senderId: ADMIN_CHAT_PEER_ID,
+            receverId: payload.receiverId,
+            message: payload.message,
+            senderName: getSenderName(),
+          });
+          appendLocalMessage(set, {
+            senderId: ADMIN_CHAT_PEER_ID,
+            receiverId: payload.receiverId,
+            message: payload.message,
+          });
+          void get()
+            .fetchAdminCustomerMessages(payload.receiverId)
+            .catch(() => undefined);
         } catch (error) {
           const message = getApiErrorMessage(error, "Failed to send message");
           set({ errorMessage: message });
@@ -419,11 +517,16 @@ const useChatStore = create<ChatState>()(
         try {
           await api.post(apiEndpoints.chat.sellerAdminMessage, {
             senderId,
-            receverId: payload.receiverId,
+            receverId: ADMIN_CHAT_PEER_ID,
             message: payload.message,
             senderName: getSenderName(),
           });
-          await get().fetchSellerAdminMessages();
+          appendLocalMessage(set, {
+            senderId,
+            receiverId: ADMIN_CHAT_PEER_ID,
+            message: payload.message,
+          });
+          void get().fetchSellerAdminMessages().catch(() => undefined);
         } catch (error) {
           const message = getApiErrorMessage(error, "Failed to send message");
           set({ errorMessage: message });
@@ -494,6 +597,31 @@ const useChatStore = create<ChatState>()(
             activeContactId: payload.receiverId,
             errorMessage: "",
           });
+        } catch (error) {
+          const message = getApiErrorMessage(error, "Failed to send message");
+          set({ errorMessage: message });
+          throw new Error(message);
+        } finally {
+          setStoreLoading(set, "sendMessage", false);
+        }
+      },
+
+      sendCustomerAdminMessage: async payload => {
+        setStoreLoading(set, "sendMessage", true, { errorMessage: "" });
+
+        try {
+          await api.post(apiEndpoints.chat.adminCustomerMessage, {
+            senderId: payload.senderId,
+            receverId: ADMIN_CHAT_PEER_ID,
+            message: payload.message,
+            senderName: getSenderName(),
+          });
+          appendLocalMessage(set, {
+            senderId: payload.senderId,
+            receiverId: ADMIN_CHAT_PEER_ID,
+            message: payload.message,
+          });
+          void get().fetchCustomerAdminMessages().catch(() => undefined);
         } catch (error) {
           const message = getApiErrorMessage(error, "Failed to send message");
           set({ errorMessage: message });

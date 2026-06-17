@@ -6,6 +6,11 @@ import {
   registerChatSocketUser,
   subscribeChatSocket,
 } from "@/lib/chat-socket";
+import {
+  ADMIN_CHAT_PEER_ID,
+  resolveChatConversationKind,
+  type AdminChatChannel,
+} from "@/lib/chat-constants";
 import type { AuthRole } from "@/lib/api-types";
 import useAuthStore from "@/store/authStore";
 import useChatStore from "@/store/chatStore";
@@ -15,6 +20,7 @@ import type { Socket } from "socket.io-client";
 type UseChatSocketOptions = {
   role: AuthRole;
   activeContactId: string | null;
+  adminChannel?: AdminChatChannel;
   showAdminInbox?: boolean;
   receiverId?: string | null;
 };
@@ -22,6 +28,7 @@ type UseChatSocketOptions = {
 export function useChatSocket({
   role,
   activeContactId,
+  adminChannel = "sellers",
   showAdminInbox = false,
   receiverId = null,
 }: UseChatSocketOptions) {
@@ -29,17 +36,22 @@ export function useChatSocket({
   const appendIncomingMessage = useChatStore(state => state.appendIncomingMessage);
   const socketRef = useRef<Socket | null>(null);
 
+  const conversation = resolveChatConversationKind(role, {
+    adminChannel,
+    showAdminInbox,
+  });
+
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id && role !== "admin") return;
 
     const socket = createChatSocket();
     socketRef.current = socket;
 
     const handleConnect = () => {
       registerChatSocketUser(socket, role, {
-        id: user.id,
-        name: user.name,
-        email: user.email,
+        id: user?.id ?? ADMIN_CHAT_PEER_ID,
+        name: user?.name ?? user?.email ?? "Admin",
+        email: user?.email,
       });
     };
 
@@ -60,19 +72,29 @@ export function useChatSocket({
 
   const emitLiveMessage = (message: string) => {
     const socket = socketRef.current;
-    const senderId = user?.id;
     const resolvedReceiver =
-      receiverId ?? (showAdminInbox ? "" : activeContactId);
-    if (!socket || !senderId || resolvedReceiver === null || !message.trim()) {
+      receiverId ??
+      (showAdminInbox ? ADMIN_CHAT_PEER_ID : activeContactId);
+
+    let senderId = user?.id ?? "";
+    if (role === "admin") {
+      senderId = ADMIN_CHAT_PEER_ID;
+    }
+
+    if (
+      !socket ||
+      (role !== "admin" && !senderId) ||
+      resolvedReceiver === null ||
+      !message.trim()
+    ) {
       return;
     }
 
-    emitSocketChatMessage(socket, role, {
+    emitSocketChatMessage(socket, role, conversation, {
       senderId,
       receiverId: resolvedReceiver,
       message: message.trim(),
       senderName: user?.name ?? user?.email ?? "User",
-      isAdminInbox: role === "seller" && showAdminInbox,
     });
   };
 

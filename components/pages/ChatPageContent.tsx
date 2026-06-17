@@ -11,10 +11,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useChatSocket } from "@/hooks/use-chat-socket";
 import { useStoreInit } from "@/hooks/use-store-init";
 import type { AuthRole } from "@/lib/api-types";
+import {
+  ADMIN_CHAT_PEER_ID,
+  isOwnChatMessage,
+  type AdminChatChannel,
+} from "@/lib/chat-constants";
 import { cn } from "@/lib/utils";
 import useAuthStore from "@/store/authStore";
 import useChatStore from "@/store/chatStore";
-import { MessageSquare, Send } from "lucide-react";
+import { Headphones, MessageSquare, Send, Store, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
@@ -25,11 +30,9 @@ type ChatPageContentProps = {
   role: AuthRole;
 };
 
-/** Backend uses empty string as the admin participant id in seller↔admin chat. */
-const ADMIN_CHAT_PEER_ID = "";
-
 function resolveReceiverId({
   role,
+  adminChannel,
   activeContactId,
   sellerIdInput,
   showAdminInbox,
@@ -37,12 +40,17 @@ function resolveReceiverId({
   userId,
 }: {
   role: AuthRole;
+  adminChannel: AdminChatChannel;
   activeContactId: string | null;
   sellerIdInput: string;
   showAdminInbox: boolean;
   messages: ChatMessageView[];
   userId?: string;
 }): string | null {
+  if (role === "admin") {
+    return activeContactId;
+  }
+
   if (role === "seller" && showAdminInbox) {
     const peerMessage = messages.find(item => item.senderId !== userId);
     return (
@@ -50,6 +58,10 @@ function resolveReceiverId({
       messages.find(item => item.receiverId !== userId)?.receiverId ??
       ADMIN_CHAT_PEER_ID
     );
+  }
+
+  if (role === "customer" && showAdminInbox) {
+    return ADMIN_CHAT_PEER_ID;
   }
 
   if (role === "customer") {
@@ -70,6 +82,9 @@ export default function ChatPageContent({ role }: ChatPageContentProps) {
   const activeContactId = useChatStore(state => state.activeContactId);
   const errorMessage = useChatStore(state => state.errorMessage);
   const fetchAdminContacts = useChatStore(state => state.fetchAdminContacts);
+  const fetchAdminCustomerContacts = useChatStore(
+    state => state.fetchAdminCustomerContacts,
+  );
   const fetchSellerCustomers = useChatStore(
     state => state.fetchSellerCustomers,
   );
@@ -77,13 +92,22 @@ export default function ChatPageContent({ role }: ChatPageContentProps) {
     state => state.fetchCustomerContacts,
   );
   const fetchAdminMessages = useChatStore(state => state.fetchAdminMessages);
+  const fetchAdminCustomerMessages = useChatStore(
+    state => state.fetchAdminCustomerMessages,
+  );
   const fetchSellerCustomerMessages = useChatStore(
     state => state.fetchSellerCustomerMessages,
   );
   const fetchSellerAdminMessages = useChatStore(
     state => state.fetchSellerAdminMessages,
   );
+  const fetchCustomerAdminMessages = useChatStore(
+    state => state.fetchCustomerAdminMessages,
+  );
   const sendAdminMessage = useChatStore(state => state.sendAdminMessage);
+  const sendAdminCustomerMessage = useChatStore(
+    state => state.sendAdminCustomerMessage,
+  );
   const sendSellerCustomerMessage = useChatStore(
     state => state.sendSellerCustomerMessage,
   );
@@ -92,6 +116,9 @@ export default function ChatPageContent({ role }: ChatPageContentProps) {
   );
   const addCustomerFriend = useChatStore(state => state.addCustomerFriend);
   const sendCustomerMessage = useChatStore(state => state.sendCustomerMessage);
+  const sendCustomerAdminMessage = useChatStore(
+    state => state.sendCustomerAdminMessage,
+  );
   const setActiveContact = useChatStore(state => state.setActiveContact);
   const resetChat = useChatStore(state => state.resetChat);
   const isLoadingContacts = useChatStore(state => state.loading.fetchContacts);
@@ -102,23 +129,30 @@ export default function ChatPageContent({ role }: ChatPageContentProps) {
   const [draft, setDraft] = useState("");
   const [sellerIdInput, setSellerIdInput] = useState(sellerIdFromQuery);
   const [showAdminInbox, setShowAdminInbox] = useState(false);
+  const [adminChannel, setAdminChannel] = useState<AdminChatChannel>("sellers");
+
+  const receiverId = resolveReceiverId({
+    role,
+    adminChannel,
+    activeContactId,
+    sellerIdInput,
+    showAdminInbox,
+    messages,
+    userId: user?.id,
+  });
 
   const { emitLiveMessage } = useChatSocket({
     role,
     activeContactId,
+    adminChannel,
     showAdminInbox,
-    receiverId: resolveReceiverId({
-      role,
-      activeContactId,
-      sellerIdInput,
-      showAdminInbox,
-      messages,
-      userId: user?.id,
-    }),
+    receiverId,
   });
 
   useStoreInit(() => {
     resetChat();
+    setShowAdminInbox(false);
+    setAdminChannel("sellers");
 
     if (role === "admin") {
       void fetchAdminContacts();
@@ -143,12 +177,30 @@ export default function ChatPageContent({ role }: ChatPageContentProps) {
     void fetchCustomerContacts();
   }, [role, sellerIdFromQuery, user?.id]);
 
+  const handleAdminChannelChange = async (channel: AdminChatChannel) => {
+    setAdminChannel(channel);
+    setShowAdminInbox(false);
+    setActiveContact(null);
+    resetChat();
+
+    if (channel === "sellers") {
+      await fetchAdminContacts();
+      return;
+    }
+
+    await fetchAdminCustomerContacts();
+  };
+
   const handleSelectContact = async (contactId: string) => {
     setShowAdminInbox(false);
     setActiveContact(contactId);
 
     if (role === "admin") {
-      await fetchAdminMessages(contactId);
+      if (adminChannel === "customers") {
+        await fetchAdminCustomerMessages(contactId);
+      } else {
+        await fetchAdminMessages(contactId);
+      }
       return;
     }
 
@@ -169,7 +221,15 @@ export default function ChatPageContent({ role }: ChatPageContentProps) {
   const handleOpenAdminInbox = async () => {
     setShowAdminInbox(true);
     setActiveContact(null);
-    await fetchSellerAdminMessages();
+
+    if (role === "seller") {
+      await fetchSellerAdminMessages();
+      return;
+    }
+
+    if (role === "customer") {
+      await fetchCustomerAdminMessages();
+    }
   };
 
   const handleAddSeller = async () => {
@@ -193,15 +253,6 @@ export default function ChatPageContent({ role }: ChatPageContentProps) {
     const message = draft.trim();
     if (!message) return;
 
-    let receiverId = resolveReceiverId({
-      role,
-      activeContactId,
-      sellerIdInput,
-      showAdminInbox,
-      messages,
-      userId: user?.id,
-    });
-
     if (receiverId === null || receiverId === undefined) {
       toast.error(t("selectContactFirst"));
       return;
@@ -214,7 +265,11 @@ export default function ChatPageContent({ role }: ChatPageContentProps) {
 
     try {
       if (role === "admin") {
-        await sendAdminMessage({ receiverId, message });
+        if (adminChannel === "customers") {
+          await sendAdminCustomerMessage({ receiverId, message });
+        } else {
+          await sendAdminMessage({ receiverId, message });
+        }
       } else if (role === "seller") {
         if (showAdminInbox) {
           await sendSellerAdminMessage({ receiverId, message });
@@ -222,11 +277,15 @@ export default function ChatPageContent({ role }: ChatPageContentProps) {
           await sendSellerCustomerMessage({ receiverId, message });
         }
       } else if (user?.id) {
-        await sendCustomerMessage({
-          senderId: user.id,
-          receiverId,
-          message,
-        });
+        if (showAdminInbox) {
+          await sendCustomerAdminMessage({ senderId: user.id, message });
+        } else {
+          await sendCustomerMessage({
+            senderId: user.id,
+            receiverId,
+            message,
+          });
+        }
       }
 
       emitLiveMessage(message);
@@ -248,10 +307,21 @@ export default function ChatPageContent({ role }: ChatPageContentProps) {
 
   const hasRecipient =
     role === "customer"
-      ? Boolean(activeContactId ?? sellerIdInput.trim())
-      : Boolean(activeContactId) || (role === "seller" && showAdminInbox);
+      ? showAdminInbox || Boolean(activeContactId ?? sellerIdInput.trim())
+      : role === "admin"
+        ? Boolean(activeContactId)
+        : Boolean(activeContactId) || showAdminInbox;
 
   const canSend = Boolean(draft.trim()) && !isSending && hasRecipient;
+
+  const threadTitle =
+    showAdminInbox
+      ? t("adminSupport")
+      : role === "admin" && adminChannel === "customers"
+        ? t("customerMessages")
+        : role === "admin"
+          ? t("sellerMessages")
+          : t("messages");
 
   return (
     <PageShell>
@@ -291,17 +361,44 @@ export default function ChatPageContent({ role }: ChatPageContentProps) {
         <Card className="rounded-md">
           <CardContent className="p-4">
             <p className="mb-3 text-sm font-medium">{t("contacts")}</p>
-            {role === "seller" ? (
+
+            {role === "admin" ? (
+              <div className="mb-3 grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant={adminChannel === "sellers" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => void handleAdminChannelChange("sellers")}>
+                  <Store className="me-2 size-4" />
+                  {t("sellers")}
+                </Button>
+                <Button
+                  type="button"
+                  variant={adminChannel === "customers" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => void handleAdminChannelChange("customers")}>
+                  <Users className="me-2 size-4" />
+                  {t("customers")}
+                </Button>
+              </div>
+            ) : null}
+
+            {role === "seller" || role === "customer" ? (
               <Button
                 type="button"
                 variant={showAdminInbox ? "default" : "outline"}
                 size="sm"
                 className="mb-3 w-full justify-start"
                 onClick={() => void handleOpenAdminInbox()}>
-                <MessageSquare className="me-2 size-4" />
-                {t("adminInbox")}
+                {role === "customer" ? (
+                  <Headphones className="me-2 size-4" />
+                ) : (
+                  <MessageSquare className="me-2 size-4" />
+                )}
+                {t("adminSupport")}
               </Button>
             ) : null}
+
             {isLoadingContacts && contacts.length === 0 ? (
               <BorderedListSkeleton
                 count={4}
@@ -337,9 +434,7 @@ export default function ChatPageContent({ role }: ChatPageContentProps) {
 
         <Card className="rounded-md">
           <CardContent className="flex min-h-[28rem] flex-col p-4">
-            <p className="mb-3 text-sm font-medium">
-              {showAdminInbox ? t("adminInbox") : t("messages")}
-            </p>
+            <p className="mb-3 text-sm font-medium">{threadTitle}</p>
 
             <ScrollArea className="flex-1 rounded-md border p-3">
               {isLoadingMessages && messages.length === 0 ? (
@@ -351,7 +446,7 @@ export default function ChatPageContent({ role }: ChatPageContentProps) {
               ) : (
                 <div className="space-y-3">
                   {messages.map(item => {
-                    const isMine = item.senderId === user?.id;
+                    const isMine = isOwnChatMessage(role, item, user?.id);
                     return (
                       <div
                         key={item.id}
