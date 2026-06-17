@@ -16,11 +16,55 @@ import MultiImageInput from "@/components/form/MultiImageInput";
 import { useStoreInit } from "@/hooks/use-store-init";
 import useCategoryStore from "@/store/categoryStore";
 import useManagementStore from "@/store/managementStore";
+import type { category } from "@/utils/category";
 import { GetLocale } from "@/utils/GetUrlParams";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+
+type ProductFormSnapshot = {
+  name: string;
+  price: string;
+  stock: string;
+  description: string;
+  categoryId: string;
+};
+
+function resolveCategoryId(
+  productCategory: string,
+  categories: category[],
+): string {
+  if (!productCategory) return "";
+
+  const byId = categories.find(category => category.id === productCategory);
+  if (byId) return byId.id;
+
+  const byLabel = categories.find(
+    category => category.label === productCategory,
+  );
+  return byLabel?.id ?? "";
+}
+
+function buildSnapshot(
+  product: {
+    label: string;
+    originalPrice: number;
+    stock?: number;
+    description: string;
+    category: string;
+  },
+  categories: category[],
+): ProductFormSnapshot {
+  return {
+    name: product.label,
+    price: String(product.originalPrice),
+    stock: product.stock != null ? String(product.stock) : "",
+    description: product.description,
+    categoryId: resolveCategoryId(product.category, categories),
+  };
+}
 
 export default function EditProductForm({ productId }: { productId: string }) {
   const t = useTranslations("adminForms");
@@ -32,12 +76,15 @@ export default function EditProductForm({ productId }: { productId: string }) {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [description, setDescription] = useState("");
+  const [initialSnapshot, setInitialSnapshot] =
+    useState<ProductFormSnapshot | null>(null);
 
   const categories = useCategoryStore(state => state.categories);
   const fetchCategories = useCategoryStore(state => state.fetchCategories);
   const activeProduct = useManagementStore(state => state.activeProduct);
   const fetchProduct = useManagementStore(state => state.fetchProduct);
   const updateProduct = useManagementStore(state => state.updateProduct);
+  const productError = useManagementStore(state => state.errorMessage);
   const isLoadingProduct = useManagementStore(state => state.loading.fetchProduct);
   const isSubmitting = useManagementStore(state => state.loading.updateProduct);
 
@@ -48,20 +95,45 @@ export default function EditProductForm({ productId }: { productId: string }) {
 
   useEffect(() => {
     if (!activeProduct || activeProduct.id !== productId) return;
-    setName(activeProduct.label);
-    setPrice(String(activeProduct.originalPrice));
-    setStock(activeProduct.stock != null ? String(activeProduct.stock) : "");
-    setDescription(activeProduct.description);
-  }, [activeProduct, productId]);
 
-  useEffect(() => {
-    if (!categoryId && categories.length > 0 && activeProduct?.category) {
-      const match = categories.find(
-        category => category.label === activeProduct.category,
-      );
-      if (match) setCategoryId(match.id);
-    }
-  }, [categories, activeProduct, categoryId]);
+    const snapshot = buildSnapshot(activeProduct, categories);
+    setName(snapshot.name);
+    setPrice(snapshot.price);
+    setStock(snapshot.stock);
+    setDescription(snapshot.description);
+    setCategoryId(snapshot.categoryId);
+    setImages([]);
+    setInitialSnapshot(snapshot);
+  }, [activeProduct, productId, categories]);
+
+  const isDirty = useMemo(() => {
+    if (!initialSnapshot) return false;
+
+    return (
+      name.trim() !== initialSnapshot.name ||
+      price.trim() !== initialSnapshot.price ||
+      stock.trim() !== initialSnapshot.stock ||
+      description.trim() !== initialSnapshot.description ||
+      categoryId !== initialSnapshot.categoryId ||
+      images.length > 0
+    );
+  }, [
+    categoryId,
+    description,
+    images.length,
+    initialSnapshot,
+    name,
+    price,
+    stock,
+  ]);
+
+  const canSubmit =
+    Boolean(name.trim()) &&
+    Boolean(price.trim()) &&
+    Boolean(stock.trim()) &&
+    Boolean(categoryId) &&
+    isDirty &&
+    !isSubmitting;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -70,6 +142,8 @@ export default function EditProductForm({ productId }: { productId: string }) {
       toast.error(t("selectCategory"));
       return;
     }
+
+    if (!isDirty) return;
 
     try {
       await updateProduct(productId, {
@@ -81,7 +155,7 @@ export default function EditProductForm({ productId }: { productId: string }) {
         ...(images.length > 0 ? { images } : {}),
       });
       toast.success(t("productUpdated"));
-      router.push(`/${locale}/admin/products`);
+      router.push(`/${locale}/seller/products`);
       router.refresh();
     } catch (error) {
       toast.error(
@@ -93,6 +167,14 @@ export default function EditProductForm({ productId }: { productId: string }) {
   if (isLoadingProduct && !activeProduct) {
     return (
       <p className="text-sm text-muted-foreground">{t("loadingProduct")}</p>
+    );
+  }
+
+  if (!isLoadingProduct && !activeProduct) {
+    return (
+      <p className="text-sm text-destructive">
+        {productError || t("productNotFound")}
+      </p>
     );
   }
 
@@ -168,6 +250,28 @@ export default function EditProductForm({ productId }: { productId: string }) {
               className="min-h-32 resize-none"
             />
           </div>
+
+          {activeProduct?.images.length ? (
+            <div className="space-y-2 sm:col-span-2">
+              <Label>{t("currentProductImages")}</Label>
+              <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                {activeProduct.images.map((image, index) => (
+                  <li
+                    key={image.id}
+                    className="relative aspect-square overflow-hidden rounded-md border bg-muted">
+                    <Image
+                      src={image.url}
+                      alt={`${activeProduct.label} ${index + 1}`}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
           <MultiImageInput
             className="sm:col-span-2"
             label={t("productImages")}
@@ -178,7 +282,7 @@ export default function EditProductForm({ productId }: { productId: string }) {
           <Button
             type="submit"
             className="sm:col-span-2"
-            disabled={isSubmitting || !name.trim() || !price.trim()}>
+            disabled={!canSubmit}>
             {isSubmitting ? t("saving") : t("updateProduct")}
           </Button>
         </form>

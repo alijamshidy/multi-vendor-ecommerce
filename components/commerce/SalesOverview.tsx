@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useStoreInit } from "@/hooks/use-store-init";
 
 import useAdminStore from "@/store/adminStore";
+import useOrderStore from "@/store/orderStore";
 
 import { formatCurrency } from "@/utils/format";
 
@@ -79,26 +80,34 @@ export default function SalesOverview({ role }: SalesOverviewProps) {
   const fetchSales = useAdminStore(state => state.fetchSales);
 
   const fetchManagementOrders = useAdminStore(
-
     state => state.fetchManagementOrders,
-
+  );
+  const sellerOrders = useOrderStore(state => state.sellerOrders);
+  const fetchSellerOrders = useOrderStore(state => state.fetchSellerOrders);
+  const isLoadingSellerOrders = useOrderStore(
+    state => state.loading.fetchSellerOrders,
   );
 
   const isLoadingTotals = useAdminStore(state => state.loading.fetchTotals);
   const isLoadingSales = useAdminStore(state => state.loading.fetchSales);
   const isLoadingOrders = useAdminStore(state => state.loading.fetchOrders);
-  const isLoading = isLoadingTotals || isLoadingSales || isLoadingOrders;
+  const isLoading = isAdmin
+    ? isLoadingTotals || isLoadingSales || isLoadingOrders
+    : isLoadingSellerOrders;
+
+  const displayOrders = isAdmin ? orders : sellerOrders;
 
 
 
   useStoreInit(() => {
+    if (isAdmin) {
+      void fetchDashboardTotals();
+      void fetchSales(1);
+      void fetchManagementOrders({ page: 1 });
+      return;
+    }
 
-    void fetchDashboardTotals();
-
-    void fetchSales(1);
-
-    void fetchManagementOrders({ page: 1 });
-
+    void fetchSellerOrders({ page: 1 });
   });
 
 
@@ -107,9 +116,9 @@ export default function SalesOverview({ role }: SalesOverviewProps) {
 
     findCheckpointTotal(checkpoints, ["revenue", "sale", "gmv", "amount"]) ?? 0;
 
-  const ordersTotal =
-
-    findCheckpointTotal(checkpoints, ["order"]) ?? orders.length;
+  const ordersTotal = isAdmin
+    ? findCheckpointTotal(checkpoints, ["order"]) ?? orders.length
+    : sellerOrders.length;
 
 
 
@@ -166,9 +175,7 @@ export default function SalesOverview({ role }: SalesOverviewProps) {
           label={t("orders")}
 
           value={
-
-            isLoading && orders.length === 0 ? "—" : String(ordersTotal)
-
+            isLoading && displayOrders.length === 0 ? "—" : String(ordersTotal)
           }
 
           icon={ReceiptText}
@@ -233,20 +240,20 @@ export default function SalesOverview({ role }: SalesOverviewProps) {
             <p className="text-sm text-destructive">{ordersError}</p>
           ) : null}
 
-          {isLoading && orders.length === 0 ? (
+          {isLoading && displayOrders.length === 0 ? (
 
             <BorderedListSkeleton
               count={5}
               columns={4}
             />
 
-          ) : orders.length === 0 ? (
+          ) : displayOrders.length === 0 ? (
 
             <p className="text-sm text-muted-foreground">{t("noOrders")}</p>
 
           ) : (
 
-            orders.slice(0, 10).map(order => (
+            displayOrders.slice(0, 10).map(order => (
 
               <div
 
@@ -264,7 +271,7 @@ export default function SalesOverview({ role }: SalesOverviewProps) {
 
                 <Badge
 
-                  variant={order.status === 4 ? "secondary" : "default"}
+                  variant={order.status === "delivered" ? "secondary" : "default"}
 
                   className="w-fit">
 

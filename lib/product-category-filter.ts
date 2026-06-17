@@ -51,8 +51,7 @@ export function productMatchesCategories(
 ): boolean {
   if (categoryIds.length === 0) return true;
 
-  const allowed = new Set(categoryIds);
-  return (product.categories ?? []).some(item => allowed.has(String(item.id)));
+  return categoryIds.length === 0 || categoryIds.includes(product.category);
 }
 
 export function sortCategoriesForFilter(items: category[]): category[] {

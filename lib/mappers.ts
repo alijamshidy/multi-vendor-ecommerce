@@ -1,155 +1,197 @@
 import type {
   ApiCartItem,
+  ApiCartListResponse,
   ApiCategory,
-  ApiCollection,
-  ApiComment,
-  ApiContentImage,
-  ApiManagementOrder,
   ApiOrder,
   ApiProduct,
-  ApiSaleReview,
-  ApiShopContact,
-  ApiShopFaq,
-  ApiShopHeader,
-  ApiShopRecommendation,
-  ApiShopSlider,
+  ApiReview,
+  ApiWishlistItem,
+  ApiWishlistResponse,
 } from "@/lib/api-types";
-import { resolveMediaUrl, unwrapEntity } from "@/lib/api-utils";
+import { resolveMediaUrl } from "@/lib/api-utils";
 import type { category } from "@/utils/category";
-import type { collection } from "@/utils/Collection";
 import type { productType } from "@/utils/products";
 
 export function mapCategory(item: ApiCategory): category {
   return {
-    id: String(item.id),
+    id: item._id,
     href: item.slug,
     label: item.name,
     image: resolveMediaUrl(item.image),
-    parent: item.parent != null ? String(item.parent) : null,
-    depth: item.depth,
-  };
-}
-
-export function mapCollection(item: ApiCollection): collection {
-  return {
-    id: String(item.id),
-    href: item.slug,
-    label: item.name,
-    image: resolveMediaUrl(item.image),
-    description: item.description,
+    parent: null,
+    depth: 0,
   };
 }
 
 export function mapProduct(item: ApiProduct): productType {
+  const discountPercent = item.discount ?? 0;
+  const originalPrice = item.price;
+  const salePrice =
+    discountPercent > 0
+      ? Math.round(originalPrice * (1 - discountPercent / 100))
+      : originalPrice;
+
   const images = item.images?.length
-    ? item.images.map(image => ({
-        id: image.id,
-        url: resolveMediaUrl(image.image),
+    ? item.images.map((url, index) => ({
+        id: `${item._id}-${index}`,
+        url: resolveMediaUrl(url),
       }))
-    : [{ id: item.id, url: "/images/hero1.jpg" }];
-
-  const attribute = item.attribute;
-  const description =
-    item.description?.trim() ||
-    (typeof attribute === "string"
-      ? attribute
-      : attribute && typeof attribute === "object"
-        ? Object.entries(attribute)
-            .map(([key, value]) => `${key}: ${value}`)
-            .join(" · ")
-        : "");
-
-  const originalPrice = Number(item.price);
-  const salePrice = Number(item.discount_price ?? item.price);
+    : [{ id: item._id, url: "/images/hero1.jpg" }];
 
   return {
-    id: String(item.id),
+    id: item._id,
     href: item.slug,
     label: item.name,
     images,
     price: salePrice,
     originalPrice,
-    category: item.categories?.[0]?.name ?? "",
-    description,
-    isOutOfStock: Boolean(item.is_out_of_stock),
-    stock: item.stuck,
+    category: item.category ?? "",
+    description: item.description?.trim() ?? "",
+    sellerId: item.sellerId,
+    shopName: item.shopName,
+    isOutOfStock: (item.stock ?? 0) <= 0,
+    stock: item.stock,
   };
 }
 
-export const ORDER_STATUS_LABELS: Record<number, string> = {
-  1: "Pending for Payment",
-  2: "Paid",
-  3: "Processing",
-  4: "Delivered",
-  5: "Refunded",
-  6: "Canceled",
-  7: "Preparing",
-};
+export type WishlistItemView = ReturnType<typeof mapWishlistItem>;
 
-export type SaleReviewView = {
-  id: string;
-  name: string;
-  price: number;
-  numOrders: number;
-  totalSale: number;
-  imageUrl: string;
-};
-
-export function mapSaleReview(item: ApiSaleReview): SaleReviewView {
-  const imageUrl = item.images?.[0]?.image
-    ? resolveMediaUrl(item.images[0].image)
-    : "/images/hero1.jpg";
-
+export function buildWishlistPayload(product: productType) {
   return {
-    id: String(item.id),
-    name: item.name ?? "",
-    price: Number(item.price ?? 0),
-    numOrders: Number(item.num_orders ?? 0),
-    totalSale: Number(item.total_sale ?? 0),
-    imageUrl,
+    productId: product.id,
+    name: product.label,
+    price: product.originalPrice,
+    image: product.images[0]?.url ?? "",
+    discount:
+      product.originalPrice > product.price
+        ? Math.round(
+            ((product.originalPrice - product.price) / product.originalPrice) *
+              100,
+          )
+        : 0,
+    rating: 0,
+    slug: product.href,
   };
 }
 
-export type ManagementOrderView = {
-  id: string;
-  fullId: string;
-  status: number;
-  statusLabel: string;
-  total: number;
-  itemsCount: number;
-  createdAt?: string;
-};
+export function mapWishlistItem(item: ApiWishlistItem) {
+  const discountPercent = item.discount ?? 0;
+  const originalPrice = item.price ?? 0;
+  const salePrice =
+    discountPercent > 0
+      ? Math.round(originalPrice * (1 - discountPercent / 100))
+      : originalPrice;
 
-export function mapManagementOrder(
-  item: ApiManagementOrder,
-): ManagementOrderView {
-  const status = Number(item.status ?? 0);
+  const imageUrl = resolveMediaUrl(item.image);
 
   return {
-    id: String(item.id).slice(0, 8).toUpperCase(),
-    fullId: String(item.id),
-    status,
-    statusLabel: ORDER_STATUS_LABELS[status] ?? `Status ${status}`,
-    total: Number(item.total_discount_price ?? item.total_price ?? 0),
-    itemsCount: item.items?.length ?? 0,
-    createdAt: item.created_at,
+    wishlistId: item._id,
+    id: item.productId ?? item._id,
+    href: item.slug ?? item.productId ?? item._id,
+    label: item.name ?? "Product",
+    images: [
+      {
+        id: item._id,
+        url: imageUrl || "/images/hero1.jpg",
+      },
+    ],
+    price: salePrice,
+    originalPrice,
+    category: "",
+    description: "",
   };
+}
+
+export function parseWishlistResponse(data: ApiWishlistResponse): {
+  items: ApiWishlistItem[];
+  count: number;
+} {
+  const items = data.wishlists ?? data.wishlist_products ?? [];
+  const count = data.wishlistCount ?? data.wishlist_count ?? items.length;
+  return { items, count };
 }
 
 export function mapCartItem(item: ApiCartItem) {
+  const apiProduct = item.product ?? item.productInfo;
+  const product = apiProduct
+    ? mapProduct(apiProduct)
+    : {
+        id: item.productId ?? item._id,
+        href: item.productId ?? item._id,
+        label: "Product",
+        images: [{ id: item._id, url: "/images/hero1.jpg" }],
+        price: 0,
+        originalPrice: 0,
+        category: "",
+        description: "",
+      };
+
   return {
-    id: item.id,
-    product: mapProduct(item.product),
-    quantity: item.quantity,
+    id: item._id,
+    product,
+    quantity: item.quantity ?? 1,
   };
 }
 
+export function flattenCartResponse(data: ApiCartListResponse): ApiCartItem[] {
+  if (data.cardProducts?.length) return data.cardProducts;
+
+  const items: ApiCartItem[] = [];
+  for (const group of data.card_products ?? []) {
+    for (const line of group.products ?? []) {
+      items.push({
+        _id: line._id,
+        quantity: line.quantity,
+        productId: line.productInfo?._id,
+        product: line.productInfo,
+      });
+    }
+  }
+  return items;
+}
+
 export function mapOrder(item: ApiOrder) {
+  const status =
+    item.status ??
+    (item as { delivery_status?: string }).delivery_status ??
+    "pending";
+
   return {
-    id: String(item.id).slice(0, 8).toUpperCase(),
-    status: item.status,
-    total: Number(item.total_discount_price ?? item.total_price),
-    items: item.items?.length ?? 0,
+    id: String(item._id).slice(0, 8).toUpperCase(),
+    fullId: String(item._id),
+    status,
+    total: Number(item.price ?? 0),
+    items: item.products?.length ?? 0,
+    createdAt: item.createdAt,
+    shippingFee: Number(item.shipping_fee ?? 0),
+    shippingInfo: item.shippingInfo ?? null,
+    products: item.products ?? [],
+  };
+}
+
+export function unwrapOrderResponse(data: unknown): ApiOrder | null {
+  if (!data || typeof data !== "object") return null;
+  const record = data as Record<string, unknown>;
+  if (record.order && typeof record.order === "object") {
+    return record.order as ApiOrder;
+  }
+  if (record._id) {
+    return record as ApiOrder;
+  }
+  return null;
+}
+
+export type ManagementOrderView = ReturnType<typeof mapOrder> & {
+  statusLabel: string;
+  itemsCount: number;
+};
+
+export function mapManagementOrder(item: ApiOrder): ManagementOrderView {
+  const mapped = mapOrder(item);
+  return {
+    ...mapped,
+    statusLabel: mapped.status,
+    itemsCount: mapped.items,
   };
 }
 
@@ -164,25 +206,40 @@ export type ReviewView = {
   createdAt?: string;
 };
 
-export function mapComment(item: ApiComment): ReviewView {
+export function mapComment(item: ApiReview): ReviewView {
   return {
-    id: String(item.id),
-    comment: item.text ?? item.comment ?? "",
+    id: String(item._id ?? ""),
+    comment: item.review ?? "",
     rating: item.rating ?? 0,
-    authorName: "Customer",
+    authorName: item.name ?? "Customer",
     authorImageUrl: "",
-    userId: item.user?.id ?? null,
-    replies: (item.replys ?? []).map(mapComment),
-    createdAt: item.created_at,
+    userId: null,
+    replies: [],
+    createdAt: item.createdAt,
   };
 }
 
-export type FaqView = {
+export type SaleReviewView = {
   id: string;
-  question: string;
-  answer: string;
+  name: string;
+  price: number;
+  numOrders: number;
+  totalSale: number;
+  imageUrl: string;
 };
 
+export function mapSaleReview(item: Record<string, unknown>): SaleReviewView {
+  return {
+    id: String(item._id ?? item.id ?? ""),
+    name: String(item.name ?? ""),
+    price: Number(item.price ?? 0),
+    numOrders: Number(item.numOrders ?? 0),
+    totalSale: Number(item.totalSale ?? 0),
+    imageUrl: "/images/hero1.jpg",
+  };
+}
+
+export type FaqView = { id: string; question: string; answer: string };
 export type SlideView = {
   id: string;
   imageUrl: string;
@@ -191,7 +248,6 @@ export type SlideView = {
   text?: string;
   color?: string;
 };
-
 export type HeaderView = {
   id: string;
   text: string;
@@ -199,13 +255,11 @@ export type HeaderView = {
   imageUrl?: string;
   href?: string;
 };
-
 export type ContactView = {
   instagram?: string;
   telegram?: string;
   phones: string[];
 };
-
 export type RecommendationView = {
   id: string;
   imageUrl: string;
@@ -213,15 +267,6 @@ export type RecommendationView = {
   text?: string;
   color?: string;
 };
-
-function mapContentImageUrl(
-  image?: ApiContentImage | Record<string, unknown> | string | null,
-) {
-  if (!image) return "/images/hero1.jpg";
-  if (typeof image === "string") return resolveMediaUrl(image);
-  if (typeof image.image === "string") return resolveMediaUrl(image.image);
-  return "/images/hero1.jpg";
-}
 
 export function resolveShopLink(
   link: string | null | undefined,
@@ -236,7 +281,6 @@ export function resolveShopLink(
   return `/${locale}${normalized}`.replace(/\/+$/, "") || `/${locale}`;
 }
 
-/** Converts API links for next-intl `Link` (paths without locale prefix). */
 export function toNavigationPath(href: string, locale: string): string {
   if (href.startsWith("http")) return href;
   if (href.startsWith(`/${locale}/`)) {
@@ -246,86 +290,68 @@ export function toNavigationPath(href: string, locale: string): string {
   return href.startsWith("/") ? href : `/${href}`;
 }
 
-export function mapFaq(item: ApiShopFaq): FaqView {
-  return {
-    id: String(item.id),
-    question: item.question,
-    answer: item.answer,
-  };
+export function buildProductDetailHref(
+  locale: string,
+  product: { href: string },
+): string {
+  return `/${locale}/products/${encodeURIComponent(product.href)}`;
+}
+
+/** @deprecated CMS not available — returns empty defaults */
+export function mapFaq(item: {
+  id: string;
+  question: string;
+  answer: string;
+}): FaqView {
+  return { id: String(item.id), question: item.question, answer: item.answer };
 }
 
 export function mapSliderSlides(
-  items: ApiShopSlider[],
+  _items: unknown[],
   locale: string,
 ): SlideView[] {
-  const slides: SlideView[] = [];
-
-  for (const slider of items) {
-    for (const image of slider.images ?? []) {
-      slides.push({
-        id: String(image.id ?? `${slider.id}-${slides.length}`),
-        imageUrl: mapContentImageUrl(image),
-        alt: image.text ?? slider.text ?? "Slide",
-        href: resolveShopLink(image.related_link, locale),
-        text: slider.text ?? image.text ?? undefined,
-        color: slider.color ?? image.color ?? undefined,
-      });
-    }
-  }
-
-  return slides;
+  return [
+    {
+      id: "default-1",
+      imageUrl: "/images/hero1.jpg",
+      alt: "Banner",
+      href: `/${locale}/products`,
+    },
+  ];
 }
 
-export function mapHeader(item: ApiShopHeader, locale: string): HeaderView {
-  return {
-    id: String(item.id),
-    text: item.text ?? "",
-    color: item.color ?? undefined,
-    imageUrl: item.image ? mapContentImageUrl(item.image) : undefined,
-    href: item.image?.related_link
-      ? resolveShopLink(item.image.related_link, locale)
-      : undefined,
-  };
+export function mapHeader(_item: unknown, _locale: string): HeaderView {
+  return { id: "default", text: "" };
 }
 
-export function mapContact(data: unknown): ContactView {
-  const channel =
-    unwrapEntity<ApiShopContact>(data) ??
-    unwrapEntity<ApiShopContact>(unwrapEntity<Record<string, unknown>>(data));
-
-  if (!channel) {
-    return { phones: [] };
-  }
-
-  const phones = [channel.contact_number, channel.contact_number_2].filter(
-    (value): value is string => Boolean(value),
-  );
-
-  return {
-    instagram: channel.instagram_channel ?? undefined,
-    telegram: channel.telegram_channel ?? undefined,
-    phones,
-  };
+export function mapContact(_data: unknown): ContactView {
+  return { phones: [] };
 }
 
 export function mapRecommendation(
-  item: ApiShopRecommendation,
+  _item: unknown,
   locale: string,
 ): RecommendationView {
-  const image = item.image;
-  const href = resolveShopLink(
-    item.related_link ??
-      (typeof image === "object" && image && "related_link" in image
-        ? (image.related_link as string | null)
-        : null),
-    locale,
-  );
-
   return {
-    id: String(item.id ?? href),
-    imageUrl: mapContentImageUrl(image),
-    href,
-    text: item.text ?? undefined,
-    color: item.color ?? undefined,
+    id: "default",
+    imageUrl: "/images/hero2.jpg",
+    href: `/${locale}/products`,
+  };
+}
+
+/** @deprecated Collections not available */
+export function mapCollection(item: {
+  id: string;
+  name: string;
+  slug: string;
+  image?: string | null;
+  description?: string;
+}) {
+  return {
+    id: String(item.id),
+    href: item.slug,
+    label: item.name,
+    image: resolveMediaUrl(item.image),
+    description: item.description,
   };
 }

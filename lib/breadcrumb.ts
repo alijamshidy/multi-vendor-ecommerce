@@ -20,6 +20,7 @@ const SEGMENT_LABEL_KEYS: Record<string, string> = {
   contact: "nav.contact",
   dashboard: "nav.dashboard",
   sales: "nav.sales",
+  sellers: "nav.sellers",
   login: "nav.login",
   register: "nav.register",
   reset_password: "auth.resetPassword",

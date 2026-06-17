@@ -1,11 +1,12 @@
-import type { UserProfile } from "@/lib/api-types";
-import { resolveMediaUrl, unwrapEntity } from "@/lib/api-utils";
 import { API_BASE_URL } from "@/lib/axios";
+import { apiEndpoints } from "@/lib/endpoints";
 import { cookies } from "next/headers";
 
 export async function getAccessTokenFromServerCookies(): Promise<string | null> {
   const cookieStore = await cookies();
-  const rawToken = cookieStore.get("accessToken")?.value?.trim();
+  const accessToken = cookieStore.get("accessToken")?.value?.trim();
+  const customerToken = cookieStore.get("customerToken")?.value?.trim();
+  const rawToken = accessToken ?? customerToken;
   if (!rawToken) return null;
 
   try {
@@ -16,22 +17,26 @@ export async function getAccessTokenFromServerCookies(): Promise<string | null> 
 }
 
 export async function getUserProfileImage(): Promise<string | null> {
-  const token = await getAccessTokenFromServerCookies();
-  if (!token) return null;
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map(item => `${item.name}=${item.value}`)
+    .join("; ");
+
+  if (!cookieHeader) return null;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/users/me/profile/`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+    const response = await fetch(`${API_BASE_URL}${apiEndpoints.auth.getUser}`, {
+      headers: { Cookie: cookieHeader },
       cache: "no-store",
     });
 
     if (!response.ok) return null;
 
-    const data = unwrapEntity<UserProfile>(await response.json());
-    return data?.image ? resolveMediaUrl(data.image) : null;
+    const data = (await response.json()) as {
+      userInfo?: { image?: string };
+    };
+    return data.userInfo?.image ?? null;
   } catch {
     return null;
   }

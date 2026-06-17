@@ -1,32 +1,22 @@
 import type {
-  ApiCategory,
+  ApiCategoriesResponse,
   ApiProduct,
-  ApiShopFaq,
-  ApiShopHeader,
-  ApiShopRecommendation,
-  ApiShopSlider,
+  ApiProductDetailsResponse,
 } from "@/lib/api-types";
 import { unwrapEntity, unwrapList } from "@/lib/api-utils";
-import {
-  mapContact,
-  mapFaq,
-  mapHeader,
-  mapRecommendation,
-  mapSliderSlides,
-} from "@/lib/mappers";
-const SERVER_ORIGIN =
-  process.env.API_URL?.replace(/\/$/, "").replace(/\/api\/v1\/?$/, "") ??
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, "") ??
-  "http://localhost:8000";
+import { apiEndpoints } from "@/lib/endpoints";
 
-const API_BASE = `${SERVER_ORIGIN}/api/v1`;
+const SERVER_ORIGIN = (
+  process.env.MARKETPLACE_API_URL ?? "http://localhost:5000"
+).replace(/\/$/, "");
+
+const API_BASE = `${SERVER_ORIGIN}/api`;
 
 async function serverFetch<T>(path: string): Promise<T | null> {
   try {
     const response = await fetch(`${API_BASE}${path}`, {
       next: { revalidate: 3600 },
     });
-
     if (!response.ok) return null;
     return (await response.json()) as T;
   } catch {
@@ -34,44 +24,48 @@ async function serverFetch<T>(path: string): Promise<T | null> {
   }
 }
 
-export async function fetchProduct(id: string): Promise<ApiProduct | null> {
-  const data = await serverFetch<unknown>(`/products/${id}/`);
-  return unwrapEntity<ApiProduct>(data);
+export async function fetchProduct(slug: string): Promise<ApiProduct | null> {
+  const data = await serverFetch<ApiProductDetailsResponse>(
+    apiEndpoints.storefront.productDetails(slug),
+  );
+  return data?.product ?? unwrapEntity<ApiProduct>(data);
 }
 
 export async function fetchProductsForSitemap(): Promise<ApiProduct[]> {
-  const data = await serverFetch<unknown>("/products/?page_size=100");
-  return unwrapList<ApiProduct>(data);
-}
-
-export async function fetchCategoriesForSitemap(): Promise<ApiCategory[]> {
-  const data = await serverFetch<unknown>("/categories/");
-  return unwrapList<ApiCategory>(data);
-}
-
-export async function fetchShopFaqs() {
-  const data = await serverFetch<unknown>("/faq/");
-  return unwrapList<ApiShopFaq>(data).map(mapFaq);
-}
-
-export async function fetchShopHeaders(locale: string) {
-  const data = await serverFetch<unknown>("/header/");
-  return unwrapList<ApiShopHeader>(data).map(item => mapHeader(item, locale));
-}
-
-export async function fetchShopSliders(locale: string) {
-  const data = await serverFetch<unknown>("/slider/");
-  return mapSliderSlides(unwrapList<ApiShopSlider>(data), locale);
-}
-
-export async function fetchShopContact() {
-  const data = await serverFetch<unknown>("/contact/");
-  return mapContact(data);
-}
-
-export async function fetchShopRecommendations(locale: string) {
-  const data = await serverFetch<unknown>("/recommendations/");
-  return unwrapList<ApiShopRecommendation>(data).map(item =>
-    mapRecommendation(item, locale),
+  const data = await serverFetch<{ products: ApiProduct[] }>(
+    apiEndpoints.storefront.homeProducts,
   );
+  return data?.products ?? [];
+}
+
+export async function fetchCategoriesForSitemap() {
+  const data = await serverFetch<ApiCategoriesResponse>(
+    apiEndpoints.storefront.categories,
+  );
+  return data?.categories ?? [];
+}
+
+/** @deprecated CMS not available */
+export async function fetchShopFaqs() {
+  return [];
+}
+
+/** @deprecated CMS not available */
+export async function fetchShopHeaders(_locale: string) {
+  return [];
+}
+
+/** @deprecated CMS not available */
+export async function fetchShopSliders(_locale: string) {
+  return [];
+}
+
+/** @deprecated CMS not available */
+export async function fetchShopContact() {
+  return { phones: [] };
+}
+
+/** @deprecated CMS not available */
+export async function fetchShopRecommendations(_locale: string) {
+  return [];
 }

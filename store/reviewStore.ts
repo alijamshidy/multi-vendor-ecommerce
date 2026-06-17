@@ -1,6 +1,7 @@
-import type { ApiComment } from "@/lib/api-types";
-import { getApiErrorMessage, unwrapList } from "@/lib/api-utils";
+import type { ApiReview } from "@/lib/api-types";
+import { getApiErrorMessage } from "@/lib/api-utils";
 import api from "@/lib/axios";
+import { apiEndpoints } from "@/lib/endpoints";
 import { mapComment, type ReviewView } from "@/lib/mappers";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
@@ -9,23 +10,19 @@ import { createStoreLoadingState, setStoreLoading } from "./store-utils";
 
 export type { ReviewView };
 
-type ReviewAction =
-  | "fetchReviews"
-  | "createReview"
-  | "replyToReview"
-  | "updateReview"
-  | "deleteReview";
+type ReviewAction = "fetchReviews" | "createReview" | "replyToReview" | "updateReview" | "deleteReview";
 
 type ReviewState = {
   reviews: ReviewView[];
   errorMessage: string;
   successMessage: string;
   loading: Record<ReviewAction, boolean>;
-  fetchProductReviews: (productId: string, page?: number) => Promise<void>;
+  fetchProductReviews: (productId: string) => Promise<void>;
   createReview: (payload: {
     productId: string;
     comment: string;
     rating?: number;
+    name?: string;
   }) => Promise<void>;
   replyToReview: (payload: {
     productId: string;
@@ -60,18 +57,16 @@ const useReviewStore = create<ReviewState>()(
 
       clearMessages: () => set({ errorMessage: "", successMessage: "" }),
 
-      fetchProductReviews: async (productId, page) => {
+      fetchProductReviews: async productId => {
         setStoreLoading(set, "fetchReviews", true, { errorMessage: "" });
 
         try {
-          const params = page && page > 0 ? { page } : undefined;
-          const { data } = await api.get<
-            ApiComment[] | { data: ApiComment[]; results?: ApiComment[] }
-          >(`/products/${productId}/comments/`, { params });
+          const { data } = await api.get<{ reviews: ApiReview[] }>(
+            apiEndpoints.storefront.getReviews(productId),
+            { skipAuth: true },
+          );
           set({
-            reviews: unwrapList(data).map((item: unknown) =>
-              mapComment(item as ApiComment),
-            ),
+            reviews: (data.reviews ?? []).map(mapComment),
           });
         } catch (error) {
           set({
@@ -90,14 +85,16 @@ const useReviewStore = create<ReviewState>()(
         });
 
         try {
-          await api.post(`/products/${payload.productId}/comments/`, {
-            text: payload.comment,
-          });
-          if (payload.rating) {
-            await api.post(`/products/${payload.productId}/rating/`, {
-              rating: payload.rating,
-            });
-          }
+          await api.post(
+            apiEndpoints.storefront.submitReview,
+            {
+              productId: payload.productId,
+              name: payload.name ?? "Customer",
+              rating: payload.rating ?? 5,
+              review: payload.comment,
+            },
+            { skipAuth: true },
+          );
           set({ successMessage: "Review submitted" });
           await get().fetchProductReviews(payload.productId);
         } catch (error) {
@@ -109,57 +106,16 @@ const useReviewStore = create<ReviewState>()(
         }
       },
 
-      replyToReview: async payload => {
-        setStoreLoading(set, "replyToReview", true, { errorMessage: "" });
-
-        try {
-          await api.post(`/products/${payload.productId}/comments/`, {
-            text: payload.text,
-            reply_to: Number(payload.parentId) || payload.parentId,
-          });
-          await get().fetchProductReviews(payload.productId);
-        } catch (error) {
-          const message = getApiErrorMessage(error, "Failed to submit reply");
-          set({ errorMessage: message });
-          throw new Error(message);
-        } finally {
-          setStoreLoading(set, "replyToReview", false);
-        }
+      replyToReview: async () => {
+        throw new Error("Replying to reviews is not supported by the API");
       },
 
-      updateReview: async payload => {
-        setStoreLoading(set, "updateReview", true, { errorMessage: "" });
-
-        try {
-          await api.patch(
-            `/products/${payload.productId}/comments/${payload.commentId}/`,
-            { text: payload.text },
-          );
-          await get().fetchProductReviews(payload.productId);
-        } catch (error) {
-          const message = getApiErrorMessage(error, "Failed to update review");
-          set({ errorMessage: message });
-          throw new Error(message);
-        } finally {
-          setStoreLoading(set, "updateReview", false);
-        }
+      updateReview: async () => {
+        throw new Error("Updating reviews is not supported by the API");
       },
 
-      deleteReview: async payload => {
-        setStoreLoading(set, "deleteReview", true, { errorMessage: "" });
-
-        try {
-          await api.delete(
-            `/products/${payload.productId}/comments/${payload.commentId}/`,
-          );
-          await get().fetchProductReviews(payload.productId);
-        } catch (error) {
-          const message = getApiErrorMessage(error, "Failed to delete review");
-          set({ errorMessage: message });
-          throw new Error(message);
-        } finally {
-          setStoreLoading(set, "deleteReview", false);
-        }
+      deleteReview: async () => {
+        throw new Error("Deleting reviews is not supported by the API");
       },
     }),
     withStoreDevtools("review"),

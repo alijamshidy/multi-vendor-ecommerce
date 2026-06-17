@@ -25,15 +25,13 @@ export async function generateMetadata({
     });
   }
 
-  const primaryImage =
-    product.images?.find(img => img.is_primary)?.image ??
-    product.images?.[0]?.image;
+  const primaryImage = product.images?.[0];
 
   return buildPageMetadata({
     title: t("productTitle", { name: product.name }),
     description: t("productDescription", { name: product.name }),
     locale,
-    path: `/products/${id}`,
+    path: `/products/${product.slug}`,
     image: resolveMediaUrl(primaryImage),
     type: "article",
   });

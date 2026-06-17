@@ -1,11 +1,7 @@
-import type { ApiProduct } from "@/lib/api-types";
-import {
-  extractCreatedResourceId,
-  getApiErrorMessage,
-  unwrapEntity,
-  unwrapList,
-} from "@/lib/api-utils";
+import type { ApiProduct, ListQuery } from "@/lib/api-types";
+import { getApiErrorMessage, serializeQueryParams, unwrapEntity } from "@/lib/api-utils";
 import api from "@/lib/axios";
+import { apiEndpoints } from "@/lib/endpoints";
 import { mapProduct } from "@/lib/mappers";
 import type { ProductQuery } from "@/store/productStore";
 import type { productType } from "@/utils/products";
@@ -29,39 +25,10 @@ type ProductPayload = {
   categories: string[];
   images?: File[];
   is_available?: boolean;
+  brand?: string;
+  shopName?: string;
+  discount?: string;
 };
-
-function appendProductFormData(formData: FormData, payload: ProductPayload) {
-  formData.append("name", payload.name);
-  formData.append("price", payload.price);
-  formData.append("stuck", payload.stuck);
-  if (payload.description) {
-    formData.append("description", payload.description);
-  }
-  for (const categoryId of payload.categories) {
-    formData.append("categories", categoryId);
-  }
-  if (payload.is_available != null) {
-    formData.append("is_available", String(payload.is_available));
-  }
-  if (payload.images?.[0]) {
-    formData.append("images", payload.images[0]);
-  }
-}
-
-async function uploadExtraImages(productId: string, images: File[]) {
-  if (images.length === 0) return;
-
-  await Promise.all(
-    images.map(file => {
-      const imageForm = new FormData();
-      imageForm.append("product", productId);
-      imageForm.append("image", file);
-      imageForm.append("is_primary", "false");
-      return api.post("/managements/products/images/", imageForm);
-    }),
-  );
-}
 
 type ManagementState = {
   products: productType[];
@@ -69,7 +36,7 @@ type ManagementState = {
   errorMessage: string;
   successMessage: string;
   loading: Record<ManagementAction, boolean>;
-  fetchProducts: (query?: ProductQuery) => Promise<void>;
+  fetchProducts: (query?: ProductQuery | ListQuery) => Promise<void>;
   fetchProduct: (id: string) => Promise<productType | null>;
   createProduct: (payload: ProductPayload) => Promise<void>;
   updateProduct: (id: string, payload: ProductPayload) => Promise<void>;
@@ -97,13 +64,12 @@ const useManagementStore = create<ManagementState>()(
       setStoreLoading(set, "fetchProducts", true, { errorMessage: "" });
 
       try {
-        const { data } = await api.get<
-          ApiProduct[] | { results: ApiProduct[] }
-        >("/managements/products/", { params: query });
+        const { data } = await api.get<{ products: ApiProduct[] }>(
+          apiEndpoints.products.list,
+          { params: serializeQueryParams(query as ListQuery) },
+        );
         set({
-          products: unwrapList(data).map((item: unknown) =>
-            mapProduct(item as ApiProduct),
-          ),
+          products: (data.products ?? []).map(mapProduct),
         });
       } catch (error) {
         set({
@@ -122,9 +88,13 @@ const useManagementStore = create<ManagementState>()(
       });
 
       try {
-        const { data } = await api.get(`/managements/products/${id}/`);
-        const item = unwrapEntity<ApiProduct>(data) ?? (data as ApiProduct);
-        const mapped = mapProduct(item);
+        const { data } = await api.get(apiEndpoints.products.get(id));
+        const product = unwrapEntity<ApiProduct>(data);
+        if (!product?._id) {
+          set({ errorMessage: "Product not found", activeProduct: null });
+          return null;
+        }
+        const mapped = mapProduct(product);
         set({ activeProduct: mapped });
         return mapped;
       } catch (error) {
@@ -145,16 +115,19 @@ const useManagementStore = create<ManagementState>()(
 
       try {
         const formData = new FormData();
-        appendProductFormData(formData, payload);
-
-        const { data } = await api.post("/managements/products/", formData);
-        const productId = extractCreatedResourceId(data);
-        const remainingImages = payload.images?.slice(1) ?? [];
-
-        if (productId && remainingImages.length > 0) {
-          await uploadExtraImages(productId, remainingImages);
+        formData.append("name", payload.name);
+        formData.append("price", payload.price);
+        formData.append("stock", payload.stuck);
+        if (payload.description) formData.append("description", payload.description);
+        if (payload.categories[0]) formData.append("category", payload.categories[0]);
+        if (payload.brand) formData.append("brand", payload.brand);
+        if (payload.shopName) formData.append("shopName", payload.shopName);
+        if (payload.discount) formData.append("discount", payload.discount);
+        for (const image of payload.images ?? []) {
+          formData.append("images", image);
         }
 
+        await api.post(apiEndpoints.products.add, formData);
         set({ successMessage: "Product created" });
         await get().fetchProducts();
       } catch (error) {
@@ -173,13 +146,22 @@ const useManagementStore = create<ManagementState>()(
       });
 
       try {
-        const formData = new FormData();
-        appendProductFormData(formData, payload);
+        await api.post(apiEndpoints.products.update, {
+          productId: id,
+          name: payload.name,
+          description: payload.description,
+          stock: Number(payload.stuck),
+          price: Number(payload.price),
+          discount: Number(payload.discount ?? 0),
+        });
 
-        await api.patch(`/managements/products/${id}/`, formData);
-        const remainingImages = payload.images?.slice(1) ?? [];
-        if (remainingImages.length > 0) {
-          await uploadExtraImages(id, remainingImages);
+        if (payload.images?.length) {
+          const formData = new FormData();
+          formData.append("productId", id);
+          for (const image of payload.images) {
+            formData.append("images", image);
+          }
+          await api.post(apiEndpoints.products.imageUpdate, formData);
         }
 
         set({ successMessage: "Product updated" });
@@ -194,15 +176,16 @@ const useManagementStore = create<ManagementState>()(
     },
 
     deleteProduct: async id => {
-      setStoreLoading(set, "deleteProduct", true, {
-        errorMessage: "",
-        successMessage: "",
-      });
+      setStoreLoading(set, "deleteProduct", true, { errorMessage: "" });
 
       try {
-        await api.delete(`/managements/products/${id}/`);
-        set({ successMessage: "Product deleted" });
-        await get().fetchProducts();
+        await api.delete(apiEndpoints.products.delete(id));
+        set(state => ({
+          products: state.products.filter(product => product.id !== id),
+          activeProduct:
+            state.activeProduct?.id === id ? null : state.activeProduct,
+          successMessage: "Product deleted",
+        }));
       } catch (error) {
         const message = getApiErrorMessage(error, "Failed to delete product");
         set({ errorMessage: message });

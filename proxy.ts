@@ -64,28 +64,52 @@ function getLocaleFromPath(pathname: string): string | null {
   return match ? match[1] : null;
 }
 
+/** First path segment after optional locale, e.g. `/en/admin/sellers` → `admin`. */
+function getRouteRootSegment(pathname: string): string | null {
+  const segments = pathname.split("/").filter(Boolean);
+  if (segments.length === 0) return null;
+
+  const locale = getLocaleFromPath(pathname);
+  const index = locale ? 1 : 0;
+  return segments[index] ?? null;
+}
+
+function isAdminRoutePath(pathname: string): boolean {
+  return getRouteRootSegment(pathname) === "admin";
+}
+
+function isSellerRoutePath(pathname: string): boolean {
+  return getRouteRootSegment(pathname) === "seller";
+}
+
 function getDefaultDashboardPath(locale: string, role?: AuthRole): string {
   if (role === "admin") return `/${locale}/admin/dashboard`;
   if (role === "seller") return `/${locale}/seller/dashboard`;
   return `/${locale}/customer/dashboard`;
 }
 
-function getAuthFromRequest(request: NextRequest) {
-  const rawToken = request.cookies.get("accessToken")?.value?.trim();
-  let accessToken = rawToken;
+function decodeCookieToken(raw: string | undefined): string | null {
+  const trimmed = raw?.trim();
+  if (!trimmed) return null;
 
-  if (rawToken) {
-    try {
-      accessToken = decodeURIComponent(rawToken);
-    } catch {
-      accessToken = rawToken;
-    }
+  try {
+    return decodeURIComponent(trimmed);
+  } catch {
+    return trimmed;
   }
+}
 
+function getAuthFromRequest(request: NextRequest) {
+  const accessToken = decodeCookieToken(
+    request.cookies.get("accessToken")?.value,
+  );
+  const customerToken = decodeCookieToken(
+    request.cookies.get("customerToken")?.value,
+  );
   const role = request.cookies.get("authRole")?.value as AuthRole | undefined;
 
   return {
-    isAuthenticated: Boolean(accessToken),
+    isAuthenticated: Boolean(accessToken ?? customerToken),
     role,
   };
 }
@@ -117,8 +141,16 @@ function runAuthChecks(request: NextRequest): NextResponse | null {
     return NextResponse.redirect(loginUrl);
   }
 
-  const isAdminRoute = pathname.includes("/admin");
+  const isAdminRoute = isAdminRoutePath(pathname);
   if (isAdminRoute && role !== "admin") {
+    const locale = getLocaleFromPath(pathname) || DEFAULT_LOCALE;
+    return NextResponse.redirect(
+      new URL(getDefaultDashboardPath(locale, role), request.url),
+    );
+  }
+
+  const isSellerRoute = isSellerRoutePath(pathname);
+  if (isSellerRoute && role !== "seller") {
     const locale = getLocaleFromPath(pathname) || DEFAULT_LOCALE;
     return NextResponse.redirect(
       new URL(getDefaultDashboardPath(locale, role), request.url),
@@ -141,11 +173,6 @@ function runAuthChecks(request: NextRequest): NextResponse | null {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  if (pathname.startsWith("/api/proxy/")) {
-    const newUrl = pathname.replace("/api/proxy", "");
-    return NextResponse.rewrite(new URL(newUrl, "http://localhost:8000"));
-  }
 
   if (pathname.startsWith("/api/")) {
     return NextResponse.next();

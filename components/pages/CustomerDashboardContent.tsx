@@ -9,6 +9,8 @@ import { useStoreInit } from "@/hooks/use-store-init";
 import useCartStore from "@/store/cartStore";
 import useOrderStore from "@/store/orderStore";
 import useUserStore from "@/store/userStore";
+import useWishlistStore from "@/store/wishlistStore";
+import { formatCurrency } from "@/utils/format";
 import { Heart, Package, ShoppingCart, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -21,14 +23,28 @@ export default function CustomerDashboardContent({
   const t = useTranslations("dashboard");
   const itemCount = useCartStore(state => state.itemCount);
   const fetchItems = useCartStore(state => state.fetchItems);
-  const orders = useOrderStore(state => state.orders);
+  const dashboard = useOrderStore(state => state.dashboard);
+  const fetchCustomerDashboard = useOrderStore(
+    state => state.fetchCustomerDashboard,
+  );
   const fetchOrders = useOrderStore(state => state.fetchOrders);
+  const wishlistCount = useWishlistStore(state => state.itemCount);
+  const fetchWishlist = useWishlistStore(state => state.fetchItems);
   const profile = useUserStore(state => state.profile);
   const fetchProfile = useUserStore(state => state.fetchProfile);
 
   useStoreInit(async () => {
-    await Promise.all([fetchItems(), fetchOrders(), fetchProfile()]);
+    await Promise.all([
+      fetchItems(),
+      fetchOrders(),
+      fetchProfile(),
+      fetchWishlist(),
+      fetchCustomerDashboard(),
+    ]);
   });
+
+  const totalOrders = dashboard?.totalOrder ?? 0;
+  const pendingOrders = dashboard?.pendingOrder ?? 0;
 
   return (
     <PageShell>
@@ -45,12 +61,12 @@ export default function CustomerDashboardContent({
         />
         <SummaryCard
           label={t("wishlist")}
-          value="—"
+          value={String(wishlistCount)}
           icon={Heart}
         />
         <SummaryCard
           label={t("orders")}
-          value={String(orders.length)}
+          value={String(totalOrders)}
           icon={Package}
         />
         <SummaryCard
@@ -59,6 +75,34 @@ export default function CustomerDashboardContent({
           icon={UserRound}
         />
       </section>
+
+      {dashboard?.recentOrders && dashboard.recentOrders.length > 0 ? (
+        <Card className="rounded-md">
+          <CardHeader>
+            <CardTitle>{t("recentOrders")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {dashboard.recentOrders.slice(0, 5).map(order => (
+              <div
+                key={order._id}
+                className="flex items-center justify-between rounded-md border p-3">
+                <div>
+                  <p className="font-medium">
+                    #{String(order._id).slice(0, 8).toUpperCase()}
+                  </p>
+                  <p className="text-sm capitalize text-muted-foreground">
+                    {order.status ?? "pending"}
+                  </p>
+                </div>
+                <p className="font-semibold">
+                  {formatCurrency(Number(order.price ?? 0))}
+                </p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
+
       <Card className="rounded-md">
         <CardHeader>
           <CardTitle>{t("quickActions")}</CardTitle>
@@ -77,6 +121,16 @@ export default function CustomerDashboardContent({
             asChild>
             <Link href={`/${locale}/wishlist`}>{t("openWishlist")}</Link>
           </Button>
+          <Button
+            variant="outline"
+            asChild>
+            <Link href={`/${locale}/profile`}>{t("openProfile")}</Link>
+          </Button>
+          {pendingOrders > 0 ? (
+            <p className="w-full text-sm text-muted-foreground">
+              {t("pendingOrdersHint", { count: pendingOrders })}
+            </p>
+          ) : null}
         </CardContent>
       </Card>
     </PageShell>

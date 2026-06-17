@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { buildProductDetailHref } from "@/lib/mappers";
 import { productType } from "@/utils/products";
 import ProductGridCard from "./ProductGridCard";
 
@@ -27,7 +28,7 @@ export default function ProductGrid({
         <ProductGridCard
           key={product.id}
           product={product}
-          href={`/${locale}/products/${product.id}`}
+          href={buildProductDetailHref(locale, product)}
           compact={compact}
           hoverActions={hoverActions}
         />

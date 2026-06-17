@@ -25,23 +25,34 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { useAuthPaths } from "@/hooks/use-auth-paths";
+import { useRouter } from "@/i18n/navigation";
 import { redirectAfterAuth } from "@/lib/auth-cookie";
 import useAuthStore from "@/store/authStore";
 import { isRegistrationPasswordValid } from "@/utils/password";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const phoneRegex = /^(09[0-9]{9}|\+989[0-9]{9})$/;
 
+type RegisterRole = "customer" | "seller";
+
 export default function RegisterForm() {
   const t = useTranslations("auth");
   const paths = useAuthPaths();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const registerRole: RegisterRole =
+    searchParams.get("type") === "seller" ? "seller" : "customer";
+  const isSellerRegister = registerRole === "seller";
   const register = useAuthStore(state => state.register);
+  const registerSeller = useAuthStore(state => state.registerSeller);
   const verifyOtp = useAuthStore(state => state.verifyOtp);
   const isRegistering = useAuthStore(state => state.loading.register);
+  const isSellerRegistering = useAuthStore(state => state.loading.registerSeller);
   const isVerifying = useAuthStore(state => state.loading.verifyOtp);
 
   const [name, setName] = useState("");
@@ -58,19 +69,40 @@ export default function RegisterForm() {
   const isValid = useMemo(
     () =>
       name.trim().length >= 2 &&
-      (isEmail || isPhone) &&
+      (isSellerRegister ? isEmail : isEmail || isPhone) &&
       isRegistrationPasswordValid(password) &&
       passwordsMatch,
-    [name, password, passwordsMatch, isEmail, isPhone],
+    [name, password, passwordsMatch, isEmail, isPhone, isSellerRegister],
   );
 
   const isOtpValid = otp.length === 6;
+
+  const handleRoleChange = (role: RegisterRole) => {
+    if (role === registerRole || otpSent) return;
+
+    setName("");
+    setIdentifier("");
+    setPassword("");
+    setConfirmPassword("");
+    router.replace(role === "seller" ? paths.sellerRegister : paths.register);
+  };
 
   const handleRegister = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isValid || isRegistering) return;
 
     try {
+      if (isSellerRegister) {
+        await registerSeller({
+          identifier,
+          password,
+          full_name: name.trim(),
+        });
+        toast.success(t("accountCreated"));
+        redirectAfterAuth(paths.sellerDashboard);
+        return;
+      }
+
       await register({
         identifier,
         password,
@@ -106,18 +138,43 @@ export default function RegisterForm() {
         <Card className="rounded-md">
           <CardHeader className="text-center">
             <CardTitle className="text-xl">
-              {otpSent ? t("verifyAccount") : t("createAccount")}
+              {otpSent
+                ? t("verifyAccount")
+                : isSellerRegister
+                  ? t("registerAsSellerTitle")
+                  : t("createAccount")}
             </CardTitle>
             <CardDescription>
               {otpSent
                 ? t("verifyAccountDescription")
-                : t("createAccountDescription")}
+                : isSellerRegister
+                  ? t("registerAsSellerDescription")
+                  : t("createAccountDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {!otpSent ? (
               <form onSubmit={handleRegister}>
                 <FieldGroup>
+                  <Field>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(["customer", "seller"] as const).map(role => (
+                        <Button
+                          key={role}
+                          type="button"
+                          variant={
+                            registerRole === role ? "default" : "outline"
+                          }
+                          className="w-full"
+                          onClick={() => handleRoleChange(role)}>
+                          {t(
+                            `loginAs${role.charAt(0).toUpperCase()}${role.slice(1)}`,
+                          )}
+                        </Button>
+                      ))}
+                    </div>
+                  </Field>
+
                   <Field>
                     <FieldLabel htmlFor="name">{t("fullName")}</FieldLabel>
                     <Input
@@ -133,12 +190,16 @@ export default function RegisterForm() {
 
                   <Field>
                     <FieldLabel htmlFor="register-identifier">
-                      {t("emailOrPhone")}
+                      {isSellerRegister ? t("email") : t("emailOrPhone")}
                     </FieldLabel>
                     <Input
                       id="register-identifier"
                       type="text"
-                      placeholder={t("emailOrPhonePlaceholder")}
+                      placeholder={
+                        isSellerRegister
+                          ? t("emailPlaceholder")
+                          : t("emailOrPhonePlaceholder")
+                      }
                       value={identifier}
                       onChange={event => setIdentifier(event.target.value)}
                       autoComplete="username"
@@ -176,12 +237,28 @@ export default function RegisterForm() {
                     <Button
                       type="submit"
                       className="w-full"
-                      disabled={!isValid || isRegistering}>
-                      {isRegistering ? t("creatingAccount") : t("createAccountButton")}
+                      disabled={
+                        !isValid ||
+                        (isSellerRegister ? isSellerRegistering : isRegistering)
+                      }>
+                      {isSellerRegister
+                        ? isSellerRegistering
+                          ? t("creatingAccount")
+                          : t("registerAsSellerButton")
+                        : isRegistering
+                          ? t("creatingAccount")
+                          : t("createAccountButton")}
                     </Button>
                     <FieldDescription className="text-center">
                       {t("alreadyHaveAccount")}{" "}
-                      <Link href={paths.login}>{t("signIn")}</Link>
+                      <Link
+                        href={
+                          isSellerRegister
+                            ? `${paths.login}?role=seller`
+                            : paths.login
+                        }>
+                        {t("signIn")}
+                      </Link>
                     </FieldDescription>
                   </Field>
                 </FieldGroup>

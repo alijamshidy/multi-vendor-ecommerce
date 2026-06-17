@@ -14,6 +14,8 @@ export type productType = {
   originalPrice: number;
   category: string;
   description: string;
+  sellerId?: string;
+  shopName?: string;
   isOutOfStock?: boolean;
   stock?: number;
 };

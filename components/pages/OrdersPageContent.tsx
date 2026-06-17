@@ -6,8 +6,10 @@ import SummaryCard from "@/components/commerce/SummaryCard";
 import OrderFilterPanel from "@/components/orders/OrderFilterPanel";
 import BorderedListSkeleton from "@/components/commerce/BorderedListSkeleton";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useStoreInit } from "@/hooks/use-store-init";
+import { Link } from "@/i18n/navigation";
 import { buildOrderQueryFromSearchParams } from "@/lib/order-query";
 import useOrderStore from "@/store/orderStore";
 import { formatCurrency } from "@/utils/format";
@@ -71,9 +73,9 @@ export default function OrdersPageContent() {
         ) : (
           orders.map(order => (
             <Card
-              key={order.id}
+              key={order.fullId}
               className="rounded-md">
-              <CardContent className="grid gap-3 p-4 sm:grid-cols-4 sm:items-center">
+              <CardContent className="grid gap-3 p-4 sm:grid-cols-[1fr_auto_auto_auto] sm:items-center">
                 <p className="font-medium">{order.id}</p>
                 <Badge
                   variant={
@@ -85,9 +87,15 @@ export default function OrdersPageContent() {
                 <p className="text-sm text-muted-foreground">
                   {tCommon("itemCount", { count: order.items })}
                 </p>
-                <p className="font-semibold sm:text-end">
-                  {formatCurrency(order.total)}
-                </p>
+                <div className="flex flex-col items-end gap-2 sm:col-span-1">
+                  <p className="font-semibold">{formatCurrency(order.total)}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild>
+                    <Link href={`/orders/${order.fullId}`}>{t("viewDetails")}</Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))

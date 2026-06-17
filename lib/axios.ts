@@ -1,5 +1,5 @@
-import { clearAuthCookies, getStoredAccessToken } from "@/lib/auth-cookie";
 import axios from "axios";
+import { getStoredAccessToken } from "@/lib/auth-cookie";
 
 declare module "axios" {
   export interface AxiosRequestConfig {
@@ -7,25 +7,18 @@ declare module "axios" {
   }
 }
 
-const SERVER_API_URL =
-  process.env.API_URL?.replace(/\/$/, "") ??
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, "") ??
-  "http://localhost:8000";
+const SERVER_API_URL = (
+  process.env.MARKETPLACE_API_URL ?? "http://localhost:5000"
+).replace(/\/$/, "");
 
-/** Browser calls same-origin `/api/v1` (rewritten to Django). Server uses backend URL directly. */
+/** Browser calls same-origin `/api`. Server uses backend URL directly. */
 export const API_BASE_URL =
   typeof window !== "undefined"
-    ? "/api/v1"
-    : `${SERVER_API_URL.replace(/\/api\/v1\/?$/, "")}/api/v1`;
+    ? "/api"
+    : `${SERVER_API_URL}/api`;
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: { "Content-Type": "application/json" },
-});
-
-/** Auth endpoints that must not receive a stale Bearer token. */
 const PUBLIC_AUTH_PATH =
-  /^\/auth\/(login-password|register|request-otp|verify-otp|reset-password-request|reset-password-confirm|social\/[\w-]+)\/?$/;
+  /^\/(admin-login|seller-register|seller-login|customer\/customer-register|customer\/customer-login|customer\/send-otp|customer\/verify-otp)\/?$/;
 
 function isPublicAuthRequest(url: string | undefined): boolean {
   if (!url) return false;
@@ -33,74 +26,28 @@ function isPublicAuthRequest(url: string | undefined): boolean {
   return PUBLIC_AUTH_PATH.test(path);
 }
 
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+  timeout: 30_000,
+  headers: { "Content-Type": "application/json" },
+});
+
 api.interceptors.request.use(config => {
   if (config.data instanceof FormData) {
     delete config.headers["Content-Type"];
   }
 
   if (config.skipAuth || isPublicAuthRequest(config.url)) {
-    delete config.headers.Authorization;
     return config;
   }
 
-  if (typeof window !== "undefined") {
-    const token = getStoredAccessToken();
-    if (token && !config.headers.Authorization) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+  const token = getStoredAccessToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
-
-let handlingUnauthorized = false;
-
-api.interceptors.response.use(
-  response => response,
-  async error => {
-    const status = error.response?.status;
-    const url = String(error.config?.url ?? "");
-    const skipAuth = error.config?.skipAuth;
-    const isAuthEndpoint = url.includes("/auth/");
-    const hadAuth = Boolean(
-      error.config?.headers?.Authorization ??
-      error.config?.headers?.authorization,
-    );
-    const isGuestOptionalEndpoint = url.includes("/ordering/cart/");
-
-    // Cart works for guests; 401 here must not wipe the login session.
-    if (
-      status === 401 &&
-      isGuestOptionalEndpoint &&
-      typeof window !== "undefined"
-    ) {
-      return Promise.reject(error);
-    }
-
-    if (
-      status === 401 &&
-      hadAuth &&
-      !skipAuth &&
-      !isAuthEndpoint &&
-      !isGuestOptionalEndpoint &&
-      typeof window !== "undefined" &&
-      !handlingUnauthorized &&
-      !window.location.pathname.includes("/login")
-    ) {
-      handlingUnauthorized = true;
-      clearAuthCookies();
-      localStorage.removeItem("accessToken");
-
-      const { default: useAuthStore } = await import("@/store/authStore");
-      useAuthStore.getState().clearSession();
-
-      const pathname = window.location.pathname;
-      const locale = pathname.split("/")[1] || "en";
-      const callbackUrl = encodeURIComponent(pathname + window.location.search);
-      window.location.assign(`/${locale}/login?callbackUrl=${callbackUrl}`);
-    }
-
-    return Promise.reject(error);
-  },
-);
 
 export default api;

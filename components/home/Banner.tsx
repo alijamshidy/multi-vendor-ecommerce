@@ -6,7 +6,7 @@ import { toNavigationPath } from "@/lib/mappers";
 import useContentStore from "@/store/contentStore";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
-import { useCallback, useRef } from "react";
+import { useMemo } from "react";
 import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 
 const FALLBACK_SLIDES = [1, 2, 3, 4];
@@ -17,30 +17,27 @@ export default function Banner() {
   const slides = useContentStore(state => state.slides);
   const isLoading = useContentStore(state => state.loading.fetchSliders);
 
-  const autoplayPlugin = useRef(
-    Autoplay({
-      delay: 3000,
-      stopOnMouseEnter: true,
-    }),
+  const autoplayPlugins = useMemo(
+    () => [
+      Autoplay({
+        delay: 3000,
+        stopOnMouseEnter: true,
+      }),
+    ],
+    [],
   );
-
-  const handleMouseLeave = useCallback(() => {
-    autoplayPlugin.current.play();
-  }, []);
 
   const useApiSlides = slides.length > 0;
 
   return (
-    <section
-      className="w-full overflow-hidden"
-      onMouseLeave={handleMouseLeave}>
+    <section className="w-full overflow-hidden">
       {isLoading && !useApiSlides ? (
         <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg sm:aspect-[21/9] md:aspect-[2.4/1] bg-muted animate-pulse" />
       ) : (
         <Carousel
           key={locale}
           className="relative w-full"
-          plugins={[autoplayPlugin.current]}
+          plugins={autoplayPlugins}
           opts={{ loop: true, align: "start" }}>
           <CarouselContent>
             {useApiSlides

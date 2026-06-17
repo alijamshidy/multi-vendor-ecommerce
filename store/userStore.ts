@@ -1,12 +1,13 @@
 import type { UserProfile } from "@/lib/api-types";
-import { getApiErrorMessage, resolveMediaUrl } from "@/lib/api-utils";
+import { getApiErrorMessage } from "@/lib/api-utils";
 import api from "@/lib/axios";
+import { apiEndpoints } from "@/lib/endpoints";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { withStoreDevtools } from "./devtools";
 import { createStoreLoadingState, setStoreLoading } from "./store-utils";
 
-type UserAction = "fetchMe" | "fetchProfile" | "updateProfile";
+type UserAction = "fetchMe" | "fetchProfile" | "updateProfile" | "uploadImage";
 
 type UserState = {
   profile: UserProfile | null;
@@ -15,6 +16,7 @@ type UserState = {
   fetchMe: () => Promise<void>;
   fetchProfile: () => Promise<void>;
   updateProfile: (payload: Partial<UserProfile>) => Promise<void>;
+  uploadProfileImage: (file: File) => Promise<void>;
   clearError: () => void;
 };
 
@@ -27,6 +29,7 @@ const useUserStore = create<UserState>()(
         "fetchMe",
         "fetchProfile",
         "updateProfile",
+        "uploadImage",
       ] as const),
 
       clearError: () => set({ errorMessage: "" }),
@@ -35,8 +38,22 @@ const useUserStore = create<UserState>()(
         setStoreLoading(set, "fetchMe", true, { errorMessage: "" });
 
         try {
-          const { data } = await api.get<UserProfile>("/users/me/");
-          set({ profile: data });
+          const { data } = await api.get<{ userInfo?: Record<string, unknown> }>(
+            apiEndpoints.auth.getUser,
+          );
+          const info = data.userInfo ?? {};
+          set({
+            profile: {
+              id: String(info._id ?? info.id ?? ""),
+              email: typeof info.email === "string" ? info.email : undefined,
+              name: typeof info.name === "string" ? info.name : undefined,
+              full_name: typeof info.name === "string" ? info.name : undefined,
+              shopName:
+                typeof info.shopName === "string" ? info.shopName : undefined,
+              image:
+                typeof info.image === "string" ? info.image : undefined,
+            },
+          });
         } catch (error) {
           set({
             errorMessage: getApiErrorMessage(error, "Failed to load user"),
@@ -47,42 +64,18 @@ const useUserStore = create<UserState>()(
       },
 
       fetchProfile: async () => {
-        setStoreLoading(set, "fetchProfile", true, { errorMessage: "" });
-
-        try {
-          const { data } = await api.get<UserProfile>("/users/me/profile/");
-          set({
-            profile: {
-              ...get().profile,
-              ...data,
-              image: data.image ? resolveMediaUrl(data.image) : null,
-            },
-          });
-        } catch (error) {
-          set({
-            errorMessage: getApiErrorMessage(error, "Failed to load profile"),
-          });
-        } finally {
-          setStoreLoading(set, "fetchProfile", false);
-        }
+        await get().fetchMe();
       },
 
       updateProfile: async payload => {
         setStoreLoading(set, "updateProfile", true, { errorMessage: "" });
 
         try {
-          const { data } = await api.patch<UserProfile>(
-            "/users/me/profile/",
-            payload,
-          );
+          await api.post(apiEndpoints.auth.profileInfoAdd, {
+            shopName: payload.shopName,
+          });
           set({
-            profile: {
-              ...get().profile,
-              ...data,
-              image: data.image
-                ? resolveMediaUrl(data.image)
-                : get().profile?.image,
-            },
+            profile: { ...get().profile, ...payload },
           });
         } catch (error) {
           const message = getApiErrorMessage(error, "Failed to update profile");
@@ -90,6 +83,28 @@ const useUserStore = create<UserState>()(
           throw new Error(message);
         } finally {
           setStoreLoading(set, "updateProfile", false);
+        }
+      },
+
+      uploadProfileImage: async file => {
+        setStoreLoading(set, "uploadImage", true, { errorMessage: "" });
+
+        try {
+          const formData = new FormData();
+          formData.append("image", file);
+          await api.post(apiEndpoints.auth.profileImageUpload, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          await get().fetchMe();
+        } catch (error) {
+          const message = getApiErrorMessage(
+            error,
+            "Failed to upload profile image",
+          );
+          set({ errorMessage: message });
+          throw new Error(message);
+        } finally {
+          setStoreLoading(set, "uploadImage", false);
         }
       },
     }),

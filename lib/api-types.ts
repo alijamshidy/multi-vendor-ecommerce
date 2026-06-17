@@ -1,210 +1,303 @@
 export type ApiErrorResponse = {
+  error?: string;
   message?: string;
-  action?: string;
-  errors?: Array<{
-    action?: string;
-    detail?: string;
-    code?: string;
-    attr?: string | null;
-  }>;
 };
 
-export type PaginatedResponse<T> = {
-  count?: number;
-  next?: string | null;
-  previous?: string | null;
-  results?: T[];
-};
+export type AuthRole = "admin" | "seller" | "customer";
 
 export type AuthUser = {
   id: string;
-  is_active: boolean;
-  is_owner: boolean;
-  is_staff: boolean;
-  is_superuser: boolean;
-};
-
-export type AuthTokens = {
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
+  email?: string;
+  name?: string;
+  role: AuthRole;
 };
 
 export type LoginResponse = {
   user: AuthUser;
-  tokens: AuthTokens;
+  token?: string;
 };
 
 export type RegisterResponse = {
-  user_id: string;
-};
-
-export type ApiSuccessResponse<T> = {
-  message: string;
-  data: T;
-  action?: string;
+  message?: string;
 };
 
 export type ApiCategory = {
-  id: string | number;
+  _id: string;
   name: string;
   slug: string;
-  image?: string | null;
-  description?: string;
-  parent?: string | number | null;
-  depth?: number;
-};
-
-export type ApiCategoryDetail = ApiCategory & {
-  products?: ApiProduct[];
-};
-
-export type ApiCollection = {
-  id: string;
-  name: string;
-  slug: string;
-  image?: string | null;
-  description?: string;
-};
-
-export type ApiCollectionDetail = ApiCollection & {
-  products?: ApiProduct[];
-};
-
-export type ApiProductImage = {
-  id: string;
-  image: string;
-  is_primary?: boolean;
+  image?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type ApiProduct = {
-  id: string;
+  _id: string;
+  sellerId?: string;
   name: string;
   slug: string;
-  price: string;
-  discount_price?: string;
-  discounts?: Array<{ id: string; percentage?: string }>;
-  images?: ApiProductImage[];
-  categories?: Array<Pick<ApiCategory, "id"> & Partial<ApiCategory>>;
-  collections?: Array<{ id: string | number; name?: string }>;
-  is_out_of_stock?: boolean;
-  is_available?: boolean;
-  stuck?: number;
-  max_no_of_orders?: number;
+  shopName?: string;
+  category: string;
+  brand?: string;
   description?: string;
-  attribute?: string | Record<string, string>;
+  stock?: number;
+  price: number;
+  discount?: number;
+  images?: string[];
+  rating?: number;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
-export type ApiCheckpointItem = {
-  checkpoint_index: number;
-  checkpoint_name: string;
-  total: number;
-};
-
-export type ApiSaleReview = {
-  id: number;
-  name: string;
-  description?: string;
-  sku?: string;
-  price: string;
-  num_orders: number;
-  total_sale: number;
-  stuck?: number;
-  images?: ApiProductImage[];
-  categories?: ApiCategory[];
-};
-
-export type ApiManagementOrder = {
-  id: string;
-  status: number;
-  total_price: string;
-  total_discount_price?: string;
-  created_at?: string;
-  paid_at?: string | null;
-  delivered_at?: string | null;
-  items?: Array<{ id: string; quantity: number; product?: ApiProduct }>;
-  user?: AuthUser;
+export type ApiReview = {
+  _id?: string;
+  productId?: string;
+  name?: string;
+  rating?: number;
+  review?: string;
+  createdAt?: string;
 };
 
 export type ApiCartItem = {
-  id: string;
-  product: ApiProduct;
-  quantity: number;
+  _id: string;
+  userId?: string;
+  productId?: string;
+  quantity?: number;
+  product?: ApiProduct;
+  productInfo?: ApiProduct;
+};
+
+export type ApiCartProductLine = {
+  _id: string;
+  quantity?: number;
+  productInfo?: ApiProduct;
+};
+
+export type ApiCartSellerGroup = {
+  sellerId?: string;
+  shopName?: string;
+  price?: number;
+  products?: ApiCartProductLine[];
+};
+
+export type ApiCartListResponse = {
+  card_products?: ApiCartSellerGroup[];
+  cardProducts?: ApiCartItem[];
+  price?: number;
+  card_product_count?: number;
+  shipping_fee?: number;
+  buy_product_item?: number;
+};
+
+export type ApiWishlistItem = {
+  _id: string;
+  userId?: string;
+  productId?: string;
+  name?: string;
+  price?: number;
+  image?: string;
+  discount?: number;
+  rating?: number;
+  slug?: string;
+};
+
+export type ApiWishlistResponse = {
+  wishlistCount?: number;
+  wishlist_count?: number;
+  wishlists?: ApiWishlistItem[];
+  wishlist_products?: ApiWishlistItem[];
+};
+
+export type CustomerDashboardData = {
+  recentOrders?: ApiOrder[];
+  pendingOrder?: number;
+  cancelledOrder?: number;
+  totalOrder?: number;
+};
+
+export type ApiSeller = {
+  _id: string;
+  name?: string;
+  email?: string;
+  shopName?: string;
+  status?: string;
+  image?: string;
+  createdAt?: string;
+};
+
+export type ApiSellersResponse = {
+  sellers?: ApiSeller[];
+  requestSellers?: ApiSeller[];
+  totalSeller?: number;
+};
+
+export type ChatMessagePayload = {
+  senderId: string;
+  receverId: string;
+  message: string;
+  productId?: string;
+};
+
+export type ApiChatMessage = ChatMessagePayload & {
+  _id?: string;
+  text?: string;
+  createdAt?: string;
+};
+
+export type ApiChatContact = {
+  _id?: string;
+  fdId?: string;
+  name?: string;
+  email?: string;
+  shopName?: string;
+  image?: string;
 };
 
 export type ApiOrder = {
-  id: string;
-  status: string;
-  total_price: string;
-  total_discount_price?: string;
-  items?: Array<{ id: string; quantity: number; product?: ApiProduct }>;
-  created_at?: string;
-};
-
-export type ApiComment = {
-  id: number | string;
-  text?: string;
-  comment?: string;
-  rating?: number;
-  reply_to?: number | string | null;
-  replys?: ApiComment[];
-  reactions?: unknown[];
-  product?: number;
-  user?: AuthUser;
-  created_at?: string;
-  updated_at?: string;
+  _id: string;
+  userId?: string;
+  status?: string;
+  price?: number;
+  shipping_fee?: number;
+  shippingInfo?: Record<string, unknown>;
+  products?: Array<Record<string, unknown>>;
+  createdAt?: string;
 };
 
 export type UserProfile = {
   id?: string;
+  email?: string;
+  name?: string;
   full_name?: string;
   image?: string | null;
-  email?: string;
-  phone?: string;
+  shopName?: string;
 };
 
-export type ApiContentImage = {
-  id?: number | string;
-  image?: string | null;
-  related_link?: string | null;
-  text?: string | null;
-  color?: string | null;
+export type ListQuery = {
+  page?: number;
+  parPage?: number;
+  searchValue?: string;
 };
 
-export type ApiShopFaq = {
-  id: number | string;
-  question: string;
-  answer: string;
+export type ProductQuery = {
+  category?: string;
+  rating?: number;
+  lowPrice?: number;
+  highPrice?: number;
+  sortPrice?: "low-to-high" | "high-to-low";
+  pageNumber?: number;
+  searchValue?: string;
 };
 
+export type OrderQuery = {
+  page?: number;
+  parPage?: number;
+  searchValue?: string;
+  status?: string;
+};
+
+export type ApiCategoriesResponse = {
+  categories: ApiCategory[];
+};
+
+export type ApiHomeProductsResponse = {
+  products: ApiProduct[];
+  latest_product?: ApiProduct[][];
+  top_rated_product?: ApiProduct[];
+  discount_product?: ApiProduct[];
+};
+
+export type ApiQueryProductsResponse = {
+  products: ApiProduct[];
+  totalProduct: number;
+  parPage: number;
+};
+
+export type ApiProductDetailsResponse = {
+  product: ApiProduct;
+  relatedProducts?: ApiProduct[];
+  reviews?: ApiReview[];
+};
+
+export type ApiPaginatedCategoriesResponse = {
+  categorys: ApiCategory[];
+  totalCategory: number;
+};
+
+export type PlaceOrderPayload = {
+  userId: string;
+  price: number;
+  shipping_fee: number;
+  shippingInfo: Record<string, unknown>;
+  products: Array<Record<string, unknown>>;
+};
+
+export type AddToCartPayload = {
+  userId: string;
+  productId: string;
+  quantity: number;
+};
+
+export type SubmitReviewPayload = {
+  productId: string;
+  name: string;
+  rating: number;
+  review: string;
+};
+
+/** @deprecated CMS not available in marketplace API */
+export type ApiShopFaq = { id: string; question: string; answer: string };
+/** @deprecated CMS not available in marketplace API */
 export type ApiShopHeader = {
-  id: number | string;
-  text?: string | null;
-  color?: string | null;
-  image?: ApiContentImage | null;
+  id: string;
+  text?: string;
+  color?: string;
+  image?: {
+    image?: string;
+    related_link?: string | null;
+    text?: string;
+    color?: string;
+  };
 };
-
+/** @deprecated CMS not available in marketplace API */
 export type ApiShopSlider = {
-  id: number | string;
-  text?: string | null;
-  color?: string | null;
-  position?: number | string;
+  id: string;
+  text?: string;
+  color?: string;
+  position?: number;
   position_string?: string;
-  images?: ApiContentImage[];
+  images?: Array<{
+    id?: string | number;
+    image?: string;
+    text?: string;
+    color?: string;
+    related_link?: string | null;
+  }>;
 };
-
+/** @deprecated CMS not available in marketplace API */
 export type ApiShopContact = {
-  id?: number | string;
+  id?: string;
   instagram_channel?: string | null;
   telegram_channel?: string | null;
   contact_number?: string | null;
   contact_number_2?: string | null;
 };
-
+/** @deprecated CMS not available in marketplace API */
 export type ApiShopRecommendation = {
-  id?: number | string;
-  text?: string | null;
-  color?: string | null;
+  id?: string | number;
+  text?: string;
+  color?: string;
   related_link?: string | null;
-  image?: ApiContentImage | Record<string, unknown> | string | null;
+  image?: string | Record<string, unknown>;
 };
+/** @deprecated Collections not available in marketplace API */
+export type ApiCollection = { id: string; name: string; slug: string };
+/** @deprecated */
+export type ApiComment = ApiReview;
+/** @deprecated */
+export type ApiManagementOrder = ApiOrder;
+/** @deprecated */
+export type ApiSaleReview = Record<string, unknown>;
+/** @deprecated */
+export type ApiCheckpointItem = Record<string, unknown>;
+/** @deprecated */
+export type ApiContentImage = Record<string, unknown>;

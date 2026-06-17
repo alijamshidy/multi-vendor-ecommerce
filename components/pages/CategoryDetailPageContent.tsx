@@ -22,6 +22,7 @@ import useProductStore from "@/store/productStore";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { useStoreInitOnce } from "@/hooks/use-store-init";
 
 export default function CategoryDetailPageContent({
   locale,
@@ -52,9 +53,16 @@ export default function CategoryDetailPageContent({
   const totalCount = useProductStore(state => state.totalCount);
   const productError = useProductStore(state => state.errorMessage);
   const fetchProducts = useProductStore(state => state.fetchProducts);
+  const fetchPriceBounds = useProductStore(state => state.fetchPriceBounds);
+  const priceBounds = useProductStore(state => state.priceBounds);
+  const priceBoundsLoaded = useProductStore(state => state.priceBoundsLoaded);
   const isLoadingProducts = useProductStore(
     state => state.loading.fetchProducts,
   );
+
+  useStoreInitOnce(() => {
+    void fetchPriceBounds();
+  }, [fetchPriceBounds]);
 
   useStoreInit(async () => {
     useCategoryStore.setState({ errorMessage: "" });
@@ -65,17 +73,23 @@ export default function CategoryDetailPageContent({
     activeCategory?.href === decodeURIComponent(categorySlug);
 
   useStoreInit(async () => {
-    if (isLoadingCategory) return;
+    if (isLoadingCategory || !priceBoundsLoaded) return;
 
     if (categoryMatchesSlug && activeCategory) {
       await fetchProducts(
-        buildCategoryProductQuery(searchParams, activeCategory.id),
+        buildCategoryProductQuery(
+          searchParams,
+          activeCategory.href,
+          priceBounds,
+        ),
       );
       return;
     }
 
     if (!activeCategory) {
-      await fetchProducts(buildCategorySearchQuery(searchParams, categorySlug));
+      await fetchProducts(
+        buildCategorySearchQuery(searchParams, categorySlug, priceBounds),
+      );
     }
   }, [
     categorySlug,
@@ -83,6 +97,9 @@ export default function CategoryDetailPageContent({
     activeCategory,
     queryKey,
     isLoadingCategory,
+    priceBounds.min,
+    priceBounds.max,
+    priceBoundsLoaded,
   ]);
 
   const currentPage = getCurrentPage(searchParams);

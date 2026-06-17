@@ -1,5 +1,5 @@
-import SalesOverview from "@/components/commerce/SalesOverview";
+import AdminOrdersPageContent from "@/components/pages/AdminOrdersPageContent";
 
 export default function AdminSalesPage() {
-  return <SalesOverview role="admin" />;
+  return <AdminOrdersPageContent />;
 }

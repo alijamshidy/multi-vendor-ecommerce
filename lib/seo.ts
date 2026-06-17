@@ -82,30 +82,33 @@ export function buildProductJsonLd(
   locale: string,
 ): Record<string, unknown> {
   const siteUrl = getSiteUrl();
-  const path = `/products/${product.id}`;
+  const path = `/products/${product.slug}`;
   const url = `${siteUrl}${localePath(locale, path)}`;
-  const primaryImage =
-    product.images?.find(img => img.is_primary)?.image ??
-    product.images?.[0]?.image;
+  const primaryImage = product.images?.[0];
   const imageUrl = resolveMediaUrl(primaryImage);
-  const price = Number(product.discount_price ?? product.price);
+  const discount = product.discount ?? 0;
+  const price =
+    discount > 0
+      ? Math.round(product.price * (1 - discount / 100))
+      : product.price;
 
   return {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    description: product.name,
+    description: product.description ?? product.name,
     image: imageUrl,
     url,
-    sku: product.id,
+    sku: product._id,
     offers: {
       "@type": "Offer",
       url,
       priceCurrency: "USD",
-      price: Number.isFinite(price) ? price : product.price,
-      availability: product.is_out_of_stock
-        ? "https://schema.org/OutOfStock"
-        : "https://schema.org/InStock",
+      price,
+      availability:
+        (product.stock ?? 0) <= 0
+          ? "https://schema.org/OutOfStock"
+          : "https://schema.org/InStock",
     },
   };
 }

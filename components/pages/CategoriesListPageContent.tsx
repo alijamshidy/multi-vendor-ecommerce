@@ -14,7 +14,6 @@ import useCategoryStore from "@/store/categoryStore";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { toast } from "sonner";
 
 export default function CategoriesListPageContent({
   scope,
@@ -29,7 +28,6 @@ export default function CategoriesListPageContent({
   const errorMessage = useCategoryStore(state => state.errorMessage);
   const fetchCategories = useCategoryStore(state => state.fetchCategories);
   const isLoading = useCategoryStore(state => state.loading.fetchCategories);
-  const deleteCategory = useCategoryStore(state => state.deleteCategory);
   const isAdmin = scope === "admin";
 
   useStoreInit(
@@ -43,21 +41,6 @@ export default function CategoriesListPageContent({
       : scope === "customer"
         ? t("customerEyebrow")
         : t("publicEyebrow");
-
-  const handleDeleteCategory = async (item: { href: string; label: string }) => {
-    if (!window.confirm(t("deleteCategoryConfirm", { name: item.label }))) {
-      return;
-    }
-
-    try {
-      await deleteCategory(item.href);
-      toast.success(t("categoryDeleted"));
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t("categoryDeleteFailed"),
-      );
-    }
-  };
 
   return (
     <PageShell>
@@ -93,7 +76,6 @@ export default function CategoriesListPageContent({
           scope={scope}
           type="categories"
           showMeta={isAdmin}
-          onDelete={isAdmin ? handleDeleteCategory : undefined}
         />
       )}
     </PageShell>

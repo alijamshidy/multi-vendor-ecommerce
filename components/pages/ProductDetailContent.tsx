@@ -2,23 +2,25 @@
 
 import PageShell from "@/components/commerce/PageShell";
 import ProductFeatureList from "@/components/commerce/ProductFeatureList";
-import RelatedProducts from "@/components/products/RelatedProducts";
 import ProductPrice from "@/components/products/ProductPrice";
+import ProductWishlistButton from "@/components/products/ProductWishlistButton";
+import RelatedProducts from "@/components/products/RelatedProducts";
 import ProductReviewsClient from "@/components/reviews/ProductReviewsClient";
 import SubmitReview from "@/components/reviews/SubmitReview";
-import ProductImageGallery from "@/components/single-product/ProductImageGallery";
 import ProductDetailSkeleton from "@/components/single-product/ProductDetailSkeleton";
+import ProductImageGallery from "@/components/single-product/ProductImageGallery";
 import ShareButton from "@/components/single-product/ShareButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useSetBreadcrumbLabel } from "@/context/breadcrumb-context";
+import { useIsAuthenticated } from "@/hooks/use-authenticated-user";
 import { useStoreInit } from "@/hooks/use-store-init";
+import { Link } from "@/i18n/navigation";
 import useCartStore from "@/store/cartStore";
 import useProductStore from "@/store/productStore";
-import { CheckCircle2, ShieldCheck, Truck } from "lucide-react";
+import { CheckCircle2, MessageSquare, ShieldCheck, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 import { toast } from "sonner";
 
 export default function ProductDetailContent({
@@ -42,6 +44,7 @@ export default function ProductDetailContent({
   const errorMessage = useProductStore(state => state.errorMessage);
   const addItem = useCartStore(state => state.addItem);
   const isAdding = useCartStore(state => state.loading.addItem);
+  const isLoggedIn = useIsAuthenticated();
 
   useStoreInit(() => fetchProduct(id), [id]);
   useSetBreadcrumbLabel(product?.label ?? null);
@@ -65,9 +68,16 @@ export default function ProductDetailContent({
   }
 
   const handleAddToCart = async () => {
+    if (!isLoggedIn) {
+      toast.error(tCart("loginRequired"));
+      return;
+    }
+
     try {
-      await addItem({ product: product.id, quantity: 1 });
-      toast.success(tCart("addedToCart"));
+      const result = await addItem({ product: product.id, quantity: 1 });
+      toast.success(
+        result === "already" ? tCart("alreadyInCart") : tCart("addedToCart"),
+      );
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : tCart("addToCartFailed"),
@@ -116,15 +126,25 @@ export default function ProductDetailContent({
                 onClick={handleAddToCart}>
                 {isAdding ? tCart("adding") : tCart("addToCart")}
               </Button>
-              <Button
-                variant="outline"
-                className="flex-1 py-5 shadow-md transition-shadow hover:shadow-lg sm:min-w-40"
-                asChild>
-                <Link href={`/${locale}/wishlist`}>{t("saveItem")}</Link>
-              </Button>
+              <ProductWishlistButton
+                product={product}
+                variant="button"
+              />
+              {isLoggedIn && product.sellerId ? (
+                <Button
+                  variant="outline"
+                  className="flex-1 py-5 sm:min-w-40"
+                  asChild>
+                  <Link
+                    href={`/customer/chat?sellerId=${encodeURIComponent(product.sellerId)}`}>
+                    <MessageSquare className="me-2 size-4" />
+                    {t("messageSeller")}
+                  </Link>
+                </Button>
+              ) : null}
             </div>
             <ShareButton
-              productId={product.id}
+              productSlug={product.href}
               name={product.label}
               locale={locale}
             />

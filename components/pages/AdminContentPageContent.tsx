@@ -122,6 +122,10 @@ export default function AdminContentPageContent() {
         description={t("description")}
       />
 
+      <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-100">
+        {t("cmsUnavailable")}
+      </p>
+
       <div className="grid gap-6 lg:grid-cols-[minmax(0,17rem)_1fr]">
         <nav
           aria-label={t("navLabel")}

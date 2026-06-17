@@ -1,6 +1,7 @@
 "use client";
 
 import { GetLocale } from "@/utils/GetUrlParams";
+import { buildProductDetailHref } from "@/lib/mappers";
 import { productType } from "@/utils/products";
 import ProductGridCard from "./ProductGridCard";
 
@@ -20,7 +21,7 @@ export default function ProductsGrid({
         <ProductGridCard
           key={product.id}
           product={product}
-          href={`/${locale}/products/${product.id}`}
+          href={buildProductDetailHref(locale, product)}
           compact
           hoverActions
         />

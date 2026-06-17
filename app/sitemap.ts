@@ -42,7 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const locale of routing.locales) {
       for (const product of products) {
         entries.push({
-          url: `${siteUrl}${localePath(locale, `/products/${product.id}`)}`,
+          url: `${siteUrl}${localePath(locale, `/products/${product.slug}`)}`,
           lastModified: now,
           changeFrequency: "weekly",
           priority: 0.7,

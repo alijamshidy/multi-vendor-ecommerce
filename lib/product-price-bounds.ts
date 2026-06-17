@@ -1,24 +1,18 @@
-import type { ApiProduct } from "@/lib/api-types";
-import { unwrapList } from "@/lib/api-utils";
 import api from "@/lib/axios";
+import { apiEndpoints } from "@/lib/endpoints";
 
 export const PRICE_MIN = 0;
-export const PRICE_STEP = 5_000;
+export const PRICE_STEP = 1;
 
 export type PriceBounds = {
   min: number;
   max: number;
 };
 
-/** Fallback before catalog bounds are loaded from the API. */
 export const DEFAULT_PRICE_BOUNDS: PriceBounds = {
   min: PRICE_MIN,
-  max: 1_000_000,
+  max: 10_000,
 };
-
-function getProductPrice(item: ApiProduct): number {
-  return Number(item.discount_price ?? item.price) || 0;
-}
 
 export function roundPriceDown(value: number, step: number = PRICE_STEP): number {
   return Math.floor(value / step) * step;
@@ -37,33 +31,23 @@ export function clampPriceRange(
   return [min, max];
 }
 
-/** Loads cheapest/highest priced products to derive slider bounds. */
 export async function fetchProductPriceBounds(): Promise<PriceBounds> {
-  const [lowRes, highRes] = await Promise.all([
-    api.get("/products/", {
-      params: { ordering: "price", page: 1 },
-      skipAuth: true,
-    }),
-    api.get("/products/", {
-      params: { ordering: "-price", page: 1 },
-      skipAuth: true,
-    }),
-  ]);
+  try {
+    const { data } = await api.get<{
+      priceRange?: { low?: number; high?: number };
+    }>(apiEndpoints.storefront.priceRangeProducts, { skipAuth: true });
 
-  const lowList = unwrapList<ApiProduct>(lowRes.data);
-  const highList = unwrapList<ApiProduct>(highRes.data);
+    const low = data.priceRange?.low;
+    const high = data.priceRange?.high;
 
-  const rawMin =
-    lowList.length > 0
-      ? Math.min(...lowList.map(getProductPrice))
-      : DEFAULT_PRICE_BOUNDS.min;
-  const rawMax =
-    highList.length > 0
-      ? Math.max(...highList.map(getProductPrice))
-      : DEFAULT_PRICE_BOUNDS.max;
+    if (low == null || high == null) {
+      return DEFAULT_PRICE_BOUNDS;
+    }
 
-  const min = roundPriceDown(rawMin);
-  const max = Math.max(min + PRICE_STEP, roundPriceUp(rawMax));
-
-  return { min, max };
+    const min = roundPriceDown(low);
+    const max = Math.max(min + PRICE_STEP, roundPriceUp(high));
+    return { min, max };
+  } catch {
+    return DEFAULT_PRICE_BOUNDS;
+  }
 }

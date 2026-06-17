@@ -4,7 +4,7 @@ Guide for AI coding agents working in this repository.
 
 ## Project summary
 
-Multi-vendor e-commerce **frontend** built with Next.js 16 (App Router), TypeScript, Tailwind CSS 4, and Zustand. It talks to a **Django REST API** (not in this repo) at `/api/v1/`. Supports English and Persian (`fa`) with RTL, and three auth roles: `admin`, `seller`, `customer`.
+Multi-vendor e-commerce **frontend** built with Next.js 16 (App Router), TypeScript, Tailwind CSS 4, and Zustand. It talks to a **Marketplace API** (Node.js, port 5000) at `/api/`. Supports English and Persian (`fa`) with RTL, and three auth roles: `admin`, `seller`, `customer`.
 
 **Package manager:** `pnpm` (lockfile: `pnpm-lock.yaml`, Docker uses pnpm 9.15.9).
 
@@ -23,7 +23,7 @@ pnpm lint             # ESLint (eslint-config-next)
 docker compose up --build   # frontend on port 3002
 ```
 
-Before testing API-dependent features, ensure Django is running on `http://localhost:8000`.
+Before testing API-dependent features, ensure the Marketplace API is running on `http://localhost:5000`.
 
 ---
 
@@ -33,13 +33,11 @@ Create `.env.local` for local development:
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `NEXT_PUBLIC_API_URL` | recommended | Public API base, e.g. `http://localhost:8000/api/v1` |
+| `MARKETPLACE_API_URL` | recommended | Server-side API origin, e.g. `http://localhost:5000` |
+| `NEXT_PUBLIC_MARKETPLACE_API_URL` | recommended | Public API origin for media URLs |
 | `NEXT_PUBLIC_WEBSITE_URL` | recommended | Public site URL (sharing links), e.g. `http://localhost:3000` |
-| `API_URL` | optional | Server-side backend origin, default `http://localhost:8000` |
-| `EXTERNAL_API_URL` | optional | Legacy route `app/api/products/route.ts` only |
-| `EXTERNAL_API_TOKEN` | optional | Bearer token for external API route |
 
-**Docker note:** Inside the container, `API_URL` must be `http://host.docker.internal:8000`, not `localhost`. See `docker-compose.yml`.
+**Docker note:** Inside the container, `MARKETPLACE_API_URL` must be `http://host.docker.internal:5000`, not `localhost`. See `docker-compose.yml`.
 
 ---
 
@@ -48,13 +46,13 @@ Create `.env.local` for local development:
 ### Request flow
 
 ```
-Browser  →  axios baseURL `/api/v1`  →  app/api/v1/[...path]/route.ts  →  Django REST
-SSR/Server  →  axios baseURL `${API_URL}/api/v1`  →  Django REST (direct)
+Browser  →  axios baseURL `/api`  →  app/api/[...path]/route.ts  →  Marketplace API
+SSR/Server  →  axios baseURL `http://localhost:5000/api`  →  Marketplace API (direct)
 ```
 
 - Client HTTP client: `lib/axios.ts`
-- Server proxy: `lib/api-proxy.ts` via `app/api/v1/[...path]/route.ts`
-- Do **not** point browser code directly at `localhost:8000`; always use the same-origin proxy.
+- Server proxy: `lib/api-proxy.ts` via `app/api/[...path]/route.ts`
+- Do **not** point browser code directly at `localhost:5000`; always use the same-origin proxy.
 
 ### Middleware / routing (`proxy.ts`)
 

@@ -22,6 +22,7 @@ import {
   AuthRequestError,
   parseThrottleCooldownSeconds,
 } from "@/lib/api-utils";
+import type { AuthRole } from "@/lib/auth-cookie";
 import { isSafeCallbackUrl, redirectAfterAuth } from "@/lib/auth-cookie";
 import useAuthStore from "@/store/authStore";
 import { isLoginPasswordValid } from "@/utils/password";
@@ -35,6 +36,8 @@ import { toast } from "sonner";
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const phoneRegex = /^(09[0-9]{9}|\+989[0-9]{9})$/;
 const MIN_LOGIN_COOLDOWN_SECONDS = 60;
+
+type LoginRole = Extract<AuthRole, "customer" | "seller" | "admin">;
 
 function formatCooldown(seconds: number): string {
   if (seconds >= 3600) {
@@ -57,14 +60,23 @@ export default function LoginWithPassword({
   const paths = useAuthPaths();
   const searchParams = useSearchParams();
   const login = useAuthStore(state => state.login);
-  const isLoading = useAuthStore(state => state.loading.login);
+  const loginStaff = useAuthStore(state => state.loginStaff);
+  const isCustomerLoading = useAuthStore(state => state.loading.login);
+  const isStaffLoading = useAuthStore(state => state.loading.loginStaff);
   const errorMessage = useAuthStore(state => state.errorMessage);
+  const [loginRole, setLoginRole] = useState<LoginRole>(() => {
+    const role = searchParams.get("role");
+    if (role === "seller" || role === "admin") return role;
+    return "customer";
+  });
   const [isVisible, setIsVisible] = useState(false);
   const [password, setPassword] = useState("");
   const [identifier, setIdentifier] = useState("");
   const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
   const [cooldownSecondsLeft, setCooldownSecondsLeft] = useState(0);
 
+  const isLoading =
+    loginRole === "customer" ? isCustomerLoading : isStaffLoading;
   const isRateLimited = cooldownSecondsLeft > 0;
 
   useEffect(() => {
@@ -88,20 +100,31 @@ export default function LoginWithPassword({
     const isEmail = emailRegex.test(identifier);
     const isPhone = phoneRegex.test(identifier);
     const isPasswordValid = isLoginPasswordValid(password);
-    return (isEmail || isPhone) && isPasswordValid;
-  }, [identifier, password]);
+    if (loginRole === "customer") {
+      return (isEmail || isPhone) && isPasswordValid;
+    }
+    return isEmail && isPasswordValid;
+  }, [identifier, password, loginRole]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isValid || isLoading || isRateLimited) return;
+    if (isLoading || isRateLimited) return;
 
     try {
-      await login({ identifier, password });
+      if (loginRole === "customer") {
+        await login({ identifier, password });
+      } else {
+        await loginStaff({ role: loginRole, identifier, password });
+      }
+
       toast.success(t("signedInSuccess"));
       const callbackUrl = searchParams.get("callbackUrl");
+      const defaultDestination = paths.dashboardForRole(
+        loginRole === "customer" ? "customer" : loginRole,
+      );
       const destination = isSafeCallbackUrl(callbackUrl)
         ? callbackUrl
-        : paths.dashboard;
+        : defaultDestination;
       redirectAfterAuth(destination);
     } catch (error) {
       const message = error instanceof Error ? error.message : t("loginFailed");
@@ -131,15 +154,26 @@ export default function LoginWithPassword({
           <CardContent>
             <form onSubmit={handleSubmit}>
               <FieldGroup>
-                {/* <Field>
-                  <SocialLoginButtons />
+                <Field>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(["customer", "seller", "admin"] as const).map(role => (
+                      <Button
+                        key={role}
+                        type="button"
+                        variant={loginRole === role ? "default" : "outline"}
+                        className="w-full"
+                        onClick={() => setLoginRole(role)}>
+                        {t(
+                          `loginAs${role.charAt(0).toUpperCase()}${role.slice(1)}`,
+                        )}
+                      </Button>
+                    ))}
+                  </div>
                 </Field>
-
-                <FieldSeparator>{t("orContinueWith")}</FieldSeparator> */}
 
                 <Field>
                   <FieldLabel htmlFor="identifier">
-                    {t("emailOrPhone")}
+                    {loginRole === "customer" ? t("emailOrPhone") : t("email")}
                   </FieldLabel>
                   <Input
                     id="identifier"
@@ -148,7 +182,11 @@ export default function LoginWithPassword({
                     type="text"
                     inputMode="email"
                     autoComplete="username"
-                    placeholder={t("emailOrPhonePlaceholder")}
+                    placeholder={
+                      loginRole === "customer"
+                        ? t("emailOrPhonePlaceholder")
+                        : t("emailPlaceholder")
+                    }
                     required
                   />
                 </Field>
@@ -156,11 +194,13 @@ export default function LoginWithPassword({
                 <Field>
                   <div className="flex items-center gap-2">
                     <FieldLabel htmlFor="password">{t("password")}</FieldLabel>
-                    <Link
-                      href={paths.resetPassword}
-                      className="ms-auto text-sm underline-offset-4 hover:underline">
-                      {t("forgotPassword")}
-                    </Link>
+                    {loginRole === "customer" ? (
+                      <Link
+                        href={paths.resetPassword}
+                        className="ms-auto text-sm underline-offset-4 hover:underline">
+                        {t("forgotPassword")}
+                      </Link>
+                    ) : null}
                   </div>
                   <div className="relative">
                     <Input
@@ -195,7 +235,7 @@ export default function LoginWithPassword({
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={!isValid || isLoading || isRateLimited}>
+                    disabled={isLoading || isRateLimited}>
                     {isLoading
                       ? t("signingIn")
                       : isRateLimited
@@ -213,9 +253,18 @@ export default function LoginWithPassword({
                   ) : null}
                   <FieldDescription className="text-center">
                     {t("noAccount")}{" "}
-                    <Link href={paths.register}>{t("createOne")}</Link>
+                    <Link
+                      href={
+                        loginRole === "seller"
+                          ? paths.sellerRegister
+                          : paths.register
+                      }>
+                      {loginRole === "seller"
+                        ? t("registerAsSeller")
+                        : t("createOne")}
+                    </Link>
                   </FieldDescription>
-                  {onSwitchToOtp ? (
+                  {onSwitchToOtp && loginRole === "customer" ? (
                     <Button
                       type="button"
                       variant="link"

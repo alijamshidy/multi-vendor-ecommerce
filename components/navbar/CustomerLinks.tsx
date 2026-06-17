@@ -2,7 +2,7 @@
 
 import Container from "@/components/global/Container";
 import { GetLocale } from "@/utils/GetUrlParams";
-import { visitorLinks } from "@/utils/links";
+import { publicVisitorLinks } from "@/utils/links";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -14,7 +14,7 @@ export default function CustomerLinks() {
 
   return (
     <Container className="hidden gap-x-6 md:flex">
-      {visitorLinks.map(link => {
+      {publicVisitorLinks.map(link => {
         const href = `/${locale}${link.href === "/" ? "" : link.href}`;
         return (
           <Link

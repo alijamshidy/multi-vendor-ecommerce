@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { ButtonGroup, ButtonGroupText } from "@/components/ui/button-group";
 import useCartStore from "@/store/cartStore";
+import { buildProductDetailHref } from "@/lib/mappers";
 import { formatCurrency } from "@/utils/format";
 import { productType } from "@/utils/products";
 import { Minus, Plus, Trash2 } from "lucide-react";
@@ -51,7 +52,7 @@ export default function CartLineItem({
     setLocalQuantity(nextQuantity);
 
     try {
-      await updateItem({ id, product: product.id, quantity: delta });
+      await updateItem({ id, product: product.id, quantity: nextQuantity });
       toast.success(t("updated"), {
         description: t("updatedDescription", {
           quantity: nextQuantity,
@@ -94,7 +95,7 @@ export default function CartLineItem({
         </div>
         <div className="min-w-0">
           <Link
-            href={`/${locale}/products/${product.id}`}
+            href={buildProductDetailHref(locale, product)}
             className="font-medium capitalize hover:text-primary">
             {product.label}
           </Link>
@@ -102,7 +103,10 @@ export default function CartLineItem({
             {product.category}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <ButtonGroup aria-label={t("amount")}>
+            <ButtonGroup
+              aria-label={t("amount")}
+              dir="ltr"
+              className="shrink-0">
               <Button
                 type="button"
                 variant="outline"

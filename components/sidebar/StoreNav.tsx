@@ -7,84 +7,39 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useAuthRole, useIsAuthenticated } from "@/hooks/use-authenticated-user";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import {
-  FolderOpen,
-  Home,
-  Layers,
-  Package,
-  ShoppingCart,
-  Star,
-  type LucideIcon,
-} from "lucide-react";
+  getSidebarNav,
+  isSidebarNavItemActive,
+  type NavLink,
+} from "@/utils/links";
 import { useTranslations } from "next-intl";
+import { useMemo } from "react";
 
-type NavItem = {
-  titleKey:
-    | "home"
-    | "products"
-    | "categories"
-    | "collections"
-    | "cart"
-    | "wishlist"
-    | "reviews";
-  href:
-    | "/"
-    | "/products"
-    | "/categories"
-    | "/collections"
-    | "/cart"
-    | "/wishlist"
-    | "/reviews";
-  icon: LucideIcon;
-};
-
-const shopItems: NavItem[] = [
-  { titleKey: "home", href: "/", icon: Home },
-  { titleKey: "products", href: "/products", icon: Package },
-  { titleKey: "categories", href: "/categories", icon: FolderOpen },
-  { titleKey: "collections", href: "/collections", icon: Layers },
-  { titleKey: "cart", href: "/cart", icon: ShoppingCart },
-  { titleKey: "reviews", href: "/reviews", icon: Star },
-];
-
-function isNavItemActive(pathname: string, href: NavItem["href"]) {
-  const normalizedPath = pathname.replace(/\/$/, "") || "/";
-  const normalizedHref = href.replace(/\/$/, "") || "/";
-
-  if (normalizedHref === "/") {
-    return normalizedPath === "/";
-  }
-
-  return (
-    normalizedPath === normalizedHref ||
-    normalizedPath.startsWith(`${normalizedHref}/`)
-  );
-}
-
-function StoreNavItems({ items }: { items: NavItem[] }) {
+function SidebarNavItems({ items }: { items: NavLink[] }) {
   const t = useTranslations("nav");
   const pathname = usePathname();
 
   return (
     <>
       {items.map(item => {
-        const isActive = isNavItemActive(pathname, item.href);
+        const isActive = isSidebarNavItemActive(pathname, item.href, items);
 
         return (
           <SidebarMenuItem key={item.href}>
             <SidebarMenuButton
               asChild
               isActive={isActive}
-              tooltip={t(item.titleKey)}
+              tooltip={t(item.labelKey)}
               className={cn(
                 isActive &&
                   "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground",
               )}>
               <Link href={item.href}>
                 <item.icon />
-                <span>{t(item.titleKey)}</span>
+                <span>{t(item.labelKey)}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -94,12 +49,14 @@ function StoreNavItems({ items }: { items: NavItem[] }) {
   );
 }
 
-function NavGroup({ label, items }: { label: string; items: NavItem[] }) {
+function NavGroup({ label, items }: { label: string; items: NavLink[] }) {
+  if (items.length === 0) return null;
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{label}</SidebarGroupLabel>
       <SidebarMenu>
-        <StoreNavItems items={items} />
+        <SidebarNavItems items={items} />
       </SidebarMenu>
     </SidebarGroup>
   );
@@ -107,15 +64,37 @@ function NavGroup({ label, items }: { label: string; items: NavItem[] }) {
 
 export function StoreNav() {
   const t = useTranslations("nav");
+  const isAuthenticated = useIsAuthenticated();
+  const role = useAuthRole();
+
+  const { shop, account, accountGroupKey } = useMemo(
+    () => getSidebarNav(role, isAuthenticated),
+    [role, isAuthenticated],
+  );
 
   return (
-    <NavGroup
-      label={t("shop")}
-      items={shopItems}
-    />
+    <>
+      <NavGroup
+        label={t("shop")}
+        items={shop}
+      />
+      {account.length > 0 ? (
+        <NavGroup
+          label={t(accountGroupKey)}
+          items={account}
+        />
+      ) : null}
+    </>
   );
 }
 
 export function StoreNavMenuItems() {
-  return <StoreNavItems items={shopItems} />;
+  const isAuthenticated = useIsAuthenticated();
+  const role = useAuthRole();
+  const { shop } = useMemo(
+    () => getSidebarNav(role, isAuthenticated),
+    [role, isAuthenticated],
+  );
+
+  return <SidebarNavItems items={shop} />;
 }

@@ -7,7 +7,10 @@ const nextConfig: NextConfig = {
   output: "standalone",
   skipTrailingSlashRedirect: true,
   images: {
-    remotePatterns: [{ protocol: "https", hostname: "images.pexels.com" }],
+    remotePatterns: [
+      { protocol: "https", hostname: "images.pexels.com" },
+      { protocol: "https", hostname: "placehold.co" },
+    ],
     unoptimized: true,
   },
 };

@@ -48,23 +48,14 @@ function formatCheckpointValue(name: string, total: number): string {
 export default function AdminDashboardPageContent() {
   const t = useTranslations("adminDashboard");
   const checkpoints = useAdminStore(state => state.checkpoints);
-  const sales = useAdminStore(state => state.sales);
   const orders = useAdminStore(state => state.orders);
   const errorMessage = useAdminStore(state => state.errorMessage);
   const ordersError = useAdminStore(state => state.ordersError);
   const fetchDashboardTotals = useAdminStore(state => state.fetchDashboardTotals);
-  const fetchSales = useAdminStore(state => state.fetchSales);
-  const fetchManagementOrders = useAdminStore(
-    state => state.fetchManagementOrders,
-  );
   const isLoadingTotals = useAdminStore(state => state.loading.fetchTotals);
-  const isLoadingSales = useAdminStore(state => state.loading.fetchSales);
-  const isLoadingOrders = useAdminStore(state => state.loading.fetchOrders);
 
   useStoreInit(() => {
     void fetchDashboardTotals();
-    void fetchSales(1);
-    void fetchManagementOrders({ page: 1 });
   });
 
   const isLoading = isLoadingTotals && checkpoints.length === 0;
@@ -114,38 +105,7 @@ export default function AdminDashboardPageContent() {
         </section>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="rounded-md">
-          <CardHeader>
-            <CardTitle>{t("topSellingProducts")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {isLoadingSales && sales.length === 0 ? (
-              <BorderedListSkeleton count={5} />
-            ) : sales.length === 0 ? (
-              <p className="text-sm text-muted-foreground">{t("noSalesData")}</p>
-            ) : (
-              sales.slice(0, 5).map(item => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between gap-3 rounded-md border p-3">
-                  <div className="min-w-0">
-                    <p className="truncate font-medium capitalize">
-                      {item.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {t("ordersCount", { count: item.numOrders })}
-                    </p>
-                  </div>
-                  <p className="shrink-0 font-semibold">
-                    {formatCurrency(item.totalSale)}
-                  </p>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-
+      <div className="grid gap-6">
         <Card className="rounded-md">
           <CardHeader>
             <CardTitle>{t("recentOrders")}</CardTitle>
@@ -154,7 +114,7 @@ export default function AdminDashboardPageContent() {
             {ordersError ? (
               <p className="text-sm text-destructive">{ordersError}</p>
             ) : null}
-            {isLoadingOrders && orders.length === 0 ? (
+            {isLoadingTotals && orders.length === 0 ? (
               <BorderedListSkeleton
                 count={5}
                 columns={4}

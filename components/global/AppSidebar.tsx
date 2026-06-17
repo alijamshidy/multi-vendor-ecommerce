@@ -1,6 +1,7 @@
 "use client";
 
 import { StoreNav } from "@/components/sidebar/StoreNav";
+import { NavUser } from "@/components/sidebar/NavUser";
 import {
   Sidebar,
   SidebarContent,
@@ -10,44 +11,35 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { GetLocale } from "@/utils/GetUrlParams";
+import { Link } from "@/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { Store } from "lucide-react";
-import { useTranslations } from "next-intl";
-import Link from "next/link";
-import { NavUser } from "../sidebar/NavUser";
 
 export function AppSidebar() {
   const t = useTranslations("nav");
-  const locale = GetLocale();
+  const locale = useLocale();
   const isRtl = locale === "fa";
-
-  const user = {
-    name: t("guest"),
-    email: "guest@storefront.demo",
-    avatar: "/avatars/shadcn.jpg",
-  };
 
   return (
     <Sidebar
       collapsible="icon"
       side={isRtl ? "right" : "left"}
-      dir={isRtl ? "rtl" : "ltr"}
-      className="[&_[data-slot=sidebar-inner]]:bg-transparent [&_[data-sidebar=menu-button]]:bg-transparent [&_[data-sidebar=menu-button]:hover]:bg-transparent [&_[data-sidebar=menu-button]:active]:bg-transparent [&_[data-sidebar=menu-button][data-active=true]]:bg-transparent [&_[data-sidebar=menu-button][data-state=open]]:bg-transparent">
+      dir={isRtl ? "rtl" : "ltr"}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              size={"lg"}
+              size="lg"
               asChild>
-              <Link href={`/${locale}`}>
-                <span className="flex size-8 items-center justify-center">
+              <Link href="/">
+                <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <Store className="size-4" />
                 </span>
                 <div className="grid flex-1 text-start text-sm group-data-[collapsible=icon]:hidden">
-                  <span className="truncate font-semibold">
-                    {t("storeName")}
+                  <span className="truncate font-semibold">{t("storeName")}</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {t("storeTagline")}
                   </span>
-                  <span className="truncate text-xs">{t("storeTagline")}</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -58,9 +50,8 @@ export function AppSidebar() {
         <StoreNav />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser />
       </SidebarFooter>
-      {/* <SidebarRail /> */}
     </Sidebar>
   );
 }

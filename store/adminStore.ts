@@ -1,19 +1,24 @@
-import type { ApiCheckpointItem, ApiManagementOrder, ApiSaleReview } from "@/lib/api-types";
-import { getApiErrorMessage, unwrapEntity, unwrapList, unwrapListCount } from "@/lib/api-utils";
+import type { ApiOrder, OrderQuery } from "@/lib/api-types";
+import { getApiErrorMessage, serializeQueryParams, unwrapListCount } from "@/lib/api-utils";
 import api from "@/lib/axios";
+import { apiEndpoints } from "@/lib/endpoints";
 import {
   mapManagementOrder,
-  mapSaleReview,
   type ManagementOrderView,
   type SaleReviewView,
 } from "@/lib/mappers";
-import type { OrderQuery } from "@/lib/order-query";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { withStoreDevtools } from "./devtools";
 import { createStoreLoadingState, setStoreLoading } from "./store-utils";
 
 type AdminAction = "fetchTotals" | "fetchSales" | "fetchOrders";
+
+const DEFAULT_ADMIN_ORDER_QUERY: OrderQuery = { page: 1, parPage: 10 };
+
+function withDefaultOrderQuery(query: OrderQuery = {}): OrderQuery {
+  return { ...DEFAULT_ADMIN_ORDER_QUERY, ...query };
+}
 
 export type DashboardCheckpoint = {
   index: number;
@@ -30,49 +35,25 @@ type AdminState = {
   errorMessage: string;
   ordersError: string;
   loading: Record<AdminAction, boolean>;
-  fetchDashboardTotals: (includeCancelled?: boolean) => Promise<void>;
+  fetchDashboardTotals: () => Promise<void>;
   fetchSales: (page?: number) => Promise<void>;
   fetchManagementOrders: (query?: OrderQuery) => Promise<void>;
   clearError: () => void;
 };
 
-function mapCheckpoints(data: unknown): DashboardCheckpoint[] {
-  const entity = unwrapEntity<{ data?: ApiCheckpointItem[] }>(data);
-  const list = entity?.data ?? unwrapList<ApiCheckpointItem>(data);
+function buildCheckpointsFromOrders(
+  orders: ManagementOrderView[],
+): DashboardCheckpoint[] {
+  const revenue = orders.reduce((sum, order) => sum + order.total, 0);
+  const pending = orders.filter(
+    order => order.status.toLowerCase() === "pending",
+  ).length;
 
-  return list
-    .filter(
-      (item): item is ApiCheckpointItem =>
-        Boolean(item) && typeof item === "object",
-    )
-    .map(item => ({
-      index: item.checkpoint_index ?? 0,
-      name: item.checkpoint_name ?? "—",
-      total: Number(item.total ?? 0),
-    }));
-}
-
-async function fetchOrdersList(query: OrderQuery = {}) {
-  const params = { page: 1, ...query };
-
-  try {
-    return await api.get<
-      ApiManagementOrder[] | {
-        results?: ApiManagementOrder[];
-        count?: number;
-      }
-    >("/managements/orders/", { params });
-  } catch (error) {
-    const status = (error as { response?: { status?: number } })?.response?.status;
-    if (status !== 500) throw error;
-
-    return api.get<
-      ApiManagementOrder[] | {
-        results?: ApiManagementOrder[];
-        count?: number;
-      }
-    >("/ordering/orders/", { params });
-  }
+  return [
+    { index: 0, name: "Total Revenue", total: revenue },
+    { index: 1, name: "Total Orders", total: orders.length },
+    { index: 2, name: "Pending Orders", total: pending },
+  ];
 }
 
 const useAdminStore = create<AdminState>()(
@@ -93,14 +74,22 @@ const useAdminStore = create<AdminState>()(
 
       clearError: () => set({ errorMessage: "" }),
 
-      fetchDashboardTotals: async (includeCancelled = false) => {
+      fetchDashboardTotals: async () => {
         setStoreLoading(set, "fetchTotals", true, { errorMessage: "" });
 
         try {
-          const { data } = await api.get("/managements/reports/totals/", {
-            params: { "include-cancelled": includeCancelled },
+          const { data } = await api.get<{ orders: ApiOrder[]; totalOrder?: number }>(
+            apiEndpoints.orders.adminList,
+            { params: serializeQueryParams(withDefaultOrderQuery()) },
+          );
+          const mapped = (data.orders ?? []).map(mapManagementOrder);
+          set({
+            checkpoints: buildCheckpointsFromOrders(mapped),
+            orders: mapped,
+            ordersCount: unwrapListCount(data, mapped.length),
+            errorMessage: "",
+            ordersError: "",
           });
-          set({ checkpoints: mapCheckpoints(data) });
         } catch (error) {
           set({
             errorMessage: getApiErrorMessage(
@@ -114,46 +103,26 @@ const useAdminStore = create<AdminState>()(
         }
       },
 
-      fetchSales: async (page = 1) => {
+      fetchSales: async () => {
         setStoreLoading(set, "fetchSales", true, { errorMessage: "" });
-
-        try {
-          const { data } = await api.get<
-            ApiSaleReview[] | { results?: ApiSaleReview[]; count?: number }
-          >("/managements/sales/", { params: { page } });
-          const list = unwrapList(data);
-          const salesCount = unwrapListCount(data, list.length);
-
-          set({
-            sales: list.map((item: unknown) =>
-              mapSaleReview(item as ApiSaleReview),
-            ),
-            salesCount,
-          });
-        } catch (error) {
-          set({
-            errorMessage: getApiErrorMessage(error, "Failed to load sales"),
-            sales: [],
-            salesCount: 0,
-          });
-        } finally {
-          setStoreLoading(set, "fetchSales", false);
-        }
+        set({ sales: [], salesCount: 0, errorMessage: "" });
+        setStoreLoading(set, "fetchSales", false);
       },
 
       fetchManagementOrders: async (query = {}) => {
         setStoreLoading(set, "fetchOrders", true, { ordersError: "" });
 
         try {
-          const { data } = await fetchOrdersList(query);
-          const list = unwrapList(data);
-          const ordersCount = unwrapListCount(data, list.length);
-
+          const { data } = await api.get<{ orders: ApiOrder[]; totalOrder?: number }>(
+            apiEndpoints.orders.adminList,
+            { params: serializeQueryParams(withDefaultOrderQuery(query)) },
+          );
+          const list = data.orders ?? [];
+          const mapped = list.map(mapManagementOrder);
           set({
-            orders: list.map((item: unknown) =>
-              mapManagementOrder(item as ApiManagementOrder),
-            ),
-            ordersCount,
+            orders: mapped,
+            ordersCount: unwrapListCount(data, list.length, data.totalOrder),
+            checkpoints: buildCheckpointsFromOrders(mapped),
             ordersError: "",
           });
         } catch (error) {

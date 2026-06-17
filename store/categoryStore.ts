@@ -1,14 +1,14 @@
 import type {
+  ApiCategoriesResponse,
   ApiCategory,
-  ApiCategoryDetail,
-  ApiProduct,
+  ApiPaginatedCategoriesResponse,
+  ListQuery,
 } from "@/lib/api-types";
-import { getApiErrorMessage, unwrapEntity, unwrapList } from "@/lib/api-utils";
+import { getApiErrorMessage, serializeQueryParams } from "@/lib/api-utils";
 import api from "@/lib/axios";
-import type { ListQuery } from "@/lib/list-query";
-import { mapCategory, mapProduct } from "@/lib/mappers";
+import { apiEndpoints } from "@/lib/endpoints";
+import { mapCategory } from "@/lib/mappers";
 import type { category } from "@/utils/category";
-import type { productType } from "@/utils/products";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { withStoreDevtools } from "./devtools";
@@ -24,7 +24,6 @@ type CategoryAction =
 type CategoryState = {
   categories: category[];
   activeCategory: category | null;
-  categoryProducts: productType[];
   errorMessage: string;
   successMessage: string;
   loading: Record<CategoryAction, boolean>;
@@ -56,7 +55,6 @@ const useCategoryStore = create<CategoryState>()(
     (set, get) => ({
       categories: [],
       activeCategory: null,
-      categoryProducts: [],
       errorMessage: "",
       successMessage: "",
       loading: createStoreLoadingState([
@@ -74,13 +72,24 @@ const useCategoryStore = create<CategoryState>()(
         setStoreLoading(set, "fetchCategories", true, { errorMessage: "" });
 
         try {
-          const { data } = await api.get<
-            ApiCategory[] | { results: ApiCategory[] }
-          >("/categories/", { params: query, skipAuth: true });
+          if (Object.keys(query).length > 0) {
+            const { data } = await api.get<ApiPaginatedCategoriesResponse>(
+              apiEndpoints.categories.list,
+              { params: serializeQueryParams(query) },
+            );
+            set({
+              categories: (data.categorys ?? []).map(mapCategory),
+              errorMessage: "",
+            });
+            return;
+          }
+
+          const { data } = await api.get<ApiCategoriesResponse>(
+            apiEndpoints.storefront.categories,
+            { skipAuth: true },
+          );
           set({
-            categories: unwrapList(data).map((item: unknown) =>
-              mapCategory(item as ApiCategory),
-            ),
+            categories: (data.categories ?? []).map(mapCategory),
             errorMessage: "",
           });
         } catch (error) {
@@ -99,25 +108,19 @@ const useCategoryStore = create<CategoryState>()(
         setStoreLoading(set, "fetchCategory", true, {
           errorMessage: "",
           activeCategory: null,
-          categoryProducts: [],
         });
 
         try {
-          const encodedSlug = encodeURIComponent(decodeURIComponent(slug));
-          const { data } = await api.get(`/categories/${encodedSlug}/`, {
-            skipAuth: true,
-          });
-          const item = unwrapEntity<ApiCategoryDetail>(data);
-          if (!item) {
+          await get().fetchCategories();
+          const match = get().categories.find(
+            item => item.href === slug || item.id === slug,
+          );
+          if (!match) {
             set({ errorMessage: "Category not found" });
             return null;
           }
-          const mapped = mapCategory(item);
-          const products = (item.products ?? []).map((product: ApiProduct) =>
-            mapProduct(product),
-          );
-          set({ activeCategory: mapped, categoryProducts: products });
-          return mapped;
+          set({ activeCategory: match });
+          return match;
         } catch (error) {
           set({
             errorMessage: getApiErrorMessage(error, "Category not found"),
@@ -137,13 +140,9 @@ const useCategoryStore = create<CategoryState>()(
         try {
           const formData = new FormData();
           formData.append("name", payload.name);
-          if (payload.slug) formData.append("slug", payload.slug);
-          if (payload.description)
-            formData.append("description", payload.description);
-          if (payload.parent) formData.append("parent", payload.parent);
           if (payload.image) formData.append("image", payload.image);
 
-          await api.post("/managements/categories/", formData);
+          await api.post(apiEndpoints.categories.add, formData);
           set({ successMessage: "Category created" });
           await get().fetchCategories();
         } catch (error) {
@@ -158,58 +157,14 @@ const useCategoryStore = create<CategoryState>()(
         }
       },
 
-      updateCategory: async (slug, payload) => {
-        setStoreLoading(set, "updateCategory", true, {
-          errorMessage: "",
-          successMessage: "",
-        });
-
-        try {
-          const encodedSlug = encodeURIComponent(decodeURIComponent(slug));
-          const formData = new FormData();
-          if (payload.name) formData.append("name", payload.name);
-          if (payload.description) {
-            formData.append("description", payload.description);
-          }
-          if (payload.parent) formData.append("parent", payload.parent);
-          if (payload.image) formData.append("image", payload.image);
-
-          await api.patch(`/managements/categories/${encodedSlug}/`, formData);
-          set({ successMessage: "Category updated" });
-          await get().fetchCategories();
-        } catch (error) {
-          const message = getApiErrorMessage(
-            error,
-            "Failed to update category",
-          );
-          set({ errorMessage: message });
-          throw new Error(message);
-        } finally {
-          setStoreLoading(set, "updateCategory", false);
-        }
+      updateCategory: async (_slug, _payload) => {
+        set({ errorMessage: "Category update is not supported by the API" });
+        throw new Error("Category update is not supported by the API");
       },
 
-      deleteCategory: async slug => {
-        setStoreLoading(set, "deleteCategory", true, {
-          errorMessage: "",
-          successMessage: "",
-        });
-
-        try {
-          const encodedSlug = encodeURIComponent(decodeURIComponent(slug));
-          await api.delete(`/managements/categories/${encodedSlug}/`);
-          set({ successMessage: "Category deleted" });
-          await get().fetchCategories();
-        } catch (error) {
-          const message = getApiErrorMessage(
-            error,
-            "Failed to delete category",
-          );
-          set({ errorMessage: message });
-          throw new Error(message);
-        } finally {
-          setStoreLoading(set, "deleteCategory", false);
-        }
+      deleteCategory: async _slug => {
+        set({ errorMessage: "Category delete is not supported by the API" });
+        throw new Error("Category delete is not supported by the API");
       },
     }),
     withStoreDevtools("category"),

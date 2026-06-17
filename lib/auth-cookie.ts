@@ -1,22 +1,23 @@
-import type { AuthUser } from "@/lib/api-types";
-
-export type AuthRole = "admin" | "seller" | "customer";
+import type { AuthRole, AuthUser } from "@/lib/api-types";
 
 const ACCESS_TOKEN_COOKIE = "accessToken";
+const CUSTOMER_TOKEN_COOKIE = "customerToken";
 const AUTH_ROLE_COOKIE = "authRole";
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
+export type { AuthRole };
+
 export function deriveAuthRole(user: AuthUser): AuthRole {
-  if (user.is_superuser || user.is_staff) return "admin";
-  if (user.is_owner) return "seller";
-  return "customer";
+  return user.role;
 }
 
-export function setAuthCookies(accessToken: string, role: AuthRole) {
+export function setAuthCookies(token: string, role: AuthRole) {
   if (typeof document === "undefined") return;
 
-  const encodedToken = encodeURIComponent(accessToken);
-  document.cookie = `${ACCESS_TOKEN_COOKIE}=${encodedToken}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
+  const cookieName =
+    role === "customer" ? CUSTOMER_TOKEN_COOKIE : ACCESS_TOKEN_COOKIE;
+  const encodedToken = encodeURIComponent(token);
+  document.cookie = `${cookieName}=${encodedToken}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
   document.cookie = `${AUTH_ROLE_COOKIE}=${role}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
 }
 
@@ -24,17 +25,31 @@ export function clearAuthCookies() {
   if (typeof document === "undefined") return;
 
   document.cookie = `${ACCESS_TOKEN_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+  document.cookie = `${CUSTOMER_TOKEN_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
   document.cookie = `${AUTH_ROLE_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+}
+
+export function getAuthRoleFromCookie(): AuthRole | null {
+  if (typeof document === "undefined") return null;
+
+  const match = document.cookie.match(/(?:^|;\s*)authRole=([^;]*)/);
+  const value = match?.[1]?.trim();
+  if (value === "admin" || value === "seller" || value === "customer") {
+    return value;
+  }
+  return null;
 }
 
 export function getAccessTokenFromCookie(): string | null {
   if (typeof document === "undefined") return null;
 
-  const match = document.cookie.match(/(?:^|;\s*)accessToken=([^;]*)/);
-  return match?.[1] ? decodeURIComponent(match[1]) : null;
+  const accessMatch = document.cookie.match(/(?:^|;\s*)accessToken=([^;]*)/);
+  if (accessMatch?.[1]) return decodeURIComponent(accessMatch[1]);
+
+  const customerMatch = document.cookie.match(/(?:^|;\s*)customerToken=([^;]*)/);
+  return customerMatch?.[1] ? decodeURIComponent(customerMatch[1]) : null;
 }
 
-/** Reads access token from localStorage or cookie and keeps both in sync. */
 export function getStoredAccessToken(): string | null {
   if (typeof window === "undefined") return null;
 
@@ -53,7 +68,6 @@ export function isSafeCallbackUrl(url: string | null): url is string {
   return !!url && url.startsWith("/") && !url.startsWith("//");
 }
 
-/** Full page navigation so proxy/middleware receives freshly set auth cookies. */
 export function redirectAfterAuth(destination: string) {
   if (typeof window === "undefined") return;
   window.location.assign(destination);

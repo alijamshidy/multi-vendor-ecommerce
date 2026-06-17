@@ -6,6 +6,7 @@ type CheckoutFieldProps = {
   name: string;
   placeholder: string;
   type?: string;
+  required?: boolean;
 };
 
 export default function CheckoutField({
@@ -13,6 +14,7 @@ export default function CheckoutField({
   name,
   placeholder,
   type = "text",
+  required = false,
 }: CheckoutFieldProps) {
   return (
     <div className="space-y-2">
@@ -22,6 +24,7 @@ export default function CheckoutField({
         name={name}
         type={type}
         placeholder={placeholder}
+        required={required}
       />
     </div>
   );

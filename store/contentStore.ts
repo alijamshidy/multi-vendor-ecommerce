@@ -1,12 +1,3 @@
-import type {
-  ApiShopContact,
-  ApiShopFaq,
-  ApiShopHeader,
-  ApiShopRecommendation,
-  ApiShopSlider,
-} from "@/lib/api-types";
-import { getApiErrorMessage, unwrapList } from "@/lib/api-utils";
-import api from "@/lib/axios";
 import {
   mapContact,
   mapFaq,
@@ -94,174 +85,53 @@ const useContentStore = create<ContentState>()(
         }),
 
       fetchFaqs: async () => {
-        const state = get();
-        if (state.loading.fetchFaqs || state.faqsFetched) return;
-
-        setStoreLoading(set, "fetchFaqs", true, { errorMessage: "" });
-
-        try {
-          const { data } = await api.get("/faq/", { skipAuth: true });
-          set({
-            faqs: unwrapList<ApiShopFaq>(data).map(mapFaq),
-            faqsFetched: true,
-          });
-        } catch (error) {
-          set({
-            errorMessage: getApiErrorMessage(error, "Failed to load FAQs"),
-            faqs: [],
-          });
-        } finally {
-          setStoreLoading(set, "fetchFaqs", false);
-        }
+        if (get().faqsFetched) return;
+        set({ faqs: [], faqsFetched: true });
       },
 
       fetchHeaders: async locale => {
-        const state = get();
-        if (
-          state.loading.fetchHeaders ||
-          (state.headersFetched && state.contentLocale === locale)
-        ) {
-          return;
-        }
-
-        setStoreLoading(set, "fetchHeaders", true, { errorMessage: "" });
-
-        try {
-          const { data } = await api.get("/header/", { skipAuth: true });
-          set({
-            headers: unwrapList<ApiShopHeader>(data).map(item =>
-              mapHeader(item, locale),
-            ),
-            headersFetched: true,
-            contentLocale: locale,
-          });
-        } catch (error) {
-          set({
-            errorMessage: getApiErrorMessage(error, "Failed to load header"),
-            headers: [],
-          });
-        } finally {
-          setStoreLoading(set, "fetchHeaders", false);
-        }
+        if (get().headersFetched && get().contentLocale === locale) return;
+        set({
+          headers: [mapHeader(null, locale)],
+          headersFetched: true,
+          contentLocale: locale,
+        });
       },
 
       fetchSliders: async locale => {
-        const state = get();
-        if (
-          state.loading.fetchSliders ||
-          (state.slidersFetched && state.contentLocale === locale)
-        ) {
-          return;
-        }
-
-        setStoreLoading(set, "fetchSliders", true, { errorMessage: "" });
-
-        try {
-          const { data } = await api.get("/slider/", { skipAuth: true });
-          set({
-            slides: mapSliderSlides(
-              unwrapList<ApiShopSlider>(data),
-              locale,
-            ),
-            slidersFetched: true,
-            contentLocale: locale,
-          });
-        } catch (error) {
-          set({
-            errorMessage: getApiErrorMessage(error, "Failed to load slider"),
-            slides: [],
-          });
-        } finally {
-          setStoreLoading(set, "fetchSliders", false);
-        }
+        if (get().slidersFetched && get().contentLocale === locale) return;
+        set({
+          slides: mapSliderSlides([], locale),
+          slidersFetched: true,
+          contentLocale: locale,
+        });
       },
 
       fetchContact: async () => {
-        const state = get();
-        if (state.loading.fetchContact || state.contactFetched) return;
-
-        setStoreLoading(set, "fetchContact", true, { errorMessage: "" });
-
-        try {
-          const { data } = await api.get<ApiShopContact>("/contact/", {
-            skipAuth: true,
-          });
-          set({ contact: mapContact(data), contactFetched: true });
-        } catch (error) {
-          set({
-            errorMessage: getApiErrorMessage(error, "Failed to load contact"),
-            contact: emptyContact,
-          });
-        } finally {
-          setStoreLoading(set, "fetchContact", false);
-        }
+        if (get().contactFetched) return;
+        set({ contact: mapContact(null), contactFetched: true });
       },
 
       fetchRecommendations: async locale => {
-        const state = get();
-        if (
-          state.loading.fetchRecommendations ||
-          (state.recommendationsFetched && state.contentLocale === locale)
-        ) {
+        if (get().recommendationsFetched && get().contentLocale === locale) {
           return;
         }
-
-        setStoreLoading(set, "fetchRecommendations", true, {
-          errorMessage: "",
+        set({
+          recommendations: [mapRecommendation(null, locale)],
+          recommendationsFetched: true,
+          contentLocale: locale,
         });
-
-        try {
-          const { data } = await api.get("/recommendations/", {
-            skipAuth: true,
-          });
-          set({
-            recommendations: unwrapList<ApiShopRecommendation>(data).map(
-              item => mapRecommendation(item, locale),
-            ),
-            recommendationsFetched: true,
-            contentLocale: locale,
-          });
-        } catch (error) {
-          set({
-            errorMessage: getApiErrorMessage(
-              error,
-              "Failed to load recommendations",
-            ),
-            recommendations: [],
-          });
-        } finally {
-          setStoreLoading(set, "fetchRecommendations", false);
-        }
       },
 
       fetchAll: async locale => {
-        const state = get();
-        if (state.loading.fetchAll) return;
-
-        const needsRefresh =
-          !state.faqsFetched ||
-          !state.headersFetched ||
-          !state.slidersFetched ||
-          !state.contactFetched ||
-          !state.recommendationsFetched ||
-          state.contentLocale !== locale;
-
-        if (!needsRefresh) return;
-
-        setStoreLoading(set, "fetchAll", true, { errorMessage: "" });
-
-        try {
-          await Promise.all([
-            get().fetchFaqs(),
-            get().fetchHeaders(locale),
-            get().fetchSliders(locale),
-            get().fetchContact(),
-            get().fetchRecommendations(locale),
-          ]);
-          set({ contentLocale: locale });
-        } finally {
-          setStoreLoading(set, "fetchAll", false);
-        }
+        await Promise.all([
+          get().fetchFaqs(),
+          get().fetchHeaders(locale),
+          get().fetchSliders(locale),
+          get().fetchContact(),
+          get().fetchRecommendations(locale),
+        ]);
+        set({ contentLocale: locale });
       },
     }),
     withStoreDevtools("content"),

@@ -1,5 +1,6 @@
 "use client";
 
+import { useIsAuthenticated } from "@/hooks/use-authenticated-user";
 import { cn } from "@/lib/utils";
 import useCartStore from "@/store/cartStore";
 import { productType } from "@/utils/products";
@@ -10,6 +11,7 @@ import { toast } from "sonner";
 import { Card, CardContent } from "../ui/card";
 import ProductButton from "./ProductButton";
 import ProductPrice from "./ProductPrice";
+import ProductWishlistButton from "./ProductWishlistButton";
 
 type ProductGridCardProps = {
   product: productType;
@@ -26,6 +28,7 @@ export default function ProductGridCard({
 }: ProductGridCardProps) {
   const { label, images, id } = product;
   const tCart = useTranslations("cart");
+  const isLoggedIn = useIsAuthenticated();
   const addItem = useCartStore(state => state.addItem);
   const isAdding = useCartStore(state => state.loading.addItem);
 
@@ -35,9 +38,16 @@ export default function ProductGridCard({
     event.preventDefault();
     event.stopPropagation();
 
+    if (!isLoggedIn) {
+      toast.error(tCart("loginRequired"));
+      return;
+    }
+
     try {
-      await addItem({ product: id, quantity: 1 });
-      toast.success(tCart("addedToCart"));
+      const result = await addItem({ product: id, quantity: 1 });
+      toast.success(
+        result === "already" ? tCart("alreadyInCart") : tCart("addedToCart"),
+      );
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : tCart("addToCartFailed"),
@@ -64,11 +74,10 @@ export default function ProductGridCard({
           compact && "gap-2 py-0",
         )}>
         <CardContent
-          className={cn(
-            "flex flex-1 flex-col",
-            compact ? "p-3" : "p-4",
-          )}>
-          <Link href={href} className="block shrink-0">
+          className={cn("flex flex-1 flex-col", compact ? "p-3" : "p-4")}>
+          <Link
+            href={href}
+            className="block shrink-0">
             <div className="group/image relative h-48 overflow-hidden rounded">
               <Image
                 src={images[0].url}
@@ -85,7 +94,9 @@ export default function ProductGridCard({
               "flex flex-1 flex-col text-center",
               compact ? "mt-2" : "mt-4",
             )}>
-            <Link href={href} className="block">
+            <Link
+              href={href}
+              className="block">
               <h2
                 title={label}
                 className={cn(
@@ -105,7 +116,7 @@ export default function ProductGridCard({
 
           {hoverActions ? (
             <div className="relative z-10 mt-3 flex min-h-10 shrink-0 justify-center gap-x-2">
-              <ProductButton type="wishlist" />
+              <ProductWishlistButton product={product} />
               <Link href={href}>
                 <ProductButton type="details" />
               </Link>

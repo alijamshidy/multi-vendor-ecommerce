@@ -20,14 +20,30 @@ export default function CheckoutPageContent({ locale }: { locale: string }) {
   const router = useRouter();
   const fetchItems = useCartStore(state => state.fetchItems);
   const checkout = useCartStore(state => state.checkout);
+  const itemCount = useCartStore(state => state.itemCount);
   const isCheckingOut = useCartStore(state => state.loading.checkout);
 
   useStoreInit(() => fetchItems());
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (itemCount === 0) {
+      toast.error(t("emptyCart"));
+      return;
+    }
+
+    const formData = new FormData(event.currentTarget);
+    const shippingInfo = {
+      name: String(formData.get("name") ?? "").trim(),
+      phone: String(formData.get("phone") ?? "").trim(),
+      email: String(formData.get("email") ?? "").trim(),
+      city: String(formData.get("city") ?? "").trim(),
+      address: String(formData.get("address") ?? "").trim(),
+    };
+
     try {
-      await checkout();
+      await checkout(shippingInfo);
       toast.success(t("orderPlaced"));
       router.push(`/${locale}/orders`);
     } catch (error) {
@@ -57,22 +73,26 @@ export default function CheckoutPageContent({ locale }: { locale: string }) {
                 label={t("fullName")}
                 name="name"
                 placeholder={t("fullNamePlaceholder")}
+                required
               />
               <CheckoutField
                 label={t("phone")}
                 name="phone"
                 placeholder={t("phonePlaceholder")}
+                required
               />
               <CheckoutField
                 label={t("email")}
                 name="email"
                 placeholder={t("emailPlaceholder")}
                 type="email"
+                required
               />
               <CheckoutField
                 label={t("city")}
                 name="city"
                 placeholder={t("cityPlaceholder")}
+                required
               />
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="address">{t("address")}</Label>
@@ -81,12 +101,13 @@ export default function CheckoutPageContent({ locale }: { locale: string }) {
                   name="address"
                   className="min-h-28 resize-none"
                   placeholder={t("addressPlaceholder")}
+                  required
                 />
               </div>
               <Button
                 className="sm:col-span-2"
                 type="submit"
-                disabled={isCheckingOut}>
+                disabled={isCheckingOut || itemCount === 0}>
                 {isCheckingOut ? t("placingOrder") : t("placeOrder")}
               </Button>
             </form>

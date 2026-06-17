@@ -1,9 +1,4 @@
-import type {
-  ApiSuccessResponse,
-  AuthUser,
-  LoginResponse,
-  RegisterResponse,
-} from "@/lib/api-types";
+import type { AuthRole, AuthUser, LoginResponse } from "@/lib/api-types";
 import {
   AuthRequestError,
   getApiErrorMessage,
@@ -11,12 +6,12 @@ import {
 } from "@/lib/api-utils";
 import {
   clearAuthCookies,
-  deriveAuthRole,
   getStoredAccessToken,
   setAuthCookies,
 } from "@/lib/auth-cookie";
-import { normalizeAuthIdentifier } from "@/lib/auth-utils";
+import { decodeJwtPayload, getUserIdFromToken } from "@/lib/auth-utils";
 import api from "@/lib/axios";
+import { apiEndpoints } from "@/lib/endpoints";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { withStoreDevtools } from "./devtools";
@@ -24,33 +19,69 @@ import { createStoreLoadingState, setStoreLoading } from "./store-utils";
 
 type AuthAction =
   | "login"
+  | "loginStaff"
   | "register"
-  | "socialLogin"
+  | "registerSeller"
   | "requestOtp"
-  | "verifyOtp"
-  | "resetPasswordRequest"
-  | "resetPasswordConfirm";
-
-type SocialProvider = "google";
+  | "verifyOtp";
 
 type AuthLoading = Record<AuthAction, boolean>;
 
 const initialLoading: AuthLoading = createStoreLoadingState([
   "login",
+  "loginStaff",
   "register",
-  "socialLogin",
+  "registerSeller",
   "requestOtp",
   "verifyOtp",
-  "resetPasswordRequest",
-  "resetPasswordConfirm",
 ] as const);
 
-function setAuthHeader(token: string | null) {
-  if (token) {
-    api.defaults.headers.common.Authorization = `Bearer ${token}`;
-  } else {
-    delete api.defaults.headers.common.Authorization;
+function toEmail(identifier: string): string {
+  return identifier.trim();
+}
+
+function deriveRoleFromUserInfo(
+  info: Record<string, unknown>,
+  fallback: AuthRole,
+): AuthRole {
+  if (info.role === "admin" || info.role === "seller" || info.role === "customer") {
+    return info.role;
   }
+  if (info.isAdmin === true || info.is_superuser === true || info.is_staff === true) {
+    return "admin";
+  }
+  if (info.is_owner === true || info.isSeller === true) {
+    return "seller";
+  }
+  return fallback;
+}
+
+function mapUserInfo(info: Record<string, unknown>, role: AuthUser["role"]): AuthUser {
+  return {
+    id: String(info._id ?? info.id ?? ""),
+    email: typeof info.email === "string" ? info.email : undefined,
+    name: typeof info.name === "string" ? info.name : undefined,
+    role: deriveRoleFromUserInfo(info, role),
+  };
+}
+
+function mapUserFromToken(token: string, role: AuthRole, email?: string): AuthUser {
+  const payload = decodeJwtPayload(token);
+  const resolvedRole =
+    payload?.role === "admin" ||
+    payload?.role === "seller" ||
+    payload?.role === "customer"
+      ? payload.role
+      : role;
+
+  return {
+    id: getUserIdFromToken(token) ?? "",
+    email:
+      email ??
+      (typeof payload?.email === "string" ? payload.email : undefined),
+    name: typeof payload?.name === "string" ? payload.name : undefined,
+    role: resolvedRole,
+  };
 }
 
 type AuthState = {
@@ -59,30 +90,29 @@ type AuthState = {
   loading: AuthLoading;
   user: AuthUser | null;
   accessToken: string | null;
-  refreshToken: string | null;
   isAuthenticated: boolean;
   clearMessages: () => void;
   setSession: (data: LoginResponse) => void;
   clearSession: () => void;
   login: (payload: { identifier: string; password: string }) => Promise<void>;
-  socialLogin: (payload: {
-    provider: SocialProvider;
-    idToken: string;
+  loginStaff: (payload: {
+    role: "admin" | "seller";
+    identifier: string;
+    password: string;
   }) => Promise<void>;
   register: (payload: {
     identifier: string;
     password?: string;
     full_name?: string;
   }) => Promise<void>;
+  registerSeller: (payload: {
+    identifier: string;
+    password?: string;
+    full_name?: string;
+  }) => Promise<void>;
   requestOtp: (payload: { identifier: string }) => Promise<void>;
   verifyOtp: (payload: { identifier: string; code: string }) => Promise<void>;
-  resetPasswordRequest: (payload: { identifier: string }) => Promise<void>;
-  resetPasswordConfirm: (payload: {
-    identifier: string;
-    code: string;
-    new_password: string;
-  }) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 };
 
 const useAuthStore = create<AuthState>()(
@@ -94,23 +124,21 @@ const useAuthStore = create<AuthState>()(
         loading: initialLoading,
         user: null,
         accessToken: null,
-        refreshToken: null,
         isAuthenticated: false,
 
         clearMessages: () => set({ errorMessage: "", successMessage: "" }),
 
         setSession: data => {
-          if (!data?.tokens?.access_token) {
+          const token = data.token ?? getStoredAccessToken();
+          if (!token) {
             throw new Error("Invalid login response from server");
           }
 
-          localStorage.setItem("accessToken", data.tokens.access_token);
-          setAuthHeader(data.tokens.access_token);
-          setAuthCookies(data.tokens.access_token, deriveAuthRole(data.user));
+          localStorage.setItem("accessToken", token);
+          setAuthCookies(token, data.user.role);
           set({
             user: data.user,
-            accessToken: data.tokens.access_token,
-            refreshToken: data.tokens.refresh_token ?? null,
+            accessToken: token,
             isAuthenticated: true,
             successMessage: "Signed in successfully",
             errorMessage: "",
@@ -120,19 +148,27 @@ const useAuthStore = create<AuthState>()(
         clearSession: () => {
           localStorage.removeItem("accessToken");
           clearAuthCookies();
-          setAuthHeader(null);
           set({
             user: null,
             accessToken: null,
-            refreshToken: null,
             isAuthenticated: false,
             errorMessage: "",
             successMessage: "",
           });
         },
 
-        logout: () => {
-          get().clearSession();
+        logout: async () => {
+          try {
+            if (get().user?.role === "customer") {
+              await api.get(apiEndpoints.customerAuth.logout);
+            } else if (get().isAuthenticated) {
+              await api.get(apiEndpoints.auth.logout);
+            }
+          } catch {
+            // ignore logout errors
+          } finally {
+            get().clearSession();
+          }
         },
 
         login: async payload => {
@@ -141,20 +177,25 @@ const useAuthStore = create<AuthState>()(
             successMessage: "",
           });
           try {
-            const { data } = await api.post<ApiSuccessResponse<LoginResponse>>(
-              "/auth/login-password/",
-              {
-                identifier: normalizeAuthIdentifier(payload.identifier),
-                password: payload.password,
-              },
+            const email = toEmail(payload.identifier);
+            const { data } = await api.post<{ token?: string; message?: string }>(
+              apiEndpoints.customerAuth.login,
+              { email, password: payload.password },
               { skipAuth: true },
             );
 
-            if (!data?.data) {
+            const token = data.token ?? getStoredAccessToken();
+            if (!token) {
               throw new Error("Invalid login response from server");
             }
 
-            get().setSession(data.data);
+            get().setSession({
+              token,
+              user: {
+                ...mapUserFromToken(token, "customer", email),
+                email,
+              },
+            });
           } catch (error) {
             const message = getApiErrorMessage(error, "Login failed");
             const status = getApiErrorStatus(error);
@@ -165,31 +206,54 @@ const useAuthStore = create<AuthState>()(
           }
         },
 
-        socialLogin: async payload => {
-          setStoreLoading(set, "socialLogin", true, {
+        loginStaff: async payload => {
+          setStoreLoading(set, "loginStaff", true, {
             errorMessage: "",
             successMessage: "",
           });
 
           try {
-            const { data } = await api.post<ApiSuccessResponse<LoginResponse>>(
-              `/auth/social/${payload.provider}/`,
-              { id_token: payload.idToken },
+            const email = toEmail(payload.identifier);
+            const endpoint =
+              payload.role === "admin"
+                ? apiEndpoints.auth.adminLogin
+                : apiEndpoints.auth.sellerLogin;
+
+            const { data } = await api.post<{ token?: string; message?: string }>(
+              endpoint,
+              { email, password: payload.password },
               { skipAuth: true },
             );
 
-            if (!data?.data) {
-              throw new Error("Invalid social login response from server");
+            const token = data.token ?? getStoredAccessToken();
+            if (!token) {
+              throw new Error("Invalid login response from server");
             }
 
-            get().setSession(data.data);
+            get().setSession({
+              token,
+              user: mapUserFromToken(token, payload.role, email),
+            });
+
+            try {
+              const profile = await api.get<{ userInfo?: Record<string, unknown> }>(
+                apiEndpoints.auth.getUser,
+              );
+              if (profile.data.userInfo) {
+                set({
+                  user: mapUserInfo(profile.data.userInfo, payload.role),
+                });
+              }
+            } catch {
+              // profile optional right after login
+            }
           } catch (error) {
-            const message = getApiErrorMessage(error, "Social login failed");
+            const message = getApiErrorMessage(error, "Login failed");
             const status = getApiErrorStatus(error);
             set({ errorMessage: message });
             throw new AuthRequestError(message, status);
           } finally {
-            setStoreLoading(set, "socialLogin", false);
+            setStoreLoading(set, "loginStaff", false);
           }
         },
 
@@ -200,16 +264,72 @@ const useAuthStore = create<AuthState>()(
           });
 
           try {
-            const { data } = await api.post<
-              ApiSuccessResponse<RegisterResponse>
-            >("/auth/register/", payload, { skipAuth: true });
-            set({ successMessage: data.message });
+            const email = toEmail(payload.identifier);
+            const { data } = await api.post<{ message?: string }>(
+              apiEndpoints.customerAuth.register,
+              {
+                email,
+                password: payload.password,
+                name: payload.full_name ?? email.split("@")[0],
+              },
+              { skipAuth: true },
+            );
+            set({ successMessage: data.message ?? "Registration successful" });
           } catch (error) {
             const message = getApiErrorMessage(error, "Registration failed");
             set({ errorMessage: message });
             throw new Error(message);
           } finally {
             setStoreLoading(set, "register", false);
+          }
+        },
+
+        registerSeller: async payload => {
+          setStoreLoading(set, "registerSeller", true, {
+            errorMessage: "",
+            successMessage: "",
+          });
+
+          try {
+            const email = toEmail(payload.identifier);
+            const { data } = await api.post<{ token?: string; message?: string }>(
+              apiEndpoints.auth.sellerRegister,
+              {
+                email,
+                password: payload.password,
+                name: payload.full_name ?? email.split("@")[0],
+              },
+              { skipAuth: true },
+            );
+
+            const token = data.token ?? getStoredAccessToken();
+            if (token) {
+              get().setSession({
+                token,
+                user: mapUserFromToken(token, "seller", email),
+              });
+
+              try {
+                const profile = await api.get<{ userInfo?: Record<string, unknown> }>(
+                  apiEndpoints.auth.getUser,
+                );
+                if (profile.data.userInfo) {
+                  set({
+                    user: mapUserInfo(profile.data.userInfo, "seller"),
+                  });
+                }
+              } catch {
+                // profile optional right after register
+              }
+            }
+
+            set({ successMessage: data.message ?? "Registration successful" });
+          } catch (error) {
+            const message = getApiErrorMessage(error, "Registration failed");
+            set({ errorMessage: message });
+            throw new Error(message);
+          } finally {
+            setStoreLoading(set, "registerSeller", false);
           }
         },
 
@@ -220,12 +340,12 @@ const useAuthStore = create<AuthState>()(
           });
 
           try {
-            const { data } = await api.post<{ message: string }>(
-              "/auth/request-otp/",
-              { identifier: normalizeAuthIdentifier(payload.identifier) },
+            const { data } = await api.post<{ message?: string }>(
+              apiEndpoints.customerAuth.sendOtp,
+              { email: toEmail(payload.identifier) },
               { skipAuth: true },
             );
-            set({ successMessage: data.message });
+            set({ successMessage: data.message ?? "OTP sent" });
           } catch (error) {
             const message = getApiErrorMessage(error, "Failed to send OTP");
             set({ errorMessage: message });
@@ -242,20 +362,25 @@ const useAuthStore = create<AuthState>()(
           });
 
           try {
-            const { data } = await api.post<ApiSuccessResponse<LoginResponse>>(
-              "/auth/verify-otp/",
-              {
-                identifier: normalizeAuthIdentifier(payload.identifier),
-                code: payload.code,
-              },
+            const email = toEmail(payload.identifier);
+            const { data } = await api.post<{ token?: string; message?: string }>(
+              apiEndpoints.customerAuth.verifyOtp,
+              { email, otp: payload.code },
               { skipAuth: true },
             );
 
-            if (!data?.data) {
+            const token = data.token ?? getStoredAccessToken();
+            if (!token) {
               throw new Error("Invalid login response from server");
             }
 
-            get().setSession(data.data);
+            get().setSession({
+              token,
+              user: {
+                ...mapUserFromToken(token, "customer", email),
+                email,
+              },
+            });
           } catch (error) {
             const message = getApiErrorMessage(
               error,
@@ -267,72 +392,18 @@ const useAuthStore = create<AuthState>()(
             setStoreLoading(set, "verifyOtp", false);
           }
         },
-
-        resetPasswordRequest: async payload => {
-          setStoreLoading(set, "resetPasswordRequest", true, {
-            errorMessage: "",
-            successMessage: "",
-          });
-
-          try {
-            const { data } = await api.post<{ message: string }>(
-              "/auth/reset-password-request/",
-              payload,
-              { skipAuth: true },
-            );
-            set({ successMessage: data.message });
-          } catch (error) {
-            const message = getApiErrorMessage(
-              error,
-              "Failed to send reset code",
-            );
-            set({ errorMessage: message });
-            throw new Error(message);
-          } finally {
-            setStoreLoading(set, "resetPasswordRequest", false);
-          }
-        },
-
-        resetPasswordConfirm: async payload => {
-          setStoreLoading(set, "resetPasswordConfirm", true, {
-            errorMessage: "",
-            successMessage: "",
-          });
-
-          try {
-            const { data } = await api.post<{ message: string }>(
-              "/auth/reset-password-confirm/",
-              payload,
-              { skipAuth: true },
-            );
-            set({ successMessage: data.message });
-          } catch (error) {
-            const message = getApiErrorMessage(
-              error,
-              "Failed to reset password",
-            );
-            set({ errorMessage: message });
-            throw new Error(message);
-          } finally {
-            setStoreLoading(set, "resetPasswordConfirm", false);
-          }
-        },
       }),
       {
         name: "auth-storage",
         partialize: state => ({
           user: state.user,
           accessToken: state.accessToken,
-          refreshToken: state.refreshToken,
           isAuthenticated: state.isAuthenticated,
         }),
         onRehydrateStorage: () => state => {
           const token = getStoredAccessToken();
-          if (token) {
-            setAuthHeader(token);
-            if (state?.user) {
-              setAuthCookies(token, deriveAuthRole(state.user));
-            }
+          if (token && state?.user) {
+            setAuthCookies(token, state.user.role);
           }
         },
       },

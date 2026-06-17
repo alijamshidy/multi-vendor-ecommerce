@@ -14,16 +14,16 @@ import {
 import { Label } from "../ui/label";
 
 export default function ShareButton({
-  productId,
+  productSlug,
   name,
   locale,
 }: {
-  productId: string;
+  productSlug: string;
   name: string;
   locale: string;
 }) {
   const url = process.env.NEXT_PUBLIC_WEBSITE_URL;
-  const shareLink = `${url}/${locale}/products/${productId}`;
+  const shareLink = `${url}/${locale}/products/${encodeURIComponent(productSlug)}`;
   const t = useTranslations("product");
   return (
     <div className="flex items-center gap-2">

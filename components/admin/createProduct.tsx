@@ -66,7 +66,7 @@ export default function CreateProductForm() {
         ...(images.length > 0 ? { images } : {}),
       });
       toast.success(t("productCreated"));
-      router.push(`/${locale}/admin/products`);
+      router.push(`/${locale}/seller/products`);
       router.refresh();
     } catch (error) {
       toast.error(
