@@ -103,10 +103,31 @@ const useAdminStore = create<AdminState>()(
         }
       },
 
-      fetchSales: async () => {
+      fetchSales: async (page = 1) => {
         setStoreLoading(set, "fetchSales", true, { errorMessage: "" });
-        set({ sales: [], salesCount: 0, errorMessage: "" });
-        setStoreLoading(set, "fetchSales", false);
+
+        try {
+          const { data } = await api.get<{
+            sales?: Array<Record<string, unknown>>;
+            totalSales?: number;
+          }>(apiEndpoints.reports.adminSales, {
+            params: serializeQueryParams({ page, parPage: 10 }),
+          });
+          const list = data.sales ?? [];
+          set({
+            sales: list.map(mapSaleReview),
+            salesCount: data.totalSales ?? list.length,
+            errorMessage: "",
+          });
+        } catch (error) {
+          set({
+            errorMessage: getApiErrorMessage(error, "Failed to load sales"),
+            sales: [],
+            salesCount: 0,
+          });
+        } finally {
+          setStoreLoading(set, "fetchSales", false);
+        }
       },
 
       fetchManagementOrders: async (query = {}) => {

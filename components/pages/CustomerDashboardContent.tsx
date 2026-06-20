@@ -45,6 +45,10 @@ export default function CustomerDashboardContent({
 
   const totalOrders = dashboard?.totalOrder ?? 0;
   const pendingOrders = dashboard?.pendingOrder ?? 0;
+  const cancelledOrders =
+    dashboard?.recentOrders?.filter(
+      order => (order.status ?? "").toLowerCase() === "cancelled",
+    ).length ?? 0;
 
   return (
     <PageShell>
@@ -67,6 +71,11 @@ export default function CustomerDashboardContent({
         <SummaryCard
           label={t("orders")}
           value={String(totalOrders)}
+          icon={Package}
+        />
+        <SummaryCard
+          label={t("cancelledOrders")}
+          value={String(cancelledOrders)}
           icon={Package}
         />
         <SummaryCard
@@ -94,9 +103,21 @@ export default function CustomerDashboardContent({
                     {order.status ?? "pending"}
                   </p>
                 </div>
-                <p className="font-semibold">
-                  {formatCurrency(Number(order.price ?? 0))}
-                </p>
+                <div className="flex items-center gap-3">
+                  <p className="font-semibold">
+                    {formatCurrency(Number(order.price ?? 0))}
+                  </p>
+                  {(order.status ?? "").toLowerCase() === "pending" ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      asChild>
+                      <Link href={`/${locale}/checkout/payment`}>
+                        {t("payNow")}
+                      </Link>
+                    </Button>
+                  ) : null}
+                </div>
               </div>
             ))}
           </CardContent>

@@ -1,6 +1,8 @@
 "use client";
 
-import FilterPanel from "@/components/products/FilterPanel";
+import FilterPanel, {
+  type FilterPanelVariant,
+} from "@/components/products/FilterPanel";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,7 +12,21 @@ import {
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-export default function MobileFilterDropdown() {
+type FilterSection =
+  | "search"
+  | "priceRange"
+  | "category"
+  | "availability"
+  | "discount"
+  | "createdDate";
+
+export default function MobileFilterDropdown({
+  variant = "storefront",
+  hiddenSections = [],
+}: {
+  variant?: FilterPanelVariant;
+  hiddenSections?: FilterSection[];
+}) {
   const t = useTranslations("filters");
 
   return (
@@ -31,7 +47,10 @@ export default function MobileFilterDropdown() {
         sideOffset={8}
         className="max-h-[min(70vh,28rem)] w-(--radix-dropdown-menu-trigger-width) overflow-y-auto rounded-md p-0">
         <div className="p-4">
-          <FilterPanel />
+          <FilterPanel
+            variant={variant}
+            hiddenSections={hiddenSections}
+          />
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

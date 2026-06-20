@@ -1,5 +1,6 @@
 import { DEFAULT_LOCALE, routing } from "@/i18n/routing";
 import type { AuthRole } from "@/lib/auth-cookie";
+import type { SellerAccountStatus } from "@/lib/api-types";
 import { isSafeCallbackUrl } from "@/lib/auth-cookie";
 import { Categorys } from "@/utils/category";
 import createIntlMiddleware from "next-intl/middleware";
@@ -17,8 +18,10 @@ const publicPaths = [
   "collections",
   "reset_password",
   "about",
+  "blog",
   "reviews",
   "contact",
+  "unauthorized",
 ];
 
 const categoryPaths = Categorys.map(category => category.href);
@@ -78,14 +81,74 @@ function isAdminRoutePath(pathname: string): boolean {
   return getRouteRootSegment(pathname) === "admin";
 }
 
+function getPathWithoutLocale(pathname: string): string {
+  const segments = pathname.split("/").filter(Boolean);
+  if (segments.length === 0) return "";
+
+  const isLocale = segments[0].length === 2;
+  return isLocale ? segments.slice(1).join("/") : segments.join("/");
+}
+
+function getSellerSubPath(pathname: string): string {
+  const pathWithoutLocale = getPathWithoutLocale(pathname);
+  if (!pathWithoutLocale.startsWith("seller/")) return "";
+  return pathWithoutLocale.slice("seller/".length);
+}
+
+const SELLER_ALWAYS_ALLOWED = new Set([
+  "account-pending",
+  "account-deactive",
+]);
+
+const SELLER_PENDING_ALLOWED = new Set([
+  "account-pending",
+  "chat",
+]);
+
+const SELLER_DEACTIVE_ALLOWED = new Set([
+  "account-deactive",
+  "chat",
+  "orders",
+]);
+
+function isSellerRouteAllowed(
+  subPath: string,
+  status: SellerAccountStatus | undefined,
+): boolean {
+  const firstSegment = subPath.split("/")[0] ?? "";
+
+  if (SELLER_ALWAYS_ALLOWED.has(firstSegment)) return true;
+  if (!status || status === "active") return true;
+  if (status === "pending") {
+    return SELLER_PENDING_ALLOWED.has(firstSegment);
+  }
+  if (status === "deactive") {
+    return SELLER_DEACTIVE_ALLOWED.has(firstSegment);
+  }
+  return true;
+}
+
 function isSellerRoutePath(pathname: string): boolean {
   return getRouteRootSegment(pathname) === "seller";
+}
+
+function getUnauthorizedPath(locale: string): string {
+  return `/${locale}/unauthorized`;
 }
 
 function getDefaultDashboardPath(locale: string, role?: AuthRole): string {
   if (role === "admin") return `/${locale}/admin/dashboard`;
   if (role === "seller") return `/${locale}/seller/dashboard`;
   return `/${locale}/customer/dashboard`;
+}
+
+function getSellerStatusRedirect(
+  locale: string,
+  status: SellerAccountStatus,
+): string {
+  if (status === "pending") return `/${locale}/seller/account-pending`;
+  if (status === "deactive") return `/${locale}/seller/account-deactive`;
+  return getDefaultDashboardPath(locale, "seller");
 }
 
 function decodeCookieToken(raw: string | undefined): string | null {
@@ -107,16 +170,24 @@ function getAuthFromRequest(request: NextRequest) {
     request.cookies.get("customerToken")?.value,
   );
   const role = request.cookies.get("authRole")?.value as AuthRole | undefined;
+  const sellerStatusRaw = request.cookies.get("sellerStatus")?.value;
+  const sellerStatus =
+    sellerStatusRaw === "pending" ||
+    sellerStatusRaw === "active" ||
+    sellerStatusRaw === "deactive"
+      ? sellerStatusRaw
+      : undefined;
 
   return {
     isAuthenticated: Boolean(accessToken ?? customerToken),
     role,
+    sellerStatus,
   };
 }
 
 function runAuthChecks(request: NextRequest): NextResponse | null {
   const { pathname } = request.nextUrl;
-  const { isAuthenticated, role } = getAuthFromRequest(request);
+  const { isAuthenticated, role, sellerStatus } = getAuthFromRequest(request);
   const isPublic = isPublicPath(pathname);
 
   const isLoginOrRegister =
@@ -145,7 +216,7 @@ function runAuthChecks(request: NextRequest): NextResponse | null {
   if (isAdminRoute && role !== "admin") {
     const locale = getLocaleFromPath(pathname) || DEFAULT_LOCALE;
     return NextResponse.redirect(
-      new URL(getDefaultDashboardPath(locale, role), request.url),
+      new URL(getUnauthorizedPath(locale), request.url),
     );
   }
 
@@ -153,8 +224,18 @@ function runAuthChecks(request: NextRequest): NextResponse | null {
   if (isSellerRoute && role !== "seller") {
     const locale = getLocaleFromPath(pathname) || DEFAULT_LOCALE;
     return NextResponse.redirect(
-      new URL(getDefaultDashboardPath(locale, role), request.url),
+      new URL(getUnauthorizedPath(locale), request.url),
     );
+  }
+
+  if (isSellerRoute && role === "seller" && sellerStatus && sellerStatus !== "active") {
+    const locale = getLocaleFromPath(pathname) || DEFAULT_LOCALE;
+    const subPath = getSellerSubPath(pathname);
+    if (!isSellerRouteAllowed(subPath, sellerStatus)) {
+      return NextResponse.redirect(
+        new URL(getSellerStatusRedirect(locale, sellerStatus), request.url),
+      );
+    }
   }
 
   const isCustomerRoute =

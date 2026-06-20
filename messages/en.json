@@ -34,6 +34,11 @@
     "createCategory": "Create category",
     "createCollection": "Create collection",
     "shopContent": "Shop content",
+    "blog": "Blog",
+    "payments": "Payments",
+    "discountProducts": "Discount products",
+    "paymentRequests": "Payment requests",
+    "changePassword": "Change password",
     "login": "Login",
     "register": "Register",
     "logout": "Logout",
@@ -144,6 +149,8 @@
     "loginAsCustomer": "Customer",
     "loginAsSeller": "Seller",
     "loginAsAdmin": "Admin",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithFacebook": "Continue with Facebook",
     "registerAsSeller": "Register as seller",
     "registerAsSellerTitle": "Register as a seller",
     "registerAsSellerDescription": "Create a seller account to list products and manage orders",
@@ -255,7 +262,12 @@
     "outOfStock": "This product is out of stock.",
     "signIn": "Sign in",
     "updated": "Quantity updated",
-    "updatedDescription": "Updated quantity to {quantity} for {product}."
+    "updatedDescription": "Updated quantity to {quantity} for {product}.",
+    "couponCode": "Coupon code",
+    "couponPlaceholder": "Enter coupon code",
+    "applyCoupon": "Apply coupon",
+    "couponApplied": "Coupon applied",
+    "defaultShop": "Shop"
   },
   "checkout": {
     "eyebrow": "Checkout",
@@ -276,7 +288,22 @@
     "placeOrder": "Place order",
     "orderPlaced": "Order placed successfully",
     "checkoutFailed": "Checkout failed",
-    "emptyCart": "Your cart is empty. Add products before checkout."
+    "emptyCart": "Your cart is empty. Add products before checkout.",
+    "shippingEyebrow": "Shipping",
+    "shippingTitle": "Shipping address",
+    "shippingDescription": "Enter delivery details and review your order.",
+    "continueToPayment": "Continue to payment",
+    "paymentEyebrow": "Payment",
+    "paymentTitle": "Payment method",
+    "paymentDescription": "Choose how you want to pay for your order.",
+    "paymentMethod": "Payment method",
+    "cod": "Cash on delivery",
+    "codDescription": "Pay when your order arrives",
+    "codHint": "Have the exact amount ready for the courier.",
+    "stripe": "Stripe",
+    "stripePlaceholder": "Stripe payment integration placeholder — connect your Stripe keys to enable card payments.",
+    "payNow": "Pay now",
+    "shippingRequired": "Please complete shipping details first."
   },
   "product": {
     "productDetail": "Product",
@@ -295,7 +322,13 @@
     "productReviews": "Product reviews",
     "share": "Share",
     "messageSeller": "Message seller",
-    "relatedProducts": "Related products"
+    "relatedProducts": "Related products",
+    "buyNow": "Buy now",
+    "descriptionTab": "Description",
+    "reviewsTab": "Reviews",
+    "noDescription": "No description available.",
+    "moreFromSameShop": "More from this shop",
+    "moreFromShop": "More from {shop}"
   },
   "dashboard": {
     "customer": "Customer",
@@ -313,7 +346,9 @@
     "openWishlist": "Open wishlist",
     "openProfile": "Open profile",
     "recentOrders": "Recent orders",
-    "pendingOrdersHint": "You have {count} pending orders."
+    "pendingOrdersHint": "You have {count} pending orders.",
+    "cancelledOrders": "Cancelled orders",
+    "payNow": "Pay now"
   },
   "wishlist": {
     "eyebrow": "Wishlist",
@@ -347,7 +382,14 @@
     "reactivate": "Reactivate",
     "approvedSuccess": "Seller approved",
     "deactivatedSuccess": "Seller deactivated",
-    "statusUpdateFailed": "Could not update seller status"
+    "statusUpdateFailed": "Could not update seller status",
+    "viewDetails": "View details",
+    "backToSellers": "Back to sellers",
+    "detailEyebrow": "Seller",
+    "sellerDetail": "Seller details",
+    "sellerInfo": "Seller information",
+    "loading": "Loading...",
+    "notFound": "Seller not found"
   },
   "sellerOrders": {
     "eyebrow": "Seller",
@@ -399,7 +441,9 @@
     "addSeller": "Start chat",
     "sellerAdded": "Seller added to chat",
     "sellerAddFailed": "Could not add seller",
-    "selectContactFirst": "Select a contact to start messaging"
+    "selectContactFirst": "Select a contact to start messaging",
+    "chatCustomers": "Chat with customers",
+    "chatSupport": "Chat with support"
   },
   "profile": {
     "eyebrow": "Account",
@@ -420,6 +464,14 @@
     "payments": "Payments",
     "paymentsDescription": "Connect your Stripe account to receive payouts.",
     "connectStripe": "Connect Stripe",
+    "division": "Division",
+    "divisionPlaceholder": "Enter division",
+    "district": "District",
+    "districtPlaceholder": "Enter district",
+    "subDistrict": "Sub-district",
+    "subDistrictPlaceholder": "Enter sub-district",
+    "security": "Security",
+    "changePassword": "Change password",
     "connecting": "Connecting...",
     "stripeConnectFailed": "Could not start Stripe onboarding"
   },
@@ -719,6 +771,10 @@
     "createdAfter": "Created after",
     "createdBefore": "Created before",
     "noCategories": "No categories available",
+    "categorySingleSelect": "Select one category",
+    "allAvailability": "All products",
+    "search": "Search",
+    "searchPlaceholder": "Search products...",
     "loadingPriceRange": "Loading price range...",
     "sortBy": "Sort by",
     "sort": {
@@ -843,7 +899,86 @@
     "ssoCallbackTitle": "Completing sign-in",
     "ssoCallbackDescription": "Finishing social sign-in and syncing your session.",
     "contactTitle": "Contact us",
-    "contactDescription": "Reach our support team for orders, sellers, and partnerships."
+    "contactDescription": "Reach our support team for orders, sellers, and partnerships.",
+    "aboutTitle": "About us",
+    "aboutDescription": "Learn about our multi-vendor marketplace.",
+    "blogTitle": "Blog",
+    "blogDescription": "Marketplace news and updates."
+  },
+  "blog": {
+    "eyebrow": "Blog",
+    "title": "Marketplace blog",
+    "description": "News, tips, and updates from our marketplace.",
+    "comingSoon": "Blog posts are coming soon."
+  },
+  "unauthorized": {
+    "eyebrow": "Access denied",
+    "title": "Unauthorized",
+    "description": "You do not have permission to view this page.",
+    "backToLogin": "Back to login"
+  },
+  "sellerAccount": {
+    "pendingEyebrow": "Seller account",
+    "pendingTitle": "Account pending approval",
+    "pendingDescription": "Your seller registration is being reviewed.",
+    "pendingHint": "You will be notified once an admin approves your account. You can still access support chat and your profile.",
+    "deactiveEyebrow": "Seller account",
+    "deactiveTitle": "Account deactivated",
+    "deactiveDescription": "Your seller account has been deactivated.",
+    "deactiveHint": "Contact platform support if you believe this is a mistake."
+  },
+  "changePassword": {
+    "eyebrow": "Security",
+    "title": "Change password",
+    "description": "Update your account password.",
+    "formTitle": "Password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "submit": "Update password",
+    "successPlaceholder": "Password update is not connected to the API yet."
+  },
+  "paymentRequests": {
+    "eyebrow": "Admin",
+    "title": "Payment requests",
+    "description": "Review seller withdrawal requests.",
+    "withdrawalRequests": "Withdrawal requests",
+    "no": "No",
+    "amount": "Amount",
+    "status": "Status",
+    "date": "Date",
+    "confirm": "Confirm"
+  },
+  "sellerPayments": {
+    "eyebrow": "Seller",
+    "title": "Payments",
+    "description": "Track earnings and request withdrawals.",
+    "totalSales": "Total sales",
+    "availableAmount": "Available amount",
+    "withdrawalAmount": "Withdrawal amount",
+    "pendingAmount": "Pending amount",
+    "sendRequest": "Send withdrawal request",
+    "amount": "Amount",
+    "amountPlaceholder": "Enter amount",
+    "submitRequest": "Submit request",
+    "requestSubmitted": "Withdrawal request submitted",
+    "paymentHistory": "Payment history"
+  },
+  "sellerDiscountProducts": {
+    "eyebrow": "Seller",
+    "title": "Discount products",
+    "description": "Products currently on sale.",
+    "empty": "No discount products found.",
+    "product": "Product",
+    "category": "Category",
+    "price": "Price",
+    "discount": "Discount",
+    "stock": "Stock",
+    "actions": "Actions",
+    "edit": "Edit"
+  },
+  "dashboardChart": {
+    "monthlySales": "Monthly sales"
   },
   "errors": {
     "notFoundTitle": "Page not found",

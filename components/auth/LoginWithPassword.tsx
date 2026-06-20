@@ -232,6 +232,40 @@ export default function LoginWithPassword({
                 </Field>
 
                 <Field>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled>
+                      {t("continueWithGoogle")}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled>
+                      {t("continueWithFacebook")}
+                    </Button>
+                  </div>
+                </Field>
+
+                <Field>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled>
+                      {t("continueWithGoogle")}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled>
+                      {t("continueWithFacebook")}
+                    </Button>
+                  </div>
+                </Field>
+
+                <Field>
                   <Button
                     type="submit"
                     className="w-full"

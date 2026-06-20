@@ -10,7 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useStoreInit } from "@/hooks/use-store-init";
+import { Link } from "@/i18n/navigation";
 import useSellerStore from "@/store/sellerStore";
+import { Eye } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -97,7 +99,18 @@ export default function AdminSellersPageContent() {
                   {seller.status}
                 </Badge>
               </div>
-              <div className="flex flex-wrap gap-2">{actions(seller)}</div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  asChild>
+                  <Link href={`/admin/sellers/${seller.id}`}>
+                    <Eye className="me-1 size-4" />
+                    {t("viewDetails")}
+                  </Link>
+                </Button>
+                {actions(seller)}
+              </div>
             </CardContent>
           </Card>
         ))}

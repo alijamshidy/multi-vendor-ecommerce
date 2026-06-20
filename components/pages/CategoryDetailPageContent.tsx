@@ -2,13 +2,16 @@
 
 import PageHeader from "@/components/commerce/PageHeader";
 import PageShell from "@/components/commerce/PageShell";
-import { useSetBreadcrumbLabel } from "@/context/breadcrumb-context";
+import Filter from "@/components/products/Filter";
+import MobileFilterDropdown from "@/components/products/MobileFilterDropdown";
 import ChangeItemPerPage from "@/components/products/ChangeItemPerPage";
+import ChangeSorting from "@/components/products/ChangeSorting";
 import ProductsPagination from "@/components/products/Pagination";
 import ProductGrid from "@/components/products/ProductGrid";
 import ProductGridSkeleton from "@/components/products/ProductGridSkeleton";
+import { useSetBreadcrumbLabel } from "@/context/breadcrumb-context";
 import { useQueryParams } from "@/hooks/use-query-params";
-import { useStoreInit } from "@/hooks/use-store-init";
+import { useStoreInit, useStoreInitOnce } from "@/hooks/use-store-init";
 import type { CatalogScope } from "@/lib/catalog-paths";
 import {
   buildCategoryProductQuery,
@@ -22,7 +25,7 @@ import useProductStore from "@/store/productStore";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { useStoreInitOnce } from "@/hooks/use-store-init";
+import { Separator } from "@/components/ui/separator";
 
 export default function CategoryDetailPageContent({
   locale,
@@ -133,30 +136,46 @@ export default function CategoryDetailPageContent({
         description={t("categoryDescription")}
       />
 
-      <div className="mb-6 flex justify-end">
-        <ChangeItemPerPage />
-      </div>
-
-      {isInitialLoading ? (
-        <ProductGridSkeleton count={itemsPerPage} />
-      ) : errorMessage && products.length === 0 ? (
-        <p className="text-sm text-destructive">{errorMessage}</p>
-      ) : products.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          {tCommon("noItemsFound")}
-        </p>
-      ) : (
-        <div
-          className={
-            isLoadingProducts ? "opacity-60 transition-opacity" : undefined
-          }>
-          <ProductGrid
-            products={products}
-            locale={locale}
-          />
-          <ProductsPagination totalCount={totalCount} />
+      <div className="flex flex-col gap-6 md:flex-row md:items-start">
+        <div className="w-full shrink-0 md:hidden">
+          <MobileFilterDropdown hiddenSections={["category"]} />
         </div>
-      )}
+        <Filter hiddenSections={["category"]} />
+
+        <div className="w-full min-w-0 flex-1 space-y-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h4 className="text-lg font-medium">
+              {totalCount} {totalCount === 1 ? "product" : "products"}
+            </h4>
+            <div className="flex flex-wrap items-center gap-3">
+              <ChangeItemPerPage />
+              <ChangeSorting />
+            </div>
+          </div>
+          <Separator />
+
+          {isInitialLoading ? (
+            <ProductGridSkeleton count={itemsPerPage} />
+          ) : errorMessage && products.length === 0 ? (
+            <p className="text-sm text-destructive">{errorMessage}</p>
+          ) : products.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {tCommon("noItemsFound")}
+            </p>
+          ) : (
+            <div
+              className={
+                isLoadingProducts ? "opacity-60 transition-opacity" : undefined
+              }>
+              <ProductGrid
+                products={products}
+                locale={locale}
+              />
+              <ProductsPagination totalCount={totalCount} />
+            </div>
+          )}
+        </div>
+      </div>
     </PageShell>
   );
 }

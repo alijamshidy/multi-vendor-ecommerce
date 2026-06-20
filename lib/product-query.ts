@@ -32,6 +32,8 @@ const SORT_TO_API: Record<SortOption, ProductQuery["sortPrice"]> = {
   lowToHigh: "low-to-high",
 };
 
+const DEFAULT_SORT: SortOption = "highToLow";
+
 export function parsePriceRange(
   range: string | null,
 ): [number, number] | null {
@@ -51,18 +53,34 @@ export function isFullPriceRange(
   return min <= bounds.min && max >= bounds.max;
 }
 
+export function parseCategorySlugs(searchParams: URLSearchParams): string[] {
+  const raw = searchParams.get(CATEGORIES_PARAM);
+  if (!raw) return [];
+  return raw.split(",").map(slug => slug.trim()).filter(Boolean);
+}
+
+/** @deprecated Use parseCategorySlugs */
+export const parseCategoryIds = parseCategorySlugs;
+
 export function hasActiveProductFilters(
   searchParams: URLSearchParams,
 ): boolean {
-  return [RANGE_PARAM, CATEGORIES_PARAM, SEARCH_PARAM, SORT_PARAM].some(
-    param => searchParams.has(param),
-  );
-}
+  const filterParams = [
+    RANGE_PARAM,
+    CATEGORIES_PARAM,
+    SEARCH_PARAM,
+    AVAILABLE_PARAM,
+    DISCOUNT_PARAM,
+    CREATED_AFTER_PARAM,
+    CREATED_BEFORE_PARAM,
+  ];
 
-export function parseCategoryIds(searchParams: URLSearchParams): string[] {
-  const raw = searchParams.get(CATEGORIES_PARAM);
-  if (!raw) return [];
-  return raw.split(",").map(id => id.trim()).filter(Boolean);
+  if (filterParams.some(param => searchParams.has(param))) {
+    return true;
+  }
+
+  const sortBy = searchParams.get(SORT_PARAM);
+  return Boolean(sortBy && sortBy !== DEFAULT_SORT);
 }
 
 export function getItemsPerPage(_searchParams: URLSearchParams): number {
@@ -80,8 +98,41 @@ export function getCurrentPage(searchParams: URLSearchParams): number {
 export function buildOrdering(
   searchParams: URLSearchParams,
 ): ProductQuery["sortPrice"] {
-  const sortBy = (searchParams.get(SORT_PARAM) || "highToLow") as SortOption;
+  const sortBy = (searchParams.get(SORT_PARAM) || DEFAULT_SORT) as SortOption;
   return SORT_TO_API[sortBy] ?? "high-to-low";
+}
+
+function applyCommonProductFilters(
+  searchParams: URLSearchParams,
+  query: ProductQuery,
+): ProductQuery {
+  const search = searchParams.get(SEARCH_PARAM)?.trim();
+  const categorySlugs = parseCategorySlugs(searchParams);
+  const availability = searchParams.get(AVAILABLE_PARAM);
+  const hasDiscount = searchParams.get(DISCOUNT_PARAM);
+  const createdAfter = searchParams.get(CREATED_AFTER_PARAM)?.trim();
+  const createdBefore = searchParams.get(CREATED_BEFORE_PARAM)?.trim();
+
+  if (search) query.searchValue = search;
+
+  if (!query.category && categorySlugs.length > 0) {
+    query.category = categorySlugs[0];
+  }
+
+  if (availability === "true") {
+    query.isAvailable = true;
+  } else if (availability === "false") {
+    query.isAvailable = false;
+  }
+
+  if (hasDiscount === "true") {
+    query.hasDiscount = true;
+  }
+
+  if (createdAfter) query.createdAfter = createdAfter;
+  if (createdBefore) query.createdBefore = createdBefore;
+
+  return query;
 }
 
 export function applyProductFiltersFromSearchParams(
@@ -89,21 +140,13 @@ export function applyProductFiltersFromSearchParams(
   base: ProductQuery = {},
   priceBounds: PriceBounds = DEFAULT_PRICE_BOUNDS,
 ): ProductQuery {
-  const search = searchParams.get(SEARCH_PARAM)?.trim();
-  const categoryIds = parseCategoryIds(searchParams);
   const priceRange = parsePriceRange(searchParams.get(RANGE_PARAM));
 
-  const query: ProductQuery = {
+  const query: ProductQuery = applyCommonProductFilters(searchParams, {
     ...base,
     pageNumber: getCurrentPage(searchParams),
     sortPrice: buildOrdering(searchParams),
-  };
-
-  if (search) query.searchValue = search;
-
-  if (!query.category && categoryIds.length > 0) {
-    query.category = categoryIds[0];
-  }
+  });
 
   if (priceRange && !isFullPriceRange(priceRange[0], priceRange[1], priceBounds)) {
     query.lowPrice = priceRange[0];
@@ -122,6 +165,14 @@ export function buildProductQueryFromSearchParams(
   priceBounds: PriceBounds = DEFAULT_PRICE_BOUNDS,
 ): ProductQuery {
   return applyProductFiltersFromSearchParams(searchParams, {}, priceBounds);
+}
+
+export function buildManagementProductQueryFromSearchParams(
+  searchParams: URLSearchParams,
+): ProductQuery {
+  return applyCommonProductFilters(searchParams, {
+    pageNumber: getCurrentPage(searchParams),
+  });
 }
 
 export function buildCategoryProductQuery(
@@ -146,20 +197,6 @@ export function buildCategorySearchQuery(
     { searchValue: search },
     priceBounds,
   );
-}
-
-export function buildCollectionProductQuery(
-  searchParams: URLSearchParams,
-  _collectionId: string,
-): ProductQuery {
-  return applyProductFiltersFromSearchParams(searchParams);
-}
-
-export function buildCollectionSearchQuery(
-  searchParams: URLSearchParams,
-  search: string,
-): ProductQuery {
-  return applyProductFiltersFromSearchParams(searchParams, { searchValue: search });
 }
 
 export function getTotalPages(totalCount: number, pageSize: number): number {
@@ -187,4 +224,18 @@ export function getPaginationRange(
   if (!pages.includes(totalPages)) pages.push(totalPages);
 
   return pages;
+}
+
+export function getProductFilterResetParams(): Record<string, null | number> {
+  return {
+    [RANGE_PARAM]: null,
+    [CATEGORIES_PARAM]: null,
+    [SEARCH_PARAM]: null,
+    [SORT_PARAM]: null,
+    [AVAILABLE_PARAM]: null,
+    [DISCOUNT_PARAM]: null,
+    [CREATED_AFTER_PARAM]: null,
+    [CREATED_BEFORE_PARAM]: null,
+    [PAGE_PARAM]: 1,
+  };
 }

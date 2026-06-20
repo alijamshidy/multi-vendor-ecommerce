@@ -1,12 +1,14 @@
 "use client";
 
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useQueryParams } from "@/hooks/use-query-params";
 import { AVAILABLE_PARAM, PAGE_PARAM } from "@/lib/product-query";
 import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { useSearchParams } from "next/navigation";
+
+type AvailabilityValue = "all" | "true" | "false";
 
 export default function AvailabilityFilter() {
   const t = useTranslations("filters");
@@ -14,26 +16,38 @@ export default function AvailabilityFilter() {
   const searchParams = useSearchParams();
   const { setQueryParams } = useQueryParams();
   const availability = searchParams.get(AVAILABLE_PARAM);
-  const isAvailable = availability === "true";
-  const isUnavailable = availability === "false";
+  const value: AvailabilityValue =
+    availability === "true" || availability === "false"
+      ? availability
+      : "all";
 
-  const setAvailability = (value: boolean | null) => {
+  const setAvailability = (next: AvailabilityValue) => {
     setQueryParams({
-      [AVAILABLE_PARAM]:
-        value === null ? null : value ? "true" : "false",
+      [AVAILABLE_PARAM]: next === "all" ? null : next,
       [PAGE_PARAM]: 1,
     });
   };
 
   return (
-    <div className="flex flex-col gap-3 px-2 py-1">
+    <RadioGroup
+      value={value}
+      onValueChange={next => setAvailability(next as AvailabilityValue)}
+      className="flex flex-col gap-3 px-2 py-1">
       <div className="flex items-center gap-2">
-        <Checkbox
+        <RadioGroupItem
+          value="all"
+          id={`${instanceId}-available-all`}
+        />
+        <Label
+          htmlFor={`${instanceId}-available-all`}
+          className="cursor-pointer text-sm font-normal">
+          {t("allAvailability")}
+        </Label>
+      </div>
+      <div className="flex items-center gap-2">
+        <RadioGroupItem
+          value="true"
           id={`${instanceId}-available`}
-          checked={isAvailable}
-          onCheckedChange={checked => {
-            setAvailability(checked === true ? true : null);
-          }}
         />
         <Label
           htmlFor={`${instanceId}-available`}
@@ -42,12 +56,9 @@ export default function AvailabilityFilter() {
         </Label>
       </div>
       <div className="flex items-center gap-2">
-        <Checkbox
+        <RadioGroupItem
+          value="false"
           id={`${instanceId}-unavailable`}
-          checked={isUnavailable}
-          onCheckedChange={checked => {
-            setAvailability(checked === true ? false : null);
-          }}
         />
         <Label
           htmlFor={`${instanceId}-unavailable`}
@@ -55,6 +66,6 @@ export default function AvailabilityFilter() {
           {t("unavailableOnly")}
         </Label>
       </div>
-    </div>
+    </RadioGroup>
   );
 }

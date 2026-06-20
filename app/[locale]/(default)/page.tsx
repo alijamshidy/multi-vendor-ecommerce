@@ -5,6 +5,7 @@ import Banner from "@/components/home/Banner";
 import Faq from "@/components/home/Faq";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import HomeContentInit from "@/components/home/HomeContentInit";
+import HomeProductSections from "@/components/home/HomeProductSections";
 import Recommendations from "@/components/home/Recommendations";
 import ShopPromo from "@/components/home/ShopPromo";
 import TopCategory from "@/components/home/TopCategory";
@@ -37,6 +38,7 @@ export default async function HomePage() {
       <Banner />
       <TopCategory />
       <FeaturedProducts />
+      <HomeProductSections />
       <Recommendations />
       <About />
       <Faq />

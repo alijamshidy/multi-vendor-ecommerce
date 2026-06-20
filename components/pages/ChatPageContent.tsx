@@ -19,7 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import useAuthStore from "@/store/authStore";
 import useChatStore from "@/store/chatStore";
-import { Headphones, MessageSquare, Send, Store, Users } from "lucide-react";
+import { Headphones, Send, Store, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
@@ -383,18 +383,38 @@ export default function ChatPageContent({ role }: ChatPageContentProps) {
               </div>
             ) : null}
 
-            {role === "seller" || role === "customer" ? (
+            {role === "seller" ? (
+              <div className="mb-3 grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant={!showAdminInbox ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    setShowAdminInbox(false);
+                    void fetchSellerCustomers();
+                  }}>
+                  <Users className="me-2 size-4" />
+                  {t("chatCustomers")}
+                </Button>
+                <Button
+                  type="button"
+                  variant={showAdminInbox ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => void handleOpenAdminInbox()}>
+                  <Headphones className="me-2 size-4" />
+                  {t("chatSupport")}
+                </Button>
+              </div>
+            ) : null}
+
+            {role === "customer" ? (
               <Button
                 type="button"
                 variant={showAdminInbox ? "default" : "outline"}
                 size="sm"
                 className="mb-3 w-full justify-start"
                 onClick={() => void handleOpenAdminInbox()}>
-                {role === "customer" ? (
-                  <Headphones className="me-2 size-4" />
-                ) : (
-                  <MessageSquare className="me-2 size-4" />
-                )}
+                <Headphones className="me-2 size-4" />
                 {t("adminSupport")}
               </Button>
             ) : null}

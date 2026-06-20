@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useStoreInit } from "@/hooks/use-store-init";
 import { resolveMediaUrl } from "@/lib/api-utils";
+import { Link } from "@/i18n/navigation";
 import useAuthStore from "@/store/authStore";
 import usePaymentStore from "@/store/paymentStore";
 import useUserStore from "@/store/userStore";
@@ -30,12 +31,18 @@ export default function ProfilePageContent() {
     state => state.loading.createStripeConnect,
   );
   const [shopName, setShopName] = useState("");
+  const [division, setDivision] = useState("");
+  const [district, setDistrict] = useState("");
+  const [subDistrict, setSubDistrict] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useStoreInit(async () => {
     await fetchProfile();
-    const currentShop = useUserStore.getState().profile?.shopName;
-    if (currentShop) setShopName(currentShop);
+    const currentProfile = useUserStore.getState().profile;
+    if (currentProfile?.shopName) setShopName(currentProfile.shopName);
+    if (currentProfile?.division) setDivision(currentProfile.division);
+    if (currentProfile?.district) setDistrict(currentProfile.district);
+    if (currentProfile?.subDistrict) setSubDistrict(currentProfile.subDistrict);
   });
 
   const displayName =
@@ -125,6 +132,33 @@ export default function ProfilePageContent() {
                     placeholder={t("shopNamePlaceholder")}
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="division">{t("division")}</Label>
+                  <Input
+                    id="division"
+                    value={division}
+                    onChange={event => setDivision(event.target.value)}
+                    placeholder={t("divisionPlaceholder")}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="district">{t("district")}</Label>
+                  <Input
+                    id="district"
+                    value={district}
+                    onChange={event => setDistrict(event.target.value)}
+                    placeholder={t("districtPlaceholder")}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="subDistrict">{t("subDistrict")}</Label>
+                  <Input
+                    id="subDistrict"
+                    value={subDistrict}
+                    onChange={event => setSubDistrict(event.target.value)}
+                    placeholder={t("subDistrictPlaceholder")}
+                  />
+                </div>
                 <Button
                   disabled={isUpdating}
                   onClick={() => void handleProfileSave()}>
@@ -171,6 +205,19 @@ export default function ProfilePageContent() {
             </CardContent>
           </Card>
         ) : null}
+
+        <Card className="rounded-md">
+          <CardHeader>
+            <CardTitle>{t("security")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button
+              variant="outline"
+              asChild>
+              <Link href="/profile/change-password">{t("changePassword")}</Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </PageShell>
   );

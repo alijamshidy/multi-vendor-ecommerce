@@ -23,7 +23,9 @@ type AuthAction =
   | "register"
   | "registerSeller"
   | "requestOtp"
-  | "verifyOtp";
+  | "verifyOtp"
+  | "resetPasswordRequest"
+  | "resetPasswordConfirm";
 
 type AuthLoading = Record<AuthAction, boolean>;
 
@@ -34,6 +36,8 @@ const initialLoading: AuthLoading = createStoreLoadingState([
   "registerSeller",
   "requestOtp",
   "verifyOtp",
+  "resetPasswordRequest",
+  "resetPasswordConfirm",
 ] as const);
 
 function toEmail(identifier: string): string {
@@ -56,12 +60,22 @@ function deriveRoleFromUserInfo(
   return fallback;
 }
 
+function parseSellerStatus(
+  value: unknown,
+): AuthUser["status"] | undefined {
+  if (value === "pending" || value === "active" || value === "deactive") {
+    return value;
+  }
+  return undefined;
+}
+
 function mapUserInfo(info: Record<string, unknown>, role: AuthUser["role"]): AuthUser {
   return {
     id: String(info._id ?? info.id ?? ""),
     email: typeof info.email === "string" ? info.email : undefined,
     name: typeof info.name === "string" ? info.name : undefined,
     role: deriveRoleFromUserInfo(info, role),
+    status: parseSellerStatus(info.status),
   };
 }
 
@@ -81,6 +95,7 @@ function mapUserFromToken(token: string, role: AuthRole, email?: string): AuthUs
       (typeof payload?.email === "string" ? payload.email : undefined),
     name: typeof payload?.name === "string" ? payload.name : undefined,
     role: resolvedRole,
+    status: parseSellerStatus(payload?.status),
   };
 }
 
@@ -112,6 +127,12 @@ type AuthState = {
   }) => Promise<void>;
   requestOtp: (payload: { identifier: string }) => Promise<void>;
   verifyOtp: (payload: { identifier: string; code: string }) => Promise<void>;
+  resetPasswordRequest: (payload: { identifier: string }) => Promise<void>;
+  resetPasswordConfirm: (payload: {
+    identifier: string;
+    code: string;
+    password: string;
+  }) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -135,7 +156,7 @@ const useAuthStore = create<AuthState>()(
           }
 
           localStorage.setItem("accessToken", token);
-          setAuthCookies(token, data.user.role);
+          setAuthCookies(token, data.user.role, data.user.status);
           set({
             user: data.user,
             accessToken: token,
@@ -390,6 +411,54 @@ const useAuthStore = create<AuthState>()(
             throw new Error(message);
           } finally {
             setStoreLoading(set, "verifyOtp", false);
+          }
+        },
+
+        resetPasswordRequest: async payload => {
+          setStoreLoading(set, "resetPasswordRequest", true, {
+            errorMessage: "",
+            successMessage: "",
+          });
+
+          try {
+            const { data } = await api.post<{ message?: string }>(
+              apiEndpoints.customerAuth.resetPasswordRequest,
+              { email: toEmail(payload.identifier) },
+              { skipAuth: true },
+            );
+            set({ successMessage: data.message ?? "Reset code sent" });
+          } catch (error) {
+            const message = getApiErrorMessage(error, "Failed to send reset code");
+            set({ errorMessage: message });
+            throw new Error(message);
+          } finally {
+            setStoreLoading(set, "resetPasswordRequest", false);
+          }
+        },
+
+        resetPasswordConfirm: async payload => {
+          setStoreLoading(set, "resetPasswordConfirm", true, {
+            errorMessage: "",
+            successMessage: "",
+          });
+
+          try {
+            const { data } = await api.post<{ message?: string }>(
+              apiEndpoints.customerAuth.resetPasswordConfirm,
+              {
+                email: toEmail(payload.identifier),
+                otp: payload.code,
+                password: payload.password,
+              },
+              { skipAuth: true },
+            );
+            set({ successMessage: data.message ?? "Password reset successfully" });
+          } catch (error) {
+            const message = getApiErrorMessage(error, "Failed to reset password");
+            set({ errorMessage: message });
+            throw new Error(message);
+          } finally {
+            setStoreLoading(set, "resetPasswordConfirm", false);
           }
         },
       }),

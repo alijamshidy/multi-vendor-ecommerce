@@ -34,6 +34,11 @@
     "createCategory": "ایجاد دسته‌بندی",
     "createCollection": "ایجاد مجموعه",
     "shopContent": "محتوای فروشگاه",
+    "blog": "وبلاگ",
+    "payments": "پرداخت‌ها",
+    "discountProducts": "محصولات تخفیف‌دار",
+    "paymentRequests": "درخواست‌های پرداخت",
+    "changePassword": "تغییر رمز عبور",
     "login": "ورود",
     "register": "ثبت‌نام",
     "logout": "خروج",
@@ -144,6 +149,8 @@
     "loginAsCustomer": "مشتری",
     "loginAsSeller": "فروشنده",
     "loginAsAdmin": "مدیر",
+    "continueWithGoogle": "ادامه با گوگل",
+    "continueWithFacebook": "ادامه با فیسبوک",
     "registerAsSeller": "ثبت‌نام به‌عنوان فروشنده",
     "registerAsSellerTitle": "ثبت‌نام به‌عنوان فروشنده",
     "registerAsSellerDescription": "حساب فروشنده بسازید تا محصولات را ثبت و سفارش‌ها را مدیریت کنید",
@@ -255,7 +262,12 @@
     "outOfStock": "این محصول موجود نیست.",
     "signIn": "ورود",
     "updated": "تعداد به‌روزرسانی شد",
-    "updatedDescription": "تعداد به‌روزرسانی شد به {quantity} برای {product}."
+    "updatedDescription": "تعداد به‌روزرسانی شد به {quantity} برای {product}.",
+    "couponCode": "کد تخفیف",
+    "couponPlaceholder": "کد تخفیف را وارد کنید",
+    "applyCoupon": "اعمال کد",
+    "couponApplied": "کد تخفیف اعمال شد",
+    "defaultShop": "فروشگاه"
   },
   "checkout": {
     "eyebrow": "تسویه حساب",
@@ -276,7 +288,22 @@
     "placeOrder": "ثبت سفارش",
     "orderPlaced": "سفارش با موفقیت ثبت شد",
     "checkoutFailed": "تسویه حساب ناموفق بود",
-    "emptyCart": "سبد خرید شما خالی است. قبل از تسویه حساب محصول اضافه کنید."
+    "emptyCart": "سبد خرید شما خالی است. قبل از تسویه حساب محصول اضافه کنید.",
+    "shippingEyebrow": "ارسال",
+    "shippingTitle": "آدرس ارسال",
+    "shippingDescription": "اطلاعات تحویل را وارد کنید و سفارش را بررسی کنید.",
+    "continueToPayment": "ادامه به پرداخت",
+    "paymentEyebrow": "پرداخت",
+    "paymentTitle": "روش پرداخت",
+    "paymentDescription": "نحوه پرداخت سفارش را انتخاب کنید.",
+    "paymentMethod": "روش پرداخت",
+    "cod": "پرداخت در محل",
+    "codDescription": "هنگام تحویل پرداخت کنید",
+    "codHint": "مبلغ دقیق را برای پیک آماده داشته باشید.",
+    "stripe": "Stripe",
+    "stripePlaceholder": "جایگاه یکپارچه‌سازی Stripe — برای فعال‌سازی پرداخت کارت، کلیدهای Stripe را متصل کنید.",
+    "payNow": "پرداخت الآن",
+    "shippingRequired": "لطفاً ابتدا جزئیات ارسال را تکمیل کنید."
   },
   "product": {
     "productDetail": "محصول",
@@ -295,7 +322,13 @@
     "productReviews": "نظرات محصول",
     "share": "اشتراک‌گذاری",
     "messageSeller": "پیام به فروشنده",
-    "relatedProducts": "محصولات مرتبط"
+    "relatedProducts": "محصولات مرتبط",
+    "buyNow": "خرید فوری",
+    "descriptionTab": "توضیحات",
+    "reviewsTab": "نظرات",
+    "noDescription": "توضیحی موجود نیست.",
+    "moreFromSameShop": "بیشتر از این فروشگاه",
+    "moreFromShop": "بیشتر از {shop}"
   },
   "dashboard": {
     "customer": "مشتری",
@@ -313,7 +346,9 @@
     "openWishlist": "باز کردن علاقه‌مندی‌ها",
     "openProfile": "باز کردن پروفایل",
     "recentOrders": "سفارش‌های اخیر",
-    "pendingOrdersHint": "{count} سفارش در انتظار دارید."
+    "pendingOrdersHint": "{count} سفارش در انتظار دارید.",
+    "cancelledOrders": "سفارش‌های لغوشده",
+    "payNow": "پرداخت الآن"
   },
   "wishlist": {
     "eyebrow": "علاقه‌مندی‌ها",
@@ -347,7 +382,14 @@
     "reactivate": "فعال‌سازی مجدد",
     "approvedSuccess": "فروشنده تأیید شد",
     "deactivatedSuccess": "فروشنده غیرفعال شد",
-    "statusUpdateFailed": "به‌روزرسانی وضعیت فروشنده ناموفق بود"
+    "statusUpdateFailed": "به‌روزرسانی وضعیت فروشنده ناموفق بود",
+    "viewDetails": "مشاهده جزئیات",
+    "backToSellers": "بازگشت به فروشندگان",
+    "detailEyebrow": "فروشنده",
+    "sellerDetail": "جزئیات فروشنده",
+    "sellerInfo": "اطلاعات فروشنده",
+    "loading": "در حال بارگذاری...",
+    "notFound": "فروشنده یافت نشد"
   },
   "sellerOrders": {
     "eyebrow": "فروشنده",
@@ -399,7 +441,9 @@
     "addSeller": "شروع گفتگو",
     "sellerAdded": "فروشنده به گفتگو اضافه شد",
     "sellerAddFailed": "افزودن فروشنده ناموفق بود",
-    "selectContactFirst": "ابتدا یک مخاطب را انتخاب کنید"
+    "selectContactFirst": "ابتدا یک مخاطب را انتخاب کنید",
+    "chatCustomers": "گفتگو با مشتریان",
+    "chatSupport": "گفتگو با پشتیبانی"
   },
   "profile": {
     "eyebrow": "حساب کاربری",
@@ -420,6 +464,14 @@
     "payments": "پرداخت‌ها",
     "paymentsDescription": "حساب Stripe خود را برای دریافت پرداخت‌ها متصل کنید.",
     "connectStripe": "اتصال Stripe",
+    "division": "استان",
+    "divisionPlaceholder": "استان را وارد کنید",
+    "district": "شهرستان",
+    "districtPlaceholder": "شهرستان را وارد کنید",
+    "subDistrict": "منطقه",
+    "subDistrictPlaceholder": "منطقه را وارد کنید",
+    "security": "امنیت",
+    "changePassword": "تغییر رمز عبور",
     "connecting": "در حال اتصال...",
     "stripeConnectFailed": "شروع فرآیند Stripe ناموفق بود"
   },
@@ -718,6 +770,10 @@
     "createdAfter": "ایجاد شده بعد از",
     "createdBefore": "ایجاد شده قبل از",
     "noCategories": "دسته‌بندی‌ای موجود نیست",
+    "categorySingleSelect": "یک دسته‌بندی انتخاب کنید",
+    "allAvailability": "همه محصولات",
+    "search": "جستجو",
+    "searchPlaceholder": "جستجوی محصولات...",
     "loadingPriceRange": "در حال بارگذاری محدوده قیمت...",
     "sortBy": "مرتب‌سازی",
     "sort": {
@@ -842,7 +898,86 @@
     "ssoCallbackTitle": "در حال تکمیل ورود",
     "ssoCallbackDescription": "ورود اجتماعی در حال نهایی شدن و همگام‌سازی نشست شماست.",
     "contactTitle": "تماس با ما",
-    "contactDescription": "برای سفارش‌ها، فروشندگان و همکاری با پشتیبانی در تماس باشید."
+    "contactDescription": "برای سفارش‌ها، فروشندگان و همکاری با پشتیبانی در تماس باشید.",
+    "aboutTitle": "درباره ما",
+    "aboutDescription": "با بازارچه چندفروشنده ما آشنا شوید.",
+    "blogTitle": "وبلاگ",
+    "blogDescription": "اخبار و به‌روزرسانی‌های بازارچه."
+  },
+  "blog": {
+    "eyebrow": "وبلاگ",
+    "title": "وبلاگ بازارچه",
+    "description": "اخبار، نکات و به‌روزرسانی‌های بازارچه.",
+    "comingSoon": "مطالب وبلاگ به‌زودی منتشر می‌شوند."
+  },
+  "unauthorized": {
+    "eyebrow": "دسترسی محدود",
+    "title": "غیرمجاز",
+    "description": "شما اجازه مشاهده این صفحه را ندارید.",
+    "backToLogin": "بازگشت به ورود"
+  },
+  "sellerAccount": {
+    "pendingEyebrow": "حساب فروشنده",
+    "pendingTitle": "حساب در انتظار تأیید",
+    "pendingDescription": "ثبت‌نام فروشنده شما در حال بررسی است.",
+    "pendingHint": "پس از تأیید مدیر به شما اطلاع داده می‌شود. همچنان می‌توانید به چت پشتیبانی و پروفایل دسترسی داشته باشید.",
+    "deactiveEyebrow": "حساب فروشنده",
+    "deactiveTitle": "حساب غیرفعال شده",
+    "deactiveDescription": "حساب فروشنده شما غیرفعال شده است.",
+    "deactiveHint": "در صورت اشتباه بودن، با پشتیبانی تماس بگیرید."
+  },
+  "changePassword": {
+    "eyebrow": "امنیت",
+    "title": "تغییر رمز عبور",
+    "description": "رمز عبور حساب خود را به‌روزرسانی کنید.",
+    "formTitle": "رمز عبور",
+    "currentPassword": "رمز عبور فعلی",
+    "newPassword": "رمز عبور جدید",
+    "confirmPassword": "تأیید رمز عبور",
+    "submit": "به‌روزرسانی رمز",
+    "successPlaceholder": "به‌روزرسانی رمز هنوز به API متصل نشده است."
+  },
+  "paymentRequests": {
+    "eyebrow": "مدیر",
+    "title": "درخواست‌های پرداخت",
+    "description": "درخواست‌های برداشت فروشندگان را بررسی کنید.",
+    "withdrawalRequests": "درخواست‌های برداشت",
+    "no": "ردیف",
+    "amount": "مبلغ",
+    "status": "وضعیت",
+    "date": "تاریخ",
+    "confirm": "تأیید"
+  },
+  "sellerPayments": {
+    "eyebrow": "فروشنده",
+    "title": "پرداخت‌ها",
+    "description": "درآمدها را پیگیری و درخواست برداشت دهید.",
+    "totalSales": "کل فروش",
+    "availableAmount": "مبلغ قابل برداشت",
+    "withdrawalAmount": "مبلغ برداشت‌شده",
+    "pendingAmount": "مبلغ در انتظار",
+    "sendRequest": "ارسال درخواست برداشت",
+    "amount": "مبلغ",
+    "amountPlaceholder": "مبلغ را وارد کنید",
+    "submitRequest": "ثبت درخواست",
+    "requestSubmitted": "درخواست برداشت ثبت شد",
+    "paymentHistory": "تاریخچه پرداخت"
+  },
+  "sellerDiscountProducts": {
+    "eyebrow": "فروشنده",
+    "title": "محصولات تخفیف‌دار",
+    "description": "محصولاتی که در حال حاضر تخفیف دارند.",
+    "empty": "محصول تخفیف‌داری یافت نشد.",
+    "product": "محصول",
+    "category": "دسته",
+    "price": "قیمت",
+    "discount": "تخفیف",
+    "stock": "موجودی",
+    "actions": "عملیات",
+    "edit": "ویرایش"
+  },
+  "dashboardChart": {
+    "monthlySales": "فروش ماهانه"
   },
   "errors": {
     "notFoundTitle": "صفحه یافت نشد",

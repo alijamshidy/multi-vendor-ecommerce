@@ -1,8 +1,9 @@
-import type { AuthRole, AuthUser } from "@/lib/api-types";
+import type { AuthRole, AuthUser, SellerAccountStatus } from "@/lib/api-types";
 
 const ACCESS_TOKEN_COOKIE = "accessToken";
 const CUSTOMER_TOKEN_COOKIE = "customerToken";
 const AUTH_ROLE_COOKIE = "authRole";
+const SELLER_STATUS_COOKIE = "sellerStatus";
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
 export type { AuthRole };
@@ -11,7 +12,11 @@ export function deriveAuthRole(user: AuthUser): AuthRole {
   return user.role;
 }
 
-export function setAuthCookies(token: string, role: AuthRole) {
+export function setAuthCookies(
+  token: string,
+  role: AuthRole,
+  sellerStatus?: SellerAccountStatus,
+) {
   if (typeof document === "undefined") return;
 
   const cookieName =
@@ -19,6 +24,12 @@ export function setAuthCookies(token: string, role: AuthRole) {
   const encodedToken = encodeURIComponent(token);
   document.cookie = `${cookieName}=${encodedToken}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
   document.cookie = `${AUTH_ROLE_COOKIE}=${role}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
+
+  if (role === "seller" && sellerStatus) {
+    document.cookie = `${SELLER_STATUS_COOKIE}=${sellerStatus}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
+  } else {
+    document.cookie = `${SELLER_STATUS_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+  }
 }
 
 export function clearAuthCookies() {
@@ -27,6 +38,18 @@ export function clearAuthCookies() {
   document.cookie = `${ACCESS_TOKEN_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
   document.cookie = `${CUSTOMER_TOKEN_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
   document.cookie = `${AUTH_ROLE_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+  document.cookie = `${SELLER_STATUS_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+}
+
+export function getSellerStatusFromCookie(): SellerAccountStatus | null {
+  if (typeof document === "undefined") return null;
+
+  const match = document.cookie.match(/(?:^|;\s*)sellerStatus=([^;]*)/);
+  const value = match?.[1]?.trim();
+  if (value === "pending" || value === "active" || value === "deactive") {
+    return value;
+  }
+  return null;
 }
 
 export function getAuthRoleFromCookie(): AuthRole | null {

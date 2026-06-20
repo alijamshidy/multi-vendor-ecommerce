@@ -1,4 +1,4 @@
-import CheckoutPageContent from "@/components/pages/CheckoutPageContent";
+import { redirect } from "next/navigation";
 
 export default async function CheckoutPage({
   params,
@@ -6,6 +6,5 @@ export default async function CheckoutPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-
-  return <CheckoutPageContent locale={locale} />;
+  redirect(`/${locale}/checkout/shipping`);
 }

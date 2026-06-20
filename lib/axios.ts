@@ -18,7 +18,7 @@ export const API_BASE_URL =
     : `${SERVER_API_URL}/api`;
 
 const PUBLIC_AUTH_PATH =
-  /^\/(admin-login|seller-register|seller-login|customer\/customer-register|customer\/customer-login|customer\/send-otp|customer\/verify-otp)\/?$/;
+  /^\/(admin-login|seller-register|seller-login|customer\/customer-register|customer\/customer-login|customer\/send-otp|customer\/verify-otp|customer\/reset-password-request|customer\/reset-password-confirm)\/?$/;
 
 function isPublicAuthRequest(url: string | undefined): boolean {
   if (!url) return false;

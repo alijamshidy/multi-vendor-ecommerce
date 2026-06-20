@@ -44,7 +44,16 @@ type CartState = {
     quantity: number;
   }) => Promise<void>;
   removeItem: (id: string) => Promise<void>;
-  checkout: (shippingInfo?: Record<string, unknown>) => Promise<string | null>;
+  checkout: (
+    shippingInfo?: Record<string, unknown>,
+    options?: {
+      products?: Array<{
+        productId: string;
+        quantity: number;
+        price: number;
+      }>;
+    },
+  ) => Promise<string | null>;
   clearMessages: () => void;
 };
 
@@ -235,7 +244,7 @@ const useCartStore = create<CartState>()(
         }
       },
 
-      checkout: async (shippingInfo = {}) => {
+      checkout: async (shippingInfo = {}, options) => {
         const userId = getUserId();
         if (!userId) throw new Error("Please log in to checkout");
 
@@ -246,7 +255,32 @@ const useCartStore = create<CartState>()(
 
         try {
           const items = get().items;
-          const totals = computeTotals(items);
+          const products = options?.products
+            ? options.products
+            : items.map(item => ({
+                productId: item.product.id,
+                quantity: item.quantity,
+                price: item.product.price,
+              }));
+
+          const pseudoItems: CartItemView[] = options?.products
+            ? options.products.map((item, index) => ({
+                id: `buy-now-${index}`,
+                product: {
+                  id: item.productId,
+                  href: "",
+                  label: "",
+                  images: [],
+                  price: item.price,
+                  originalPrice: item.price,
+                  category: "",
+                  description: "",
+                },
+                quantity: item.quantity,
+              }))
+            : items;
+
+          const totals = computeTotals(pseudoItems);
           const { data } = await api.post<{ orderId?: string; _id?: string }>(
             apiEndpoints.orders.place,
             {
@@ -254,11 +288,7 @@ const useCartStore = create<CartState>()(
               price: totals.orderTotal,
               shipping_fee: totals.shipping,
               shippingInfo,
-              products: items.map(item => ({
-                productId: item.product.id,
-                quantity: item.quantity,
-                price: item.product.price,
-              })),
+              products,
             },
           );
           const orderId = data.orderId ?? data._id ?? null;

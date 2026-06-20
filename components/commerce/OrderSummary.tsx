@@ -51,7 +51,7 @@ export default function OrderSummary({
           <Button
             className="w-full"
             asChild>
-            <Link href={`/${locale}/checkout`}>{t("checkout")}</Link>
+            <Link href={`/${locale}/checkout/shipping`}>{t("checkout")}</Link>
           </Button>
         ) : null}
       </CardContent>

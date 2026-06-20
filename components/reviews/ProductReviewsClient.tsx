@@ -8,8 +8,10 @@ import { useTranslations } from "next-intl";
 
 export default function ProductReviewsClient({
   productId,
+  embedded = false,
 }: {
   productId: string;
+  embedded?: boolean;
 }) {
   const t = useTranslations("product");
   const tReviews = useTranslations("reviews");
@@ -23,17 +25,30 @@ export default function ProductReviewsClient({
 
   return (
     <div>
-      <SectionTitle text={t("productReviews")} />
+      {!embedded ? <SectionTitle text={t("productReviews")} /> : null}
       {isLoading && reviews.length === 0 ? (
-        <p className="my-8 text-sm text-muted-foreground">
+        <p
+          className={
+            embedded
+              ? "text-sm text-muted-foreground"
+              : "my-8 text-sm text-muted-foreground"
+          }>
           {tReviews("loadingReviews")}
         </p>
       ) : reviews.length === 0 ? (
-        <p className="my-8 text-sm text-muted-foreground">
+        <p
+          className={
+            embedded
+              ? "text-sm text-muted-foreground"
+              : "my-8 text-sm text-muted-foreground"
+          }>
           {tReviews("noReviewsYet")}
         </p>
       ) : (
-        <div className="my-8 grid gap-8 md:grid-cols-2">
+        <div
+          className={
+            embedded ? "grid gap-6 md:grid-cols-2" : "my-8 grid gap-8 md:grid-cols-2"
+          }>
           {reviews.map(review => (
             <ReviewItem
               key={review.id}

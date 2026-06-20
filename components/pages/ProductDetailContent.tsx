@@ -5,21 +5,36 @@ import ProductFeatureList from "@/components/commerce/ProductFeatureList";
 import ProductPrice from "@/components/products/ProductPrice";
 import ProductWishlistButton from "@/components/products/ProductWishlistButton";
 import RelatedProducts from "@/components/products/RelatedProducts";
+import ShopProducts from "@/components/products/ShopProducts";
 import ProductReviewsClient from "@/components/reviews/ProductReviewsClient";
 import SubmitReview from "@/components/reviews/SubmitReview";
 import ProductDetailSkeleton from "@/components/single-product/ProductDetailSkeleton";
 import ProductImageGallery from "@/components/single-product/ProductImageGallery";
 import ShareButton from "@/components/single-product/ShareButton";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useSetBreadcrumbLabel } from "@/context/breadcrumb-context";
 import { useIsAuthenticated } from "@/hooks/use-authenticated-user";
 import { useStoreInit } from "@/hooks/use-store-init";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import useCartStore from "@/store/cartStore";
+import useCheckoutStore from "@/store/checkoutStore";
 import useProductStore from "@/store/productStore";
-import { CheckCircle2, MessageSquare, ShieldCheck, Truck } from "lucide-react";
+import {
+  CheckCircle2,
+  FileText,
+  MessageSquare,
+  ShieldCheck,
+  Star,
+  Truck,
+  Zap,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -32,6 +47,7 @@ export default function ProductDetailContent({
 }) {
   const t = useTranslations("product");
   const tCart = useTranslations("cart");
+  const router = useRouter();
   const features = [
     { icon: Truck, text: t("deliveryEstimate") },
     { icon: ShieldCheck, text: t("buyerProtection") },
@@ -39,11 +55,13 @@ export default function ProductDetailContent({
   ];
 
   const product = useProductStore(state => state.product);
+  const shopProducts = useProductStore(state => state.shopProducts);
   const fetchProduct = useProductStore(state => state.fetchProduct);
   const isLoading = useProductStore(state => state.loading.fetchProduct);
   const errorMessage = useProductStore(state => state.errorMessage);
   const addItem = useCartStore(state => state.addItem);
   const isAdding = useCartStore(state => state.loading.addItem);
+  const setBuyNowItem = useCheckoutStore(state => state.setBuyNowItem);
   const isLoggedIn = useIsAuthenticated();
 
   useStoreInit(() => fetchProduct(id), [id]);
@@ -85,6 +103,20 @@ export default function ProductDetailContent({
     }
   };
 
+  const handleBuyNow = () => {
+    if (!isLoggedIn) {
+      toast.error(tCart("loginRequired"));
+      return;
+    }
+
+    setBuyNowItem({
+      productId: product.id,
+      product,
+      quantity: 1,
+    });
+    router.push("/checkout/shipping");
+  };
+
   return (
     <PageShell>
       <Card className="rounded-md">
@@ -109,11 +141,6 @@ export default function ProductDetailContent({
                 originalClassName="text-xl"
                 discountedClassName="text-3xl font-semibold"
               />
-              {product.description ? (
-                <p className="leading-7 text-muted-foreground">
-                  {product.description}
-                </p>
-              ) : null}
               <ProductFeatureList features={features} />
             </div>
 
@@ -123,8 +150,16 @@ export default function ProductDetailContent({
               <Button
                 className="flex-1 cursor-pointer py-5 shadow-md transition-shadow hover:shadow-lg sm:min-w-40"
                 disabled={isAdding}
-                onClick={handleAddToCart}>
+                onClick={() => void handleAddToCart()}>
                 {isAdding ? tCart("adding") : tCart("addToCart")}
+              </Button>
+              <Button
+                variant="secondary"
+                className="flex-1 py-5 sm:min-w-40"
+                disabled={isAdding}
+                onClick={handleBuyNow}>
+                <Zap className="me-2 size-4" />
+                {t("buyNow")}
               </Button>
               <ProductWishlistButton
                 product={product}
@@ -152,9 +187,63 @@ export default function ProductDetailContent({
         </CardContent>
       </Card>
 
+      <section className="mt-12 space-y-6">
+        <Card
+          id="product-description"
+          className="rounded-md">
+          <CardHeader className="border-b pb-4">
+            <div className="flex items-center gap-2.5">
+              <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <FileText className="size-4" />
+              </span>
+              <CardTitle className="text-lg font-semibold">
+                {t("descriptionTab")}
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {product.description ? (
+              <p className="whitespace-pre-line leading-7 text-muted-foreground">
+                {product.description}
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground italic">
+                {t("noDescription")}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card
+          id="product-reviews"
+          className="rounded-md">
+          <CardHeader className="border-b pb-4">
+            <div className="flex items-center gap-2.5">
+              <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Star className="size-4" />
+              </span>
+              <CardTitle className="text-lg font-semibold">
+                {t("productReviews")}
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-8 pt-6">
+            <ProductReviewsClient
+              productId={product.id}
+              embedded
+            />
+            <Separator />
+            <SubmitReview productId={product.id} />
+          </CardContent>
+        </Card>
+      </section>
+
       <section className="mt-12 space-y-12">
-        <ProductReviewsClient productId={product.id} />
-        <SubmitReview productId={product.id} />
+        <ShopProducts
+          products={shopProducts}
+          locale={locale}
+          shopName={product.shopName}
+        />
         <RelatedProducts
           productId={product.id}
           locale={locale}

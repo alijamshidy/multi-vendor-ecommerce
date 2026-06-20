@@ -1,5 +1,7 @@
 import type { AuthRole } from "@/lib/auth-cookie";
 import {
+  CircleDollarSign,
+  FileText,
   FolderOpen,
   Heart,
   Home,
@@ -25,6 +27,7 @@ import {
 export type NavLabelKey =
   | "home"
   | "about"
+  | "blog"
   | "products"
   | "categories"
   | "collections"
@@ -42,7 +45,11 @@ export type NavLabelKey =
   | "shopContent"
   | "sellers"
   | "profile"
-  | "messages";
+  | "messages"
+  | "payments"
+  | "discountProducts"
+  | "paymentRequests"
+  | "changePassword";
 
 export type NavLink = {
   href: string;
@@ -60,6 +67,7 @@ export type AccountMenuItem = {
 export const publicVisitorLinks: NavLink[] = [
   { href: "/", labelKey: "home", icon: Home },
   { href: "/about", labelKey: "about", icon: Info },
+  { href: "/blog", labelKey: "blog", icon: FileText },
   { href: "/products", labelKey: "products", icon: Package },
   { href: "/categories", labelKey: "categories", icon: FolderOpen },
   { href: "/collections", labelKey: "collections", icon: Layers },
@@ -89,7 +97,10 @@ export const adminAccountLinks: NavLink[] = [
   { href: "/admin/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
   { href: "/admin/sales", labelKey: "orders", icon: ShoppingBag },
   { href: "/admin/sellers", labelKey: "sellers", icon: Users },
+  { href: "/admin/products", labelKey: "myProducts", icon: Package },
   { href: "/admin/categories", labelKey: "categories", icon: FolderOpen },
+  { href: "/admin/content", labelKey: "shopContent", icon: Layers },
+  { href: "/admin/payment-request", labelKey: "paymentRequests", icon: CircleDollarSign },
   { href: "/admin/chat", labelKey: "messages", icon: MessageSquare },
 ];
 
@@ -98,6 +109,7 @@ const customerAccountLinks: NavLink[] = [
   { href: "/orders", labelKey: "orders", icon: ShoppingBag },
   { href: "/customer/chat", labelKey: "messages", icon: MessageSquare },
   { href: "/profile", labelKey: "profile", icon: User },
+  { href: "/profile/change-password", labelKey: "changePassword", icon: User },
 ];
 
 export const sellerAccountLinks: NavLink[] = [
@@ -106,8 +118,11 @@ export const sellerAccountLinks: NavLink[] = [
   { href: "/seller/orders", labelKey: "orders", icon: ShoppingBag },
   { href: "/seller/products", labelKey: "myProducts", icon: Package },
   { href: "/seller/products/create", labelKey: "createProduct", icon: PackagePlus },
+  { href: "/seller/discount-products", labelKey: "discountProducts", icon: Package },
+  { href: "/seller/payments", labelKey: "payments", icon: CircleDollarSign },
   { href: "/seller/chat", labelKey: "messages", icon: MessageSquare },
   { href: "/profile", labelKey: "profile", icon: User },
+  { href: "/profile/change-password", labelKey: "changePassword", icon: User },
 ];
 
 /** @deprecated Use getSidebarNav instead */

@@ -297,7 +297,7 @@ export function buildProductDetailHref(
   return `/${locale}/products/${encodeURIComponent(product.href)}`;
 }
 
-/** @deprecated CMS not available — returns empty defaults */
+/** CMS mappers */
 export function mapFaq(item: {
   id: string;
   question: string;
@@ -307,39 +307,144 @@ export function mapFaq(item: {
 }
 
 export function mapSliderSlides(
-  _items: unknown[],
+  items: unknown[],
   locale: string,
 ): SlideView[] {
-  return [
-    {
-      id: "default-1",
-      imageUrl: "/images/hero1.jpg",
-      alt: "Banner",
-      href: `/${locale}/products`,
-    },
-  ];
+  if (!items.length) {
+    return [
+      {
+        id: "default-1",
+        imageUrl: "/images/hero1.jpg",
+        alt: "Banner",
+        href: `/${locale}/products`,
+      },
+    ];
+  }
+
+  const slides: SlideView[] = [];
+
+  for (const raw of items) {
+    const slider = raw as Record<string, unknown>;
+    const images = Array.isArray(slider.images) ? slider.images : [];
+
+    if (images.length === 0 && typeof slider.image === "string") {
+      slides.push({
+        id: String(slider.id ?? slider._id ?? slides.length),
+        imageUrl: resolveMediaUrl(slider.image),
+        alt: String(slider.text ?? "Banner"),
+        href: resolveShopLink(
+          typeof slider.related_link === "string" ? slider.related_link : null,
+          locale,
+        ),
+        text: typeof slider.text === "string" ? slider.text : undefined,
+        color: typeof slider.color === "string" ? slider.color : undefined,
+      });
+      continue;
+    }
+
+    for (const imageItem of images) {
+      const image = imageItem as Record<string, unknown>;
+      slides.push({
+        id: String(image._id ?? image.id ?? `${slider._id}-${slides.length}`),
+        imageUrl: resolveMediaUrl(
+          typeof image.image === "string" ? image.image : undefined,
+        ),
+        alt: String(image.text ?? slider.text ?? "Banner"),
+        href: resolveShopLink(
+          typeof image.related_link === "string" ? image.related_link : null,
+          locale,
+        ),
+        text: typeof image.text === "string" ? image.text : undefined,
+        color: typeof image.color === "string" ? image.color : undefined,
+      });
+    }
+  }
+
+  return slides.length > 0
+    ? slides
+    : [
+        {
+          id: "default-1",
+          imageUrl: "/images/hero1.jpg",
+          alt: "Banner",
+          href: `/${locale}/products`,
+        },
+      ];
 }
 
-export function mapHeader(_item: unknown, _locale: string): HeaderView {
-  return { id: "default", text: "" };
-}
+export function mapHeader(item: unknown, locale: string): HeaderView {
+  if (!item || typeof item !== "object") {
+    return { id: "default", text: "" };
+  }
 
-export function mapContact(_data: unknown): ContactView {
-  return { phones: [] };
-}
-
-export function mapRecommendation(
-  _item: unknown,
-  locale: string,
-): RecommendationView {
+  const header = item as Record<string, unknown>;
   return {
-    id: "default",
-    imageUrl: "/images/hero2.jpg",
-    href: `/${locale}/products`,
+    id: String(header.id ?? header._id ?? "default"),
+    text: String(header.text ?? ""),
+    color: typeof header.color === "string" ? header.color : undefined,
+    imageUrl:
+      typeof header.image === "string"
+        ? resolveMediaUrl(header.image)
+        : undefined,
+    href: resolveShopLink(
+      typeof header.related_link === "string" ? header.related_link : null,
+      locale,
+    ),
   };
 }
 
-/** @deprecated Collections not available */
+export function mapContact(data: unknown): ContactView {
+  if (!data || typeof data !== "object") {
+    return { phones: [] };
+  }
+
+  const contact = data as Record<string, unknown>;
+  const phones = [contact.contact_number, contact.contact_number_2]
+    .filter((value): value is string => typeof value === "string" && !!value)
+    .map(String);
+
+  return {
+    instagram:
+      typeof contact.instagram_channel === "string"
+        ? contact.instagram_channel
+        : undefined,
+    telegram:
+      typeof contact.telegram_channel === "string"
+        ? contact.telegram_channel
+        : undefined,
+    phones,
+  };
+}
+
+export function mapRecommendation(item: unknown, locale: string): RecommendationView {
+  if (!item || typeof item !== "object") {
+    return {
+      id: "default",
+      imageUrl: "/images/hero2.jpg",
+      href: `/${locale}/products`,
+    };
+  }
+
+  const recommendation = item as Record<string, unknown>;
+  return {
+    id: String(recommendation.id ?? recommendation._id ?? "default"),
+    imageUrl: resolveMediaUrl(
+      typeof recommendation.image === "string" ? recommendation.image : undefined,
+    ) || "/images/hero2.jpg",
+    href: resolveShopLink(
+      typeof recommendation.related_link === "string"
+        ? recommendation.related_link
+        : null,
+      locale,
+    ),
+    text:
+      typeof recommendation.text === "string" ? recommendation.text : undefined,
+    color:
+      typeof recommendation.color === "string" ? recommendation.color : undefined,
+  };
+}
+
+/** Collections */
 export function mapCollection(item: {
   id: string;
   name: string;

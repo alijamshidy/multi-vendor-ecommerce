@@ -157,14 +157,58 @@ const useCategoryStore = create<CategoryState>()(
         }
       },
 
-      updateCategory: async (_slug, _payload) => {
-        set({ errorMessage: "Category update is not supported by the API" });
-        throw new Error("Category update is not supported by the API");
+      updateCategory: async (slug, payload) => {
+        setStoreLoading(set, "updateCategory", true, {
+          errorMessage: "",
+          successMessage: "",
+        });
+
+        try {
+          const formData = new FormData();
+          formData.append("slug", slug);
+          if (payload.name) formData.append("name", payload.name);
+          if (payload.image) formData.append("image", payload.image);
+
+          await api.post(apiEndpoints.categories.update, formData);
+          set({ successMessage: "Category updated" });
+          await get().fetchCategories();
+        } catch (error) {
+          const message = getApiErrorMessage(
+            error,
+            "Failed to update category",
+          );
+          set({ errorMessage: message });
+          throw new Error(message);
+        } finally {
+          setStoreLoading(set, "updateCategory", false);
+        }
       },
 
-      deleteCategory: async _slug => {
-        set({ errorMessage: "Category delete is not supported by the API" });
-        throw new Error("Category delete is not supported by the API");
+      deleteCategory: async slug => {
+        setStoreLoading(set, "deleteCategory", true, { errorMessage: "" });
+
+        try {
+          await get().fetchCategories();
+          const match = get().categories.find(
+            item => item.href === slug || item.id === slug,
+          );
+          if (!match) {
+            throw new Error("Category not found");
+          }
+
+          await api.delete(apiEndpoints.categories.delete(match.id));
+          set({ successMessage: "Category deleted" });
+          await get().fetchCategories();
+        } catch (error) {
+          const message = getApiErrorMessage(
+            error,
+            "Failed to delete category",
+          );
+          set({ errorMessage: message });
+          throw new Error(message);
+        } finally {
+          setStoreLoading(set, "deleteCategory", false);
+        }
       },
     }),
     withStoreDevtools("category"),

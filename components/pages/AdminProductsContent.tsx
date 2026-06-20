@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/table";
 import { useStoreInit } from "@/hooks/use-store-init";
 import { Link } from "@/i18n/navigation";
-import { buildProductQueryFromSearchParams } from "@/lib/product-query";
+import { buildManagementProductQueryFromSearchParams } from "@/lib/product-query";
 import useManagementStore from "@/store/managementStore";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -36,7 +36,7 @@ export default function AdminProductsContent() {
   const isDeleting = useManagementStore(state => state.loading.deleteProduct);
 
   useStoreInit(
-    () => fetchProducts(buildProductQueryFromSearchParams(searchParams)),
+    () => fetchProducts(buildManagementProductQueryFromSearchParams(searchParams)),
     [queryKey],
   );
 
@@ -73,7 +73,7 @@ export default function AdminProductsContent() {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,18rem)_1fr]">
         <div className="rounded-sm border p-4">
-          <FilterPanel />
+          <FilterPanel variant="management" />
         </div>
 
         <section className="space-y-4">

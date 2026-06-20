@@ -64,9 +64,7 @@ export default function ProductGridCard({
   );
 
   return (
-    <article
-      key={id}
-      className="group relative mx-1 h-full">
+    <article className="group relative mx-1 h-full">
       <Card
         size={compact ? "sm" : "default"}
         className={cn(
@@ -81,7 +79,7 @@ export default function ProductGridCard({
             <div className="group/image relative h-48 overflow-hidden rounded">
               <Image
                 src={images[0].url}
-                alt={label}
+                alt={label || "Product"}
                 fill
                 sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
                 className="w-full rounded object-cover transition-transform duration-500 group-hover/image:scale-110"

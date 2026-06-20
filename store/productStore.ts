@@ -28,13 +28,18 @@ type ProductAction =
   | "fetchProduct"
   | "fetchSimilar"
   | "fetchFeatured"
+  | "fetchHomeSections"
   | "fetchPriceBounds";
 
 type ProductState = {
   products: productType[];
   product: productType | null;
   similarProducts: productType[];
+  shopProducts: productType[];
   featuredProducts: productType[];
+  latestProducts: productType[];
+  topRatedProducts: productType[];
+  discountProducts: productType[];
   totalCount: number;
   priceBounds: PriceBounds;
   priceBoundsLoaded: boolean;
@@ -45,6 +50,7 @@ type ProductState = {
   fetchProduct: (slug: string) => Promise<productType | null>;
   fetchSimilarProducts: (slug: string) => Promise<void>;
   fetchFeaturedProducts: (limit?: number) => Promise<void>;
+  fetchHomeProductSections: () => Promise<void>;
   clearError: () => void;
 };
 
@@ -54,7 +60,11 @@ const useProductStore = create<ProductState>()(
       products: [],
       product: null,
       similarProducts: [],
+      shopProducts: [],
       featuredProducts: [],
+      latestProducts: [],
+      topRatedProducts: [],
+      discountProducts: [],
       totalCount: 0,
       priceBounds: DEFAULT_PRICE_BOUNDS,
       priceBoundsLoaded: false,
@@ -64,6 +74,7 @@ const useProductStore = create<ProductState>()(
         "fetchProduct",
         "fetchSimilar",
         "fetchFeatured",
+        "fetchHomeSections",
         "fetchPriceBounds",
       ] as const),
 
@@ -135,6 +146,7 @@ const useProductStore = create<ProductState>()(
           set({
             product: mapped,
             similarProducts: (data.relatedProducts ?? []).map(mapProduct),
+            shopProducts: (data.moreProducts ?? []).map(mapProduct),
           });
           return mapped;
         } catch (error) {
@@ -189,6 +201,40 @@ const useProductStore = create<ProductState>()(
           });
         } finally {
           setStoreLoading(set, "fetchFeatured", false);
+        }
+      },
+
+      fetchHomeProductSections: async () => {
+        setStoreLoading(set, "fetchHomeSections", true, { errorMessage: "" });
+
+        try {
+          const { data } = await api.get<ApiHomeProductsResponse>(
+            apiEndpoints.storefront.homeProducts,
+            { skipAuth: true },
+          );
+
+          const latestNested = data.latest_product ?? [];
+          const latestFlat = latestNested.flat();
+          const topRatedNested =
+            data.topRated_product ?? data.top_rated_product ?? [];
+          const topRatedFlat = topRatedNested.flat();
+          const discountNested = data.discount_product ?? [];
+          const discountFlat = discountNested.flat();
+
+          set({
+            latestProducts: latestFlat.map(mapProduct),
+            topRatedProducts: topRatedFlat.map(mapProduct),
+            discountProducts: discountFlat.map(mapProduct),
+          });
+        } catch (error) {
+          set({
+            errorMessage: getApiErrorMessage(
+              error,
+              "Failed to load home products",
+            ),
+          });
+        } finally {
+          setStoreLoading(set, "fetchHomeSections", false);
         }
       },
     }),

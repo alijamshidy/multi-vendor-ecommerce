@@ -5,11 +5,14 @@ export type ApiErrorResponse = {
 
 export type AuthRole = "admin" | "seller" | "customer";
 
+export type SellerAccountStatus = "pending" | "active" | "deactive";
+
 export type AuthUser = {
   id: string;
   email?: string;
   name?: string;
   role: AuthRole;
+  status?: SellerAccountStatus;
 };
 
 export type LoginResponse = {
@@ -170,6 +173,9 @@ export type UserProfile = {
   full_name?: string;
   image?: string | null;
   shopName?: string;
+  division?: string;
+  district?: string;
+  subDistrict?: string;
 };
 
 export type ListQuery = {
@@ -186,6 +192,10 @@ export type ProductQuery = {
   sortPrice?: "low-to-high" | "high-to-low";
   pageNumber?: number;
   searchValue?: string;
+  isAvailable?: boolean;
+  hasDiscount?: boolean;
+  createdAfter?: string;
+  createdBefore?: string;
 };
 
 export type OrderQuery = {
@@ -193,6 +203,17 @@ export type OrderQuery = {
   parPage?: number;
   searchValue?: string;
   status?: string;
+  ordering?: string;
+  createdAfter?: string;
+  createdBefore?: string;
+  paidAfter?: string;
+  paidBefore?: string;
+  deliveredAfter?: string;
+  deliveredBefore?: string;
+  canceledAfter?: string;
+  canceledBefore?: string;
+  refundedAfter?: string;
+  refundedBefore?: string;
 };
 
 export type ApiCategoriesResponse = {
@@ -202,8 +223,9 @@ export type ApiCategoriesResponse = {
 export type ApiHomeProductsResponse = {
   products: ApiProduct[];
   latest_product?: ApiProduct[][];
-  top_rated_product?: ApiProduct[];
-  discount_product?: ApiProduct[];
+  topRated_product?: ApiProduct[][];
+  top_rated_product?: ApiProduct[][];
+  discount_product?: ApiProduct[][];
 };
 
 export type ApiQueryProductsResponse = {
@@ -215,6 +237,7 @@ export type ApiQueryProductsResponse = {
 export type ApiProductDetailsResponse = {
   product: ApiProduct;
   relatedProducts?: ApiProduct[];
+  moreProducts?: ApiProduct[];
   reviews?: ApiReview[];
 };
 

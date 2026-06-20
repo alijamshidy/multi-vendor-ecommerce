@@ -11,6 +11,10 @@ import {
 import api from "@/lib/axios";
 import { apiEndpoints } from "@/lib/endpoints";
 import { mapManagementOrder, mapOrder, unwrapOrderResponse } from "@/lib/mappers";
+import {
+  applyClientOrderFilters,
+  needsClientOrderFiltering,
+} from "@/lib/order-client-filters";
 import useAuthStore from "@/store/authStore";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
@@ -87,9 +91,14 @@ const useOrderStore = create<OrderState>()(
               apiEndpoints.orders.customerByStatus(customerId, status),
             );
             const list = data.orders ?? [];
+            const mapped = list.map(mapOrder);
+            const filtered = needsClientOrderFiltering(query)
+              ? applyClientOrderFilters(mapped, query)
+              : mapped;
+
             set({
-              orders: list.map(mapOrder),
-              totalCount: list.length,
+              orders: filtered,
+              totalCount: filtered.length,
             });
             return;
           }
@@ -100,7 +109,19 @@ const useOrderStore = create<OrderState>()(
               params: serializeQueryParams({
                 page: query.page ?? 1,
                 parPage: query.parPage ?? 10,
-                ...query,
+                searchValue: query.searchValue,
+                status: query.status,
+                ordering: query.ordering,
+                createdAfter: query.createdAfter,
+                createdBefore: query.createdBefore,
+                paidAfter: query.paidAfter,
+                paidBefore: query.paidBefore,
+                deliveredAfter: query.deliveredAfter,
+                deliveredBefore: query.deliveredBefore,
+                canceledAfter: query.canceledAfter,
+                canceledBefore: query.canceledBefore,
+                refundedAfter: query.refundedAfter,
+                refundedBefore: query.refundedBefore,
               }),
             },
           );

@@ -1,5 +1,6 @@
 "use client";
 
+import DashboardSalesChart from "@/components/commerce/DashboardSalesChart";
 import PageHeader from "@/components/commerce/PageHeader";
 import PageShell from "@/components/commerce/PageShell";
 import SummaryCard from "@/components/commerce/SummaryCard";
@@ -88,6 +89,7 @@ export default function SellerDashboardPageContent() {
           icon={ShoppingBag}
         />
       </section>
+      <DashboardSalesChart />
       <Card className="rounded-md">
         <CardHeader className="flex flex-row items-center justify-between gap-3">
           <CardTitle>{t("fulfillmentQueue")}</CardTitle>

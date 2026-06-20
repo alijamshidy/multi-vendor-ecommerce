@@ -1,5 +1,6 @@
 "use client";
 
+import DashboardSalesChart from "@/components/commerce/DashboardSalesChart";
 import PageHeader from "@/components/commerce/PageHeader";
 import PageShell from "@/components/commerce/PageShell";
 import SummaryCard from "@/components/commerce/SummaryCard";
@@ -104,6 +105,8 @@ export default function AdminDashboardPageContent() {
           )}
         </section>
       )}
+
+      <DashboardSalesChart />
 
       <div className="grid gap-6">
         <Card className="rounded-md">

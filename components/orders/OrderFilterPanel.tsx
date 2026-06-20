@@ -27,6 +27,7 @@ import {
   ORDER_SEARCH_PARAM,
   ORDER_STATUS_OPTIONS,
   ORDER_STATUS_PARAM,
+  getOrderFilterResetParams,
   hasActiveOrderFilters,
 } from "@/lib/order-query";
 import { useTranslations } from "next-intl";
@@ -101,22 +102,7 @@ export default function OrderFilterPanel() {
   }, 400);
 
   const resetFilters = () => {
-    setQueryParams({
-      [ORDER_SEARCH_PARAM]: null,
-      [ORDER_STATUS_PARAM]: null,
-      [ORDER_ORDERING_PARAM]: null,
-      [ORDER_CREATED_AFTER_PARAM]: null,
-      [ORDER_CREATED_BEFORE_PARAM]: null,
-      [ORDER_PAID_AFTER_PARAM]: null,
-      [ORDER_PAID_BEFORE_PARAM]: null,
-      [ORDER_DELIVERED_AFTER_PARAM]: null,
-      [ORDER_DELIVERED_BEFORE_PARAM]: null,
-      [ORDER_CANCELED_AFTER_PARAM]: null,
-      [ORDER_CANCELED_BEFORE_PARAM]: null,
-      [ORDER_REFUNDED_AFTER_PARAM]: null,
-      [ORDER_REFUNDED_BEFORE_PARAM]: null,
-      [ORDER_PAGE_PARAM]: 1,
-    });
+    setQueryParams(getOrderFilterResetParams());
   };
 
   return (
