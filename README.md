@@ -28,7 +28,7 @@
 ### ۱. کلون و نصب وابستگی‌ها
 
 ```bash
-git clone https://github.com/Mad-Web-team/cildur-front.git
+git clone https://github.com/alijamshidy/multi-vendor-ecommerce.git
 cd cildur-front
 pnpm install
 ```
